@@ -1,0 +1,313 @@
+Tue Feb  6 23:48:01 EST 2018
+Warning: Permanently added the RSA host key for IP address '128.227.253.112' to the list of known hosts.
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+
+Need to sync folders /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+rsync -ltgoDvzr --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+sending incremental file list
+./
+TEMP2/
+TEMP2/temp2
+           0 100%    0.00kB/s    0:00:00 (xfer#1, to-check=532/10377)
+TEMP2/NS-16-08_BC02_54-17018/
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L001_R1_001.fastq.gz
+       32768   0%    0.00kB/s    0:00:00    16881911 100%   19.31MB/s    0:00:00 (xfer#2, to-check=528/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L001_R2_001.fastq.gz
+       32768   0%   38.00kB/s    0:07:54     2686976  14%    2.56MB/s    0:00:05    18053415 100%    9.93MB/s    0:00:01 (xfer#3, to-check=527/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L002_R1_001.fastq.gz
+       32768   0%   43.24kB/s    0:06:33     5046272  29%    4.81MB/s    0:00:02    17044705 100%   10.31MB/s    0:00:01 (xfer#4, to-check=526/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L002_R2_001.fastq.gz
+       32768   0%   54.33kB/s    0:05:39     7995392  43%    7.62MB/s    0:00:01    18464650 100%   11.79MB/s    0:00:01 (xfer#5, to-check=525/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L003_R1_001.fastq.gz
+       32768   0%   62.87kB/s    0:04:27     9895936  58%    9.44MB/s    0:00:00    16822133 100%   12.02MB/s    0:00:01 (xfer#6, to-check=524/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L003_R2_001.fastq.gz
+       32768   0%   92.75kB/s    0:03:14    13205504  72%   12.59MB/s    0:00:00    18113554 100%   14.02MB/s    0:00:01 (xfer#7, to-check=523/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L004_R1_001.fastq.gz
+       32768   0%  134.45kB/s    0:02:06    15663104  91%   14.94MB/s    0:00:00    17107269 100%   15.28MB/s    0:00:01 (xfer#8, to-check=522/10377)
+TEMP2/NS-16-08_BC02_54-17018/NS-16-08-BC02-54_S2_L004_R2_001.fastq.gz
+       32768   0%  415.58kB/s    0:00:44    18393967 100%   18.35MB/s    0:00:00 (xfer#9, to-check=521/10377)
+TEMP2/NS-16-08_BC03_57-17019/
+TEMP2/NS-16-08_BC03_57-17019/NS-16-08-BC03-57_S3_L001_R1_001.fastq.gz
+       32768   0%   33.23kB/s    0:11:05      819200   3%  800.00kB/s    0:00:26    21659648  97%   10.33MB/s    0:00:00    22161608 100%   10.45MB/s    0:00:02 (xfer#10, to-check=520/10377)
+TEMP2/NS-16-08_BC03_57-17019/NS-16-08-BC03-57_S3_L001_R2_001.fastq.gz
+       32768   1%  969.70kB/s    0:00:02     2097152 100%   14.93MB/s    0:00:00 (xfer#11, to-check=519/10377)
+TEMP2/NS-16-08_BC03_57-17019/NS-16-08-BC03-57_S3_L003_R2_001.fastq.gz
+       32768   0%  228.57kB/s    0:01:41    17137664  73%   16.34MB/s    0:00:00    23259825 100%   16.96MB/s    0:00:01 (xfer#12, to-check=518/10377)
+TEMP2/NS-16-08_BC03_57-17019/NS-16-08-BC03-57_S3_L004_R2_001.fastq.gz
+       32768   0%  100.31kB/s    0:03:54    13697024  58%   13.06MB/s    0:00:00    23538336 100%   14.94MB/s    0:00:01 (xfer#13, to-check=517/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L001_R2_001.fastq.gz
+       32768   0%   62.14kB/s    0:12:07     9338880  20%    8.91MB/s    0:00:03    29884416  66%   14.25MB/s    0:00:01    45265590 100%   15.67MB/s    0:00:02 (xfer#14, to-check=516/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L002_R1_001.fastq.gz
+       32768   0%   41.94kB/s    0:18:19     4882432  10%    4.66MB/s    0:00:08    25133056  54%   11.99MB/s    0:00:01    45613056  98%   14.50MB/s    0:00:00    46147502 100%   14.55MB/s    0:00:03 (xfer#15, to-check=515/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L002_R2_001.fastq.gz
+       32768   0%  888.89kB/s    0:00:51    19365888  42%   18.47MB/s    0:00:01    38830080  84%   18.52MB/s    0:00:00    45846546 100%   18.68MB/s    0:00:02 (xfer#16, to-check=514/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L003_R1_001.fastq.gz
+       32768   0%   91.43kB/s    0:08:19    12713984  27%   12.12MB/s    0:00:02    33554432  73%   16.00MB/s    0:00:00    45656916 100%   16.85MB/s    0:00:02 (xfer#17, to-check=513/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L003_R2_001.fastq.gz
+       32768   0%   53.87kB/s    0:14:08     7995392  17%    7.62MB/s    0:00:04    28475392  62%   13.58MB/s    0:00:01    45717808 100%   15.42MB/s    0:00:02 (xfer#18, to-check=512/10377)
+TEMP2/TS-00-00_BC10_TESTDNA1-0-000-00000/TS-00-00-BC10-TESTDNA1-0-000_S7_L004_R2_001.fastq.gz
+       32768   0%   38.14kB/s    0:01:49     2949120  70%    2.81MB/s    0:00:00     4194304 100%    3.78MB/s    0:00:01 (xfer#19, to-check=511/10377)
+
+Number of files: 10377
+Number of files transferred: 19
+Total file size: 2666864691222 bytes
+Total transferred file size: 444767191 bytes
+Literal data: 444767191 bytes
+Matched data: 0 bytes
+File list size: 323499
+File list generation time: 0.006 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 445309720
+Total bytes received: 1620
+
+sent 445309720 bytes  received 1620 bytes  17463189.80 bytes/sec
+total size is 2666864691222  speedup is 5988.76
+
+Tue Feb  6 23:49:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:50:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:51:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:52:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:53:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:54:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:55:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:56:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:57:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:58:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Tue Feb  6 23:59:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:00:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:01:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:02:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:03:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:04:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:05:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:06:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:07:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:08:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:09:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:10:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:11:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:22:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:23:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:24:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:25:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:26:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:27:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:28:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:29:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:30:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:31:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:32:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+
+Wed Feb  7 00:33:01 EST 2018
+rsync -ltgoDvzrn --progress --stats /ext/path/DRL/Molecular/NGS/NextSeq_Fastq/ path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq/ 
+
+SYNC_FLAG
+Total transferred file size: 0 bytes
+Folders are already in sync /ext/path/DRL/Molecular/NGS/NextSeq_Fastq path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq
+

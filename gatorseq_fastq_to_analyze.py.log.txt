@@ -1,0 +1,65 @@
+flock: -c requires exactly one command argument
+flock: -c requires exactly one command argument
+flock: -c requires exactly one command argument
+flock: -c requires exactly one command argument
+flock: -c requires exactly one command argument
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:20:02.050789
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:21:01.602624
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:22:02.074776
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:23:02.279836
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:24:01.402833
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:25:01.474586
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:26:01.709700
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:27:01.769927
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:28:01.810109
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:29:01.820570
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:30:01.842126
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:31:02.073525
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:32:01.940264
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:33:02.081608
+
+/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_imac_code/gatorseq_fastq_to_analyze.py:92: DeprecationWarning: Call to deprecated function get_sheet_names (Use wb.sheetnames).
+  work_sheet = wb.get_sheet_names()[0]
+2018-02-07 00:34:02.135578
+

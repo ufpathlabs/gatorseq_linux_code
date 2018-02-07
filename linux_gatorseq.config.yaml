@@ -1,0 +1,31 @@
+#PATH_DRIVE_PASSWORD: 'XXXXXXXXX'
+#HPC_DRIVE_PASSWORD: 'XXXXXXXXXX'
+#
+#NOTE: all variables should not have any space at the begining
+#this will impact when calling in .sh scripts
+
+SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
+SOURCE_PATHOLOGY_MNT: '/PATH$'
+
+LOCAL_PATHOLOGY_MNT: '/ext/path'
+LOCAL_HPC_MNT: '/ext/ufrc'
+
+LINUX_PATHOLOGY_FASTQ_FOLDER: '/ext/path/DRL/Molecular/NGS/NextSeq_Fastq'
+LINUX_ANALYSIS_OUT_FOLDER: '/ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq'
+GATOR_SEQ_SAMPLE_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/GS_Fastq_to_Analyze_V1_0.xlsx'
+
+LINUX_HPC_FASTQ_FOLDER: '/ext/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq'
+#LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/USER_NAME/GatorSeq/CODE_ENV/GatorSeq_Analysis'
+LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
+
+
+HPC_FASTQ_FOLDER: '/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_Fastq'
+#HPC_ANALYSIS_FOLDER: '/ufrc/chamala/USER_NAME/GatorSeq/CODE_ENV/GatorSeq_Analysis'
+HPC_ANALYSIS_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
+GATOR_SEQ_HPC_CODE_DIR: '/ufrc/chamala/USER_NAME/GatorSeq/CODE_ENV/gatorseq_hpc_code/next_flow'
+
+
+#HPC_SNAKEMAKE_PROGRAM: '/ufrc/chamala/USER_NAME/GatorSeq/GatorSeq_V1_0/HPC_GatorSeq/GatorSeq_Software/miniconda3/bin/snakemake'
+HPC_NEXTFLOW_PROGRAM: 'module load nextflow; nextflow '
+
+HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'

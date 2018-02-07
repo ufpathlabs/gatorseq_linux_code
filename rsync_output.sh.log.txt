@@ -1,0 +1,130 @@
+Wed Feb 7 00:01:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv
+rsync -ltgoDvzrn --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ 
+
+rsync -ltgoDvzr --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ 
+receiving incremental file list
+created directory /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv
+./
+START.txt
+           0   0%    0.00kB/s    0:00:00          78 100%   76.17kB/s    0:00:00 (xfer#1, to-check=9/11)
+SUCCESS.txt
+           0   0%    0.00kB/s    0:00:00          92 100%    5.28kB/s    0:00:00 (xfer#2, to-check=8/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.bam
+           0   0%    0.00kB/s    0:00:00    17388699   5%   16.58MB/s    0:00:16    35913423  12%   17.13MB/s    0:00:14    54453023  18%   17.32MB/s    0:00:13    72958438  24%   17.40MB/s    0:00:12    91464806  30%   17.67MB/s    0:00:11   110809396  37%   17.87MB/s    0:00:10   130091271  43%   18.04MB/s    0:00:09   149499567  50%   18.26MB/s    0:00:07   169074801  56%   18.51MB/s    0:00:06   188653339  63%   18.57MB/s    0:00:05   208199309  70%   18.63MB/s    0:00:04   227760166  76%   18.67MB/s    0:00:03   247305382  83%   18.66MB/s    0:00:02   266750756  89%   18.63MB/s    0:00:01   286702752  96%   18.73MB/s    0:00:00   296917905 100%   18.25MB/s    0:00:15 (xfer#3, to-check=7/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.bam.bai
+           0   0%    0.00kB/s    0:00:00       32816   0%   23.17kB/s    0:03:16     4595264 100%    3.10MB/s    0:00:01 (xfer#4, to-check=6/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.completes_logs.txt
+           0   0%    0.00kB/s    0:00:00       15104 100%  234.13kB/s    0:00:00 (xfer#5, to-check=5/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.coverage.csv
+           0   0%    0.00kB/s    0:00:00      336705 100%    4.06MB/s    0:00:00 (xfer#6, to-check=4/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.cronjob.sh
+           0   0%    0.00kB/s    0:00:00        1242 100%   13.33kB/s    0:00:00 (xfer#7, to-check=3/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.cronjob.sh.log
+           0   0%    0.00kB/s    0:00:00         737 100%    7.13kB/s    0:00:00 (xfer#8, to-check=2/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.summary.csv
+           0   0%    0.00kB/s    0:00:00        1802 100%   15.57kB/s    0:00:00 (xfer#9, to-check=1/11)
+TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv.vcf
+           0   0%    0.00kB/s    0:00:00      670817 100%    4.05MB/s    0:00:00 (xfer#10, to-check=0/11)
+
+Number of files: 11
+Number of files transferred: 10
+Total file size: 302539746 bytes
+Total transferred file size: 302539746 bytes
+Literal data: 302539746 bytes
+Matched data: 0 bytes
+File list size: 352
+File list generation time: 0.005 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 204
+Total bytes received: 298571615
+
+sent 204 bytes  received 298571615 bytes  17061246.80 bytes/sec
+total size is 302539746  speedup is 1.01
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:02:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv
+rsync -ltgoDvzrn --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv/ 
+Total transferred file size: 0 bytes
+rm -r /ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643511DevEnv 
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:03:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:04:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:05:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:06:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:07:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:08:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:09:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:10:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:11:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:22:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+
+Wed Feb 7 00:23:02 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:24:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:25:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:26:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:27:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:28:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:29:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+
+Wed Feb 7 00:30:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002901960284DevEnv
+
+Wed Feb 7 00:31:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002901960284DevEnv
+
+Wed Feb 7 00:32:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002901960284DevEnv
+
+Wed Feb 7 00:33:01 EST 2018
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180206112858643512DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002202220789DevEnv
+/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis/TS-00-00_BC11_TESTDNA2-0-000_20180207002901960284DevEnv
+
