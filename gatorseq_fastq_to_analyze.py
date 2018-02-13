@@ -46,6 +46,7 @@ HPC_NEXTFLOW_PROGRAM = replace_env(config_dict['HPC_NEXTFLOW_PROGRAM'])
 HPC_SFTP = replace_env(config_dict['HPC_SFTP'])
 LOCAL_PATHOLOGY_MNT = replace_env(config_dict['LOCAL_PATHOLOGY_MNT'])
 LOCAL_HPC_MNT = replace_env(config_dict['LOCAL_HPC_MNT'])
+GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
 
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
@@ -218,7 +219,7 @@ for row in range(2, sheet.max_row + 1):
             continue
 
         time_stamp = str(datetime.datetime.now()).replace('-', '').replace(' ','').replace(':', '').replace('.', '')
-        time_stamp= time_stamp +CODE_ENV
+        time_stamp= time_stamp +CODE_ENV+GSBW_VERSION
 
         run_log = sample_path + "/" + time_stamp + ".log"
 
