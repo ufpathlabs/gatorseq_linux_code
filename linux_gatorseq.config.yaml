@@ -3,6 +3,7 @@
 #
 #NOTE: all variables should not have any space at the begining
 #this will impact when calling in .sh scripts
+#
 
 SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
 SOURCE_PATHOLOGY_MNT: '/PATH$'
@@ -30,6 +31,6 @@ GATOR_SEQ_HPC_CODE_DIR: '/ufrc/chamala/USER_NAME/GatorSeq/CODE_ENV/gatorseq_hpc_
 #HPC_SNAKEMAKE_PROGRAM: '/ufrc/chamala/USER_NAME/GatorSeq/GatorSeq_V1_0/HPC_GatorSeq/GatorSeq_Software/miniconda3/bin/snakemake'
 HPC_NEXTFLOW_PROGRAM: 'module load nextflow; nextflow '
 
-GSBW_VERSION: '1.3'
+GSBW_VERSION: '2.0'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
