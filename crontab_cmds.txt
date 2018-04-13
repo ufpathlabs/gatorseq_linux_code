@@ -1,0 +1,15 @@
+MAILTO=""
+CODE_DEV_FOLDER=/home/path-svc-mol/GatorSeq/DevEnv/gatorseq_linux_code
+#*/1 * * * * /usr/bin/flock -n $CODE_DEV_FOLDER/rsync_fastq.sh.lock -c $CODE_DEV_FOLDER/rsync_fastq.sh >> $CODE_DEV_FOLDER/rsync_fastq.sh.log.txt 2>&1
+
+#*/5 * * * * /usr/bin/flock -n $CODE_DEV_FOLDER/rsync_output.sh.lock -c $CODE_DEV_FOLDER/rsync_output.sh >> $CODE_DEV_FOLDER/rsync_output.sh.log.txt 2>&1
+
+*/1 * * * * /usr/bin/flock -n $CODE_DEV_FOLDER/gatorseq_fastq_to_analyze.py.lock /home/path-svc-mol/Software/miniconda3/bin/python $CODE_DEV_FOLDER/gatorseq_fastq_to_analyze.py >> $CODE_DEV_FOLDER/gatorseq_fastq_to_analyze.py.log.txt 2>&1
+
+MAILTO=""
+CODE_PROD_FOLDER=/home/path-svc-mol/GatorSeq/ProdEnv/gatorseq_linux_code
+*/1 * * * * /usr/bin/flock -n $CODE_PROD_FOLDER/rsync_fastq.sh.lock -c $CODE_PROD_FOLDER/rsync_fastq.sh >> $CODE_PROD_FOLDER/rsync_fastq.sh.log.txt 2>&1
+
+*/5 * * * * /usr/bin/flock -n $CODE_PROD_FOLDER/rsync_output.sh.lock -c $CODE_PROD_FOLDER/rsync_output.sh >> $CODE_PROD_FOLDER/rsync_output.sh.log.txt 2>&1
+
+*/1 * * * * /usr/bin/flock -n $CODE_PROD_FOLDER/gatorseq_fastq_to_analyze.py.lock /home/path-svc-mol/Software/miniconda3/bin/python $CODE_PROD_FOLDER/gatorseq_fastq_to_analyze.py >> $CODE_PROD_FOLDER/gatorseq_fastq_to_analyze.py.log.txt 2>&1
