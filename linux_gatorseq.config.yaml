@@ -29,8 +29,8 @@ GATOR_SEQ_HPC_CODE_DIR: '/ufrc/chamala/USER_NAME/GatorSeq/CODE_ENV/gatorseq_hpc_
 
 
 #HPC_SNAKEMAKE_PROGRAM: '/ufrc/chamala/USER_NAME/GatorSeq/GatorSeq_V1_0/HPC_GatorSeq/GatorSeq_Software/miniconda3/bin/snakemake'
-HPC_NEXTFLOW_PROGRAM: 'module load nextflow/0.26.3; nextflow '
+HPC_NEXTFLOW_PROGRAM: 'module load nextflow/0.32.0; nextflow '
 
-GSBW_VERSION: '2.0'
+GSBW_VERSION: '3.0'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'

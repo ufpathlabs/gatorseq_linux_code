@@ -242,6 +242,7 @@ for row in range(2, sheet.max_row + 1):
         #HPC_RUN_CMD = HPC_RUN_CMD + "ln -s " + hpc_sample_path + "/*.fastq.gz . ;\n"
         HPC_RUN_CMD = HPC_RUN_CMD + HPC_NEXTFLOW_PROGRAM + " run \\\n" +\
         GATOR_SEQ_HPC_CODE_DIR +"/gatorseq_nextflow.nf \\\n"+\
+        "  -with-report -with-trace -with-timeline -with-dag flowchart.html \\\n" +\
         " --FASTQ_FILES_DIR=" + FASTQ_FILES_DIR + " \\\n" +\
         " --SAMPLE_DIR=" + HPC_RUN_DIR + " \\\n" +\
         " --RUN_NAME=" + run_prefix + " \\\n" +\
