@@ -90,7 +90,8 @@ check_folders_exist()
 
 
 wb = pyxl.load_workbook(GATOR_SEQ_SAMPLE_INPUT_FILE)
-work_sheet = wb.get_sheet_names()[0]
+sheetList = wb.sheetnames
+work_sheet = sheetList[0]
 sheet = wb[work_sheet]
 
 def save_workbook():
