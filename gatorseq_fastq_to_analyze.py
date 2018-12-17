@@ -7,6 +7,8 @@ import subprocess
 import shlex
 import yaml
 
+print(str(datetime.datetime.now()) + "\n")
+
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
@@ -64,7 +66,6 @@ GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
 #HPC_SNAKEMAKE_PROGRAM="/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_V1_1/GatorSeq_Software/miniconda3/bin/snakemake"
 
 
-print(str(datetime.datetime.now()) + "\n")
 
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
@@ -229,35 +230,71 @@ for row in range(2, sheet.max_row + 1):
         sheet[error_index] = "Currently job is running."
         save_workbook()
 
-        HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ sample_prefix+ "_"+ time_stamp
-        LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ sample_prefix+ "_"+ time_stamp + ".cronjob.sh"
-        LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + sample_prefix+ "_"+ time_stamp + ".cronjob.sh.log"
-        FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+'/'+run_prefix+'*/'+sample_prefix+'*'
+        HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
+        HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
+        LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".cronjob.sh"
+        LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".cronjob.sh.log"
+        #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+'/'+run_prefix+'*/'+sample_prefix+'*'
+        FASTQ_ROOT_DIR_SUFFIX=run_prefix+'*/'+sample_prefix+'*'
         #print(FASTQ_FILES_DIR)
 
         HPC_RUN_CMD =   "#!/bin/bash\n" 
-        HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR +  ";\n"
-        HPC_RUN_CMD = HPC_RUN_CMD + "mkdir " + HPC_RUN_DIR + ";\n"
-        HPC_RUN_CMD = HPC_RUN_CMD + "chmod -R 750 " + HPC_RUN_DIR + ";\n"
-        HPC_RUN_CMD = HPC_RUN_CMD + "cd " + HPC_RUN_DIR + ";\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "ln -s " + hpc_sample_path + "/*.fastq.gz . ;\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --job-name=" + HPC_JOB_PREFIX + ".cronjob.sh\n" 
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --output=" + HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".slurm.%A_%a.out\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --error=" + HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".slurm.%A_%a.err\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --ntasks=1\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --nodes=1\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --cpus-per-task=2\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --mem-per-cpu=5gb\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --time=5:00:00\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --qos=chamala\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --account=chamala\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "export SLURM_TMPDIR="+HPC_ANALYSIS_FOLDER+"\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "\n\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "echo SLURM_TMPDIR $SLURM_TMPDIR ;\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "echo TMPDIR $TMPDIR ;\n"
+
+        HPC_RUN_CMD = HPC_RUN_CMD + "SAMPLE_RUN_DIR=" + HPC_RUN_DIR +  ";\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f $SAMPLE_RUN_DIR" +  ";\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "mkdir $SAMPLE_RUN_DIR" + ";\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "chmod -R 750 $SAMPLE_RUN_DIR" + ";\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "cd $SAMPLE_RUN_DIR" ";\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "\n\n"
+
+
+        #HPC_RUN_CMD = HPC_RUN_CMD + ". /etc/profile.d/modules.sh\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + ". /etc/profile.d/slurm.sh\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_OPTS='-Xms2G -Xmx5G'\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + 'echo JAVA_OPTS1="$JAVA_OPTS"\n'
+        #HPC_RUN_CMD = HPC_RUN_CMD + "unset _JAVA_OPTIONS; export _JAVA_OPTIONS='-Xms2g -Xmx18g';\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + "ulimit -c unlimited;\n"
+        #HPC_RUN_CMD = HPC_RUN_CMD + 'echo JAVA_OPTS2="$JAVA_OPTS"\n'
+        HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_TEMP=$SAMPLE_RUN_DIR"+"\n"
         HPC_RUN_CMD = HPC_RUN_CMD + HPC_NEXTFLOW_PROGRAM + " run \\\n" +\
         GATOR_SEQ_HPC_CODE_DIR +"/gatorseq_nextflow.nf \\\n"+\
         "  -with-report -with-trace -with-timeline -with-dag flowchart.html \\\n" +\
-        " --FASTQ_FILES_DIR=" + FASTQ_FILES_DIR + " \\\n" +\
-        " --SAMPLE_DIR=" + HPC_RUN_DIR + " \\\n" +\
+        "  -resume \\\n" +\
+        " --FASTQ_ROOT_DIR_SUFFIX=" + FASTQ_ROOT_DIR_SUFFIX + " \\\n" +\
+        " --SAMPLE_DIR=$SAMPLE_RUN_DIR" + " \\\n" +\
         " --RUN_NAME=" + run_prefix + " \\\n" +\
         " --SAMPLE_NAME=" + sample_prefix + " \\\n" +\
         " --TIME_STAMP=" + time_stamp + " \\\n" +\
         " --CODE_ENV=" + CODE_ENV + " ;\n"
+
+
+        #" --FASTQ_FILES_DIR=" + FASTQ_FILES_DIR + " \\\n" +\
+
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/.nextflow* ;\n"
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/work ;\n"
+
+
             #+ ">" + LINUX_HPC_RUN_DIR_CRONJOB_LOG + "\n" 
 
         cron_fw = open(LINUX_HPC_RUN_DIR_CRONJOB,'w')
         cron_fw.write(HPC_RUN_CMD)
         cron_fw.close()
         #print(HPC_RUN_CMD)
+        print("Submitted: "+ LINUX_HPC_RUN_DIR_CRONJOB + "\n")
 
     elif status == 'SUBMITTED':
         time_stamp = sheet[time_stamp_index].value

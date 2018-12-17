@@ -44,7 +44,10 @@ for d in $LINUX_HPC_ANALYSIS_FOLDER/*; do
             echo $SYNC_FLAG
 
             if [ "$SYNC_FLAG" == "" ]; then
-                mv $d\.cronjob.sh $d\.cronjob.sh.log $d/
+                mv $d\.cronjob.sh  $d/
+                mv $d\.cronjob.sh.slurm*  $d/
+                #mv $d\.slurm.* $d/
+                rm $d\.cronjob.sh.log
                 rsync_cmd="rsync -ltgoDvzr --progress --stats $HPC_SFTP:$HPC_SAMPLE_FOLDER/ $RUN_GO_FOLDER/$SAMPLE_FOLDER/ "
                 echo $rsync_cmd
                 eval $rsync_cmd
