@@ -5,6 +5,7 @@
 #this will impact when calling in .sh scripts
 #
 
+CONFIG_TOKENS_FILE: 'config.tokens.yaml'
 SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
 SOURCE_PATHOLOGY_MNT: '/PATH$'
 
@@ -21,7 +22,7 @@ LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Anal
 HPC_FASTQ_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Fastq'
 HPC_ANALYSIS_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
 GATOR_SEQ_HPC_CODE_DIR: '/ufrc/chamala/share/GatorSeq_Share/CODE_ENV/gatorseq_hpc_code/next_flow'
-
+MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
 
 HPC_NEXTFLOW_PROGRAM: 'module load nextflow/0.32.0; nextflow '
 
