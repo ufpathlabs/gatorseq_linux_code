@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema elementFormDefault="unqualified"
+        xmlns="http://www.w3.org/2001/XMLSchema">
+    <element name="report">
+        <complexType>
+            <sequence>
+                <element name="rcomment" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <all>
+                            <element type="string" name="type" minOccurs="0"/>
+                            <element type="long" name="id" minOccurs="0"/>
+                            <element type="string" name="name" minOccurs="0"/>
+                            <element type="string" name="text" minOccurs="0"/>
+                            <element type="string" name="author" minOccurs="0"/>
+                            <element type="integer" name="state" minOccurs="0"/>
+                            <element type="integer" name="scope" minOccurs="0"/>
+                            <element type="long" name="timeCreated" minOccurs="0"/>
+                            <element type="long" name="timeModified" minOccurs="0"/>
+                        </all>
+                    </complexType>
+                </element>
+                <element type="string" name="subjectId"/>
+                <element type="string" name="sampleName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="accession"/>
+                <element type="date" name="testDate"/>
+                <element type="string" name="testCode" minOccurs="0"/>
+                <element type="string" name="labTranscriptIds" minOccurs="0"/>
+                <element type="string" name="labTestedGenes" minOccurs="0"/>
+                <element type="string" name="labTestedCNVGain" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="labTestedCNVLoss" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="labTestedFusions" minOccurs="0" maxOccurs="1"/>
+                <element type="byte" name="age" minOccurs="0"/>
+                <element type="string" name="sex" minOccurs="0"/>
+                <element type="string" name="ethnicity" minOccurs="0"/>
+                <element type="string" name="dateOfDeath" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="medicalRecordNumber" minOccurs="0"/>
+                <element type="string" name="clinicalFinding"/>
+                <element type="string" name="negativeClinicalFinding" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="indicationsForTesting" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientName" minOccurs="0"/>
+                <element type="string" name="patientLastName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientFirstName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientMiddleName" minOccurs="0" maxOccurs="1"/>
+                <element type="date" name="dateOfBirth" minOccurs="0"/>
+                <element type="string" name="patientStreetAddress" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientCity" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientState" minOccurs="0" maxOccurs="1"/>
+                <element type="int" name="patientPostalCode" minOccurs="0"/>
+                <element type="string" name="patientCountry" minOccurs="0"/>
+                <element type="string" name="patientHomePhone" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientWorkPhone" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientSocialSecurityId" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientFamilyId" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientSubjectId" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientAffected" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientParentName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientPregnant" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientGestationalAge" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientHadBoneMarrowTransplant" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientHasKnownConsanguinity" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientOptOutOfResearchUse" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientOptOutOfIncidentalFindings" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientOptOutOfPharmacogeneticVariants" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientOptOutOfAdultOnsetActionableDisorders" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientOptOutOfAdultOnsetNonActionableDisorders" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientEncounterDate" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="patientSymptoms" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="specimenId" minOccurs="0"/>
+                <element type="string" name="specimentBlock" minOccurs="0"/>
+                <element type="date" name="specimenCollectionDate" minOccurs="0"/>
+                <element type="string" name="diagnosis"  minOccurs="0"/>
+                <element type="date" name="diagnosisDate"  minOccurs="0"/>
+                <element type="string" name="diagnosisStage"  minOccurs="0"/>
+                <element type="string" name="specimenDiagnosis" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="specimenDiagnosisDate" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="primaryTumorSite"  minOccurs="0"/>
+                <element type="string" name="specimenStage" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="specimenBodySite" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="specimenType" minOccurs="0"/>
+                <element type="date" name="specimenReceiptDate" minOccurs="0"/>
+                <element type="string" name="specimenICDCodes" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="specimenDissection" minOccurs="0"/>
+                <element type="byte" name="specimenTumorContent" minOccurs="0"/>
+                <element type="float" name="specimenTumorMutationBurden" minOccurs="0"/>
+                <element type="string" name="specimenMicrosatelliteInstability" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianName" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianNPI" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="orderingPhysicianClient" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianFacilityName" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianStreetAddress" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianCity" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianState" minOccurs="0"/>
+                <element type="int" name="orderingPhysicianPostalCode" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianCountry" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianPhone" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianFax" minOccurs="0"/>
+                <element type="string" name="orderingPhysicianEmail" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="orderingStudy" minOccurs="0"/>
+                <element type="string" name="additionalReportRecipientName" minOccurs="0"/>
+                <element type="string" name="additionalReportRecipientPhone" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="additionalReportRecipientFax" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="additionalReportRecipientEmail" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="otherReportRecipientName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="otherReportRecipientPhone" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="otherReportRecipientFax" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="otherReportRecipientEmail" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="pathologistName" minOccurs="0"/>
+                <element type="string" name="geneticCounselorName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="referringPhysicianName" minOccurs="0" maxOccurs="1"/>
+                <element type="string" name="sampleDetectedGeneFusions" minOccurs="0"/>
+                <element type="string" name="sampleDetectedGeneAmplifications" minOccurs="0"/>
+                <element type="string" name="sampleDetectedGeneLoss" minOccurs="0"/>
+                <element type="string" name="sampleDetectedGeneNegative" minOccurs="0"/>
+                <element type="string" name="sequencingRunID" minOccurs="0"/>
+                <element type="string" name="reportComment" minOccurs="0"/>
+                <element type="string" name="reportUpdateLabel" minOccurs="0"/>
+                <element type="string" name="reportUpdateKind" minOccurs="0"/>
+                <element type="string" name="priorDatapackageId" minOccurs="0"/>
+                <element type="date" name="originalReportDate" minOccurs="0"/>
+                <element type="string" name="cytogeneticMarkers" minOccurs="0" maxOccurs="1"/>
+                <element name="CustomReportFields"  maxOccurs="1" minOccurs="0">
+                    <complexType>
+                        <sequence>
+                            <element name="CustomReportField" maxOccurs="100" minOccurs="1">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="Name" maxOccurs="1" minOccurs="1" />
+                                        <element type="string" name="Value"  maxOccurs="1" minOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                        </sequence>
+                    </complexType>
+                </element>
+                <element type="string" name="review_state" minOccurs="0"/>
+                <element type="date" name="review_state_date" minOccurs="0"/>
+                <element type="string" name="user_signout" minOccurs="0"/>
+                <element type="string" name="interpretation"/>
+                <element type="string" name="version" minOccurs="0"/>
+                <element name="variant" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <sequence>
+                            <element type="string" name="chromosome"/>
+                            <element type="int" name="position"/>
+                            <element type="string" name="reference"/>
+                            <element type="string" name="alternate"/>
+                            <element type="float" name="copyNumber" minOccurs="0"/>
+                            <element type="integer" name="length" minOccurs="0"/>
+                            <element type="string" name="cytoband" minOccurs="0"/>
+                            <element type="string" name="insertedSeq" minOccurs="0"/>
+                            <element type="integer" name="readDepth" minOccurs="0"/>
+                            <element name="breakends" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <attribute  type="string"  name="chromosome" use="required"/>
+                                    <attribute  type="integer" name="position" use="required"/>
+                                    <attribute  type="string"  name="cytoband" />
+                                </complexType>
+                            </element>
+                            <element type="string" name="genotype"/>
+                            <element type="string" name="acmgRule" minOccurs="0"/>
+                            <element name="computedAssessment" minOccurs="0">
+                                <complexType>
+                                    <attribute  type="string"  name="pathogenicity" use="required"/>
+                                    <attribute  type="string" name="actionability" use="required"/>
+                                </complexType>
+                            </element>
+                            <element type="string" name="assessment"/>
+                            <element type="string" name="actionability" minOccurs="0"/>
+                            <element name="phenotype" minOccurs="0">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="string" name="id"/>
+                                            <attribute type="string" name="name"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                            <element type="string" name="panelView" maxOccurs="1" minOccurs="0"/>
+                            <element name="classification"  maxOccurs="1" minOccurs="1" >
+                                <complexType>
+                                    <sequence>
+                                        <element name="criteria"  maxOccurs="1" minOccurs="0">
+                                            <complexType>
+                                                <sequence>
+                                                    <element name="criterion" maxOccurs="unbounded" minOccurs="0">
+                                                        <complexType>
+                                                            <sequence>
+                                                                <element type="string" name="text" maxOccurs="1" minOccurs="1"/>
+                                                                <element name="references"  maxOccurs="1" minOccurs="0">
+                                                                    <complexType>
+                                                                        <sequence>
+                                                                            <element name="reference" maxOccurs="unbounded" minOccurs="1">
+                                                                                <complexType>
+                                                                                    <attribute  type="string" name="type" use="required"/>
+                                                                                    <attribute  type="string" name="id" use="required"/>
+                                                                                </complexType>
+                                                                            </element>
+                                                                        </sequence>
+                                                                    </complexType>
+                                                                </element>
+                                                            </sequence>
+                                                            <attribute  type="string" name="id" use="required"/>
+                                                            <attribute  type="string" name="strength" use="required"/>
+                                                            <attribute  type="string" name="state" use="optional"/>
+                                                        </complexType>
+                                                    </element>
+                                                </sequence>
+                                            </complexType>
+                                        </element>
+                                    </sequence>
+                                    <attribute  type="string" name="value" use="required"/>
+                                    <attribute  type="string" name="phenotype" use="required"/>
+                                    <attribute  type="string" name="type" use="required"/>
+                                    <attribute  type="string" name="inheritance" use="optional"/>
+                                </complexType>
+                            </element>
+                            <element type="float" name="cadd" minOccurs="0"/>
+							<element type="string" name="dbsnp" minOccurs="0"/>
+							<element type="string" name="hgmd" minOccurs="0"/>
+							<element type="string" name="clinvar" minOccurs="0"/>
+							<element type="string" name="cosmic" minOccurs="0"/>
+							<element type="float" name="allelefraction" minOccurs="0"/>
+                            <element type="int" name="readdepth" minOccurs="0"/>
+                            <element type="string" name="variation" minOccurs="0"/>
+                            <element type="string" name="gene" minOccurs="0"/>
+                            <element name="transcriptchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="transcript"/>
+                                        <element type="string" name="change"/>
+                                        <element type="byte" name="exonNumber" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="proteinchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="protein"/>
+                                        <element type="string" name="change"/>
+                                        <element type="string" name="translationimpact" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="genomicchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="change" minOccurs="1" maxOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="copynumchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="negativechange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="structuralChange" maxOccurs="unbounded" minOccurs="0" >
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="type"/>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="geneId"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="function" minOccurs="0"/>
+                            <element type="byte" name="referencecount"/>
+                            <choice maxOccurs="unbounded">
+                            <element name="rcomment" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <all>
+                                        <element type="string" name="type" minOccurs="0"/>
+                                        <element type="long" name="id" minOccurs="0"/>
+                                        <element type="string" name="name" minOccurs="0"/>
+                                        <element type="string" name="text" minOccurs="0"/>
+                                        <element type="string" name="author" minOccurs="0"/>
+                                        <element type="integer" name="state" minOccurs="0"/>
+                                        <element type="integer" name="scope" minOccurs="0"/>
+                                        <element type="long" name="timeCreated" minOccurs="0"/>
+                                        <element type="long" name="timeModified" minOccurs="0"/>
+                                    </all>
+                                </complexType>
+                            </element>
+                            <element name="variantdb">
+                                <complexType>
+                                    <sequence>
+                                        <element name="comments" maxOccurs="1" minOccurs="0" >
+                                            <complexType>
+                                                <sequence>
+                                                    <element name="comment" maxOccurs="unbounded" minOccurs="0">
+                                                        <complexType>
+                                                            <simpleContent>
+                                                                <extension base="string">
+                                                                    <attribute type="string" name="text" use="required"/>
+                                                                    <attribute type="string" name="author" use="required"/>
+                                                                    <attribute type="long" name="date" use="required"/>
+                                                                </extension>
+                                                            </simpleContent>
+                                                        </complexType>
+                                                    </element>
+                                                </sequence>
+                                            </complexType>
+                                        </element>
+                                    </sequence>
+                                    <attribute type="int" name="id" use="required"/>
+                                    <attribute type="string" name="author" use="required"/>
+                                    <attribute type="string" name="status" use="required"/>
+                                    <attribute type="long" name="timeCreated" use="required"/>
+                                    <attribute type="long" name="timeModified" use="required"/>
+                                </complexType>
+                            </element>
+                            </choice>
+                            <element name="properties" maxOccurs="1" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element name="variantValidationStatus" maxOccurs="unbounded" minOccurs="0">
+                                            <complexType>
+                                                <sequence>
+                                                    <element name="value" maxOccurs="1" minOccurs="0"/>
+                                                    <element name="comments"  maxOccurs="unbounded" minOccurs="0" >
+                                                        <complexType>
+                                                            <sequence>
+                                                                <element name="author" maxOccurs="1" minOccurs="1"/>
+                                                                <element name="modified" maxOccurs="1" minOccurs="1"/>
+                                                                <element name="content" maxOccurs="1" minOccurs="1"/>
+                                                            </sequence>
+                                                        </complexType>
+                                                    </element>
+                                                </sequence>
+                                            </complexType>
+                                        </element>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                        </sequence>
+                    </complexType>
+                </element>
+                <element name="treatment" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <sequence>
+                            <element type="string" name="chromosome"/>
+                            <element type="int" name="position"/>
+                            <element type="string" name="reference"/>
+                            <element type="string" name="alternate"/>
+                            <element type="float" name="copyNumber" minOccurs="0"/>
+                            <element type="integer" name="length" minOccurs="0"/>
+                            <element type="string" name="cytoband" minOccurs="0"/>
+                            <element type="string" name="insertedSeq" minOccurs="0"/>
+                            <element type="integer" name="readDepth" minOccurs="0"/>
+                            <element name="breakends" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <attribute  type="string"  name="chromosome" use="required"/>
+                                    <attribute  type="integer" name="position" use="required"/>
+                                    <attribute  type="string"  name="cytoband" />
+                                </complexType>
+                            </element>
+                            <element name="copynumchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="negativechange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="variation" minOccurs="0"/>
+                            <element type="string" name="gene" minOccurs="0"/>
+                            <element name="transcriptchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="transcript"/>
+                                        <element type="string" name="change"/>
+                                        <element type="byte" name="exonNumber" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="proteinchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="protein"/>
+                                        <element type="string" name="change"/>
+                                        <element type="string" name="translationimpact" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="genomicchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="change" minOccurs="1" maxOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="structuralChange" maxOccurs="unbounded" minOccurs="0" >
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="type"/>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="geneId"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="drug">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="drugname"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="finding" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="findingid"/>
+                                        <element type="string" name="findingsource"/>
+                                        <element type="string" name="diseaseid"/>
+                                        <element type="string" name="tissue" maxOccurs="unbounded" minOccurs="0"/>
+                                        <element type="string" name="diseasename"/>
+                                        <element type="string" name="cgmarker" maxOccurs="1" minOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="diagnosismatch"/>
+                            <element type="string" name="tissuematch"/>
+                            <element type="string" name="type"/>
+                            <element name="rcomment" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <all>
+                                        <element type="string" name="type" minOccurs="0"/>
+                                        <element type="long" name="id" minOccurs="0"/>
+                                        <element type="string" name="name" minOccurs="0"/>
+                                        <element type="string" name="text" minOccurs="0"/>
+                                        <element type="string" name="author" minOccurs="0"/>
+                                        <element type="integer" name="state" minOccurs="0"/>
+                                        <element type="integer" name="scope" minOccurs="0"/>
+                                        <element type="long" name="timeCreated" minOccurs="0"/>
+                                        <element type="long" name="timeModified" minOccurs="0"/>
+                                    </all>
+                                </complexType>
+                            </element>
+                            <element name="treatmentdb">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="int" name="id" use="required"/>
+                                            <attribute type="byte" name="state" use="required"/>
+                                            <attribute type="string" name="author" use="required"/>
+                                            <attribute type="long" name="timeCreated" use="required"/>
+                                            <attribute type="long" name="timeModified" use="required"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                        </sequence>
+                    </complexType>
+                </element>
+                <element name="prognosis" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <sequence>
+                            <element type="string" name="chromosome" minOccurs="0"/>
+                            <element type="int" name="position" minOccurs="0"/>
+                            <element type="string" name="reference" minOccurs="0"/>
+                            <element type="string" name="alternate" minOccurs="0"/>
+                            <element type="float" name="copyNumber" minOccurs="0"/>
+                            <element type="integer" name="length" minOccurs="0"/>
+                            <element type="string" name="cytoband" minOccurs="0"/>
+                            <element type="string" name="insertedSeq" minOccurs="0"/>
+                            <element type="integer" name="readDepth" minOccurs="0"/>
+                            <element name="breakends" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <attribute  type="string"  name="chromosome" use="required"/>
+                                    <attribute  type="integer" name="position" use="required"/>
+                                    <attribute  type="string"  name="cytoband" />
+                                </complexType>
+                            </element>
+                            <element type="string" name="variation" minOccurs="0"/>
+                            <element type="string" name="gene" minOccurs="0"/>
+                            <element name="transcriptchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="transcript"/>
+                                        <element type="string" name="change"/>
+                                        <element type="integer" name="exonNumber" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="proteinchange" minOccurs="0">
+                                <complexType>
+                                    <all>
+                                        <element type="string" name="protein"/>
+                                        <element type="string" name="change"/>
+                                        <element type="string" name="translationimpact" minOccurs="0"/>
+                                    </all>
+                                </complexType>
+                            </element>
+                            <element name="genomicchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="change" minOccurs="1" maxOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="copynumchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="negativechange"  minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="structuralChange" maxOccurs="unbounded" minOccurs="0" >
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="type"/>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="geneId"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="direction">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="string" name="id" use="required"/>
+                                            <attribute type="string" name="name" use="required"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                            <element name="outcome">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="string" name="id" use="required"/>
+                                            <attribute type="string" name="name" use="required"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                            <element type="string" name="diseasename" maxOccurs="1" minOccurs="1" />
+                            <element name="finding" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="findingid"/>
+                                        <element type="string" name="findingsource"/>
+                                        <element type="string" name="diseaseid"/>
+                                        <element type="string" name="diseasename"/>
+                                        <element type="string" name="cgmarker" maxOccurs="1" minOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="diagnosismatch"/>
+                            <element type="string" name="tissuematch"/>
+                            <element name="prognosisdb">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="string" name="id" use="required"/>
+                                            <attribute type="byte" name="state" use="required"/>
+                                            <attribute type="string" name="author" use="required"/>
+                                            <attribute type="long" name="timeCreated" use="required"/>
+                                            <attribute type="long" name="timeModified" use="required"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                        </sequence>
+                    </complexType>
+                </element>
+                <element name="clinicaltrial" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <sequence>
+                            <element type="string" name="chromosome"/>
+                            <element type="int" name="position"/>
+                            <element type="string" name="reference"/>
+                            <element type="string" name="alternate"/>
+                            <element type="float" name="copyNumber" minOccurs="0"/>
+                            <element type="integer" name="length" minOccurs="0"/>
+                            <element type="string" name="cytoband" minOccurs="0"/>
+                            <element type="string" name="insertedSeq" minOccurs="0"/>
+                            <element type="integer" name="readDepth" minOccurs="0"/>
+                            <element name="breakends" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <attribute  type="string"  name="chromosome" use="required"/>
+                                    <attribute  type="integer" name="position" use="required"/>
+                                    <attribute  type="string"  name="cytoband" />
+                                </complexType>
+                            </element>
+                            <element name="copynumchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="negativechange" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="protein" minOccurs="0"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="variation" minOccurs="0"/>
+                            <element type="string" name="gene" minOccurs="0"/>
+                            <element name="transcriptchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="transcript"/>
+                                        <element type="string" name="change"/>
+                                        <element type="byte" name="exonNumber" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="proteinchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="protein"/>
+                                        <element type="string" name="change"/>
+                                        <element type="string" name="translationimpact" minOccurs="0"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="genomicchange" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="change" minOccurs="1" maxOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="structuralChange" maxOccurs="unbounded" minOccurs="0" >
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="type"/>
+                                        <element type="string" name="gene"/>
+                                        <element type="string" name="geneId"/>
+                                        <element type="string" name="change"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="nctid"/>
+                            <element type="string" name="title" minOccurs="0"/>
+                            <element type="string" name="phase" minOccurs="0"/>
+                            <element type="string" name="status" minOccurs="0"/>
+                            <element type="string" name="studytype" minOccurs="0"/>
+                            <element type="int" name="totalLocations" minOccurs="0"/>
+                            <element name="countryToState" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="country"/>
+                                        <element type="string" name="states"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="contact" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="name"/>
+                                        <element type="string" name="email"/>
+                                        <element type="string" name="phone"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="location" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="center" minOccurs="0"/>
+                                        <element type="string" name="city"  minOccurs="0"/>
+                                        <element type="string" name="state" minOccurs="0"/>
+                                        <element type="string" name="zipcode" minOccurs="0"/>
+                                        <element type="string" name="country"/>
+                                        <element type="float" name="latitude"/>
+                                        <element type="float" name="longitude"/>
+                                        <element type="string" name="status"/>
+                                        <element name="contact" minOccurs="0">
+                                            <complexType>
+                                                <sequence>
+                                                    <element type="string" name="name"/>
+                                                    <element type="string" name="email"/>
+                                                    <element type="string" name="phone"/>
+                                                </sequence>
+                                            </complexType>
+                                        </element>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="drug" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="drugname"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element name="finding" maxOccurs="unbounded" minOccurs="0">
+                                <complexType>
+                                    <sequence>
+                                        <element type="string" name="findingid"/>
+                                        <element type="string" name="findingsource"/>
+                                        <element type="string" name="diseaseid"/>
+                                        <element type="string" name="tissue" maxOccurs="unbounded" minOccurs="0"/>
+                                        <element type="string" name="diseasename"/>
+                                        <element type="string" name="cgmarker" maxOccurs="1" minOccurs="1"/>
+                                    </sequence>
+                                </complexType>
+                            </element>
+                            <element type="string" name="diagnosismatch"/>
+                            <element type="string" name="tissuematch"/>
+                            <element name="clinicaltrialdb">
+                                <complexType>
+                                    <simpleContent>
+                                        <extension base="string">
+                                            <attribute type="int" name="id" use="required"/>
+                                            <attribute type="byte" name="state" use="required"/>
+                                            <attribute type="string" name="author" use="required"/>
+                                            <attribute type="long" name="timeCreated" use="required"/>
+                                            <attribute type="long" name="timeModified" use="required"/>
+                                            <attribute type="byte" name="locationType" use="required"/>
+                                        </extension>
+                                    </simpleContent>
+                                </complexType>
+                            </element>
+                        </sequence>
+                    </complexType>
+                </element>
+                <element name="article" maxOccurs="unbounded" minOccurs="0">
+                    <complexType>
+                        <simpleContent>
+                            <extension base="string">
+                                <attribute type="string" name="sid" use="optional"/>
+                                <attribute type="string" name="source" use="optional"/>
+                                <attribute type="anyURI" name="url" use="optional"/>
+                                <attribute type="string" name="citation" use="optional"/>
+                                <attribute type="string" name="title" use="optional"/>
+                                <attribute type="string" name="date" use="optional"/>
+                                <attribute type="string" name="author" use="optional"/>
+                                <attribute type="string" name="journal" use="optional"/>
+                            </extension>
+                        </simpleContent>
+                    </complexType>
+                </element>
+            </sequence>
+            <attribute type="string" name="version"/>
+        </complexType>
+    </element>
+</schema>
