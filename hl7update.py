@@ -106,6 +106,11 @@ def update_obx_seg_containing_gene(h, gene_map):
     for i in range(l):
         del temp_obx[l-i-1]
     new_obx_index = 1
+    toReplace = {"ERBB2": "ERBB2/HER2","NSD2" : "WHSC1"}
+    for gene in gene_map.keys():
+        if gene in toReplace.keys():
+            gene_map[toReplace[gene]] = gene_map[gene]
+            del gene_map[gene]
     for obxSegment in h['OBX']:
         if (obxSegment[3][0][1][0] in gene_map.keys() and obxSegment[7][0] == "-"):
             obxSegment[5][0] = gene_map[obxSegment[3][0][1][0]]
