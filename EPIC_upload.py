@@ -109,7 +109,7 @@ def main():
     try:
         xldf = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
     except:
-        logging.error("Problem Reading Excel")
+        print("Problem Reading Excel")
         sys.exit()
 
     allhl7filenames = []
