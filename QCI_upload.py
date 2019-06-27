@@ -15,6 +15,7 @@ import yaml
 import math
 from shutil import copyfile
 from shutil import move
+import time
 import datetime
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
@@ -70,11 +71,15 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
 
+PROCESSING_STATUS_URLS = []
 
 # Helper function to make a HTTP call
 def makePostCall(url, files, headers):
     response = requests.post(url, files=files, headers=headers)
-    return response.status_code
+    if response.json() and response.json().get("status-url") is not None:
+        PROCESSING_STATUS_URLS.append(response.json()["status-url"])
+    
+    return response.json()["status"]
 
 # Function to generate a new AccessToken. AccessToken is expired every 300 sec from Qiagen's end
 def generateAccessToken():
@@ -91,7 +96,7 @@ def uploadToQiagen(zipFile):
     accessToken = generateAccessToken()
     url = QCI_UPLOAD_URL
     files = {'file': open(zipFile,'rb')}
-    makePostCall(url, files, {"Accept": "application/json", "Authorization": accessToken["access_token"]})
+    return makePostCall(url, files, {"Accept": "application/json", "Authorization": accessToken["access_token"]})
    
 # Generates xml from a dictionary 
 def createXMLFromDict(map, xmlFileName):
@@ -168,6 +173,11 @@ def populateStatusMap():
         map[x.get("accessionID")] = x.get("state")
     return map
 
+def checkStatus(url):
+    headers = {"Accept": "application/json", "Authorization": generateAccessToken()["access_token"]}
+    response = requests.get(url, headers = headers) 
+    return response.json()["status"]
+
 # main method
 # 1. checks if excel is open and exits if it is open
 # 2. reads from excel
@@ -209,7 +219,7 @@ if __name__ == "__main__":
                         zip.write(vcfFolder + vcfFileName, accessionId + ".vcf")
                     try:
                         status_code = uploadToQiagen(vcfFolder + accessionId + ".QCIUpload.zip")
-                        print("UPLOADED ", accessionId, " to QCI")
+                        print("UPLOADED ", accessionId, " to QCI with status: ", status_code)
                         statusChanged = True
                     except:
                         print("error while uploading to Qiagen for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0] )
@@ -219,7 +229,13 @@ if __name__ == "__main__":
 
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
-
+    while len(PROCESSING_STATUS_URLS) > 0:
+        time.sleep(60)
+        for url in PROCESSING_STATUS_URLS: 
+            status = checkStatus(url)
+            if status != "PREPROCESSING":
+                print("final status of Data packet with url: ", url, " is ", status)
+                PROCESSING_STATUS_URLS.remove(url)
 
     excel_file.close()
    # logging.basicConfig(filename='uploadToQiagen.log',level=logging.ERROR)
