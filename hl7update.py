@@ -28,12 +28,17 @@ def find_genes_from_XML(xmlFile):
     with open(xmlFile, encoding='utf-8') as fd:
         map = xmltodict.parse(fd.read())
         map = map['report']
-    
+    diagnosis = ""
+    if map.get("diagnosis") is not None:
+        diagnosis =  map.get("diagnosis")     
     genes_list = []
     if map.get("variant") is not None:
         if type(map.get("variant")) != list:
             map["variant"] = [map.get("variant")]
         for variant in map.get("variant"):
+            if variant["assessment"] == "Uncertain Significance":
+                print("ignoreing uncertain imortance genes: ", str(variant["gene"]))
+                continue
             gene = ''
             transcriptChange = ""
             proteinChange = ""
@@ -43,7 +48,7 @@ def find_genes_from_XML(xmlFile):
                 proteinChange = variant["proteinchange"]["change"]
             gene += str(variant["gene"]) + " " + transcriptChange + " " + proteinChange
             genes_list.append(gene)
-    return genes_list
+    return genes_list, diagnosis
 
 def get_first_obx_index(h):
     idx = 0
@@ -99,7 +104,7 @@ def update_obx_segment(h):
                 obx_segment[19] = obx_segment[14]
 
 
-def update_obx_seg_containing_gene(h, gene_map):
+def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
     updates = 0
     temp_obx = h[:]
     l = len(h)
@@ -112,6 +117,10 @@ def update_obx_seg_containing_gene(h, gene_map):
             gene_map[toReplace[gene]] = gene_map[gene]
             del gene_map[gene]
     for obxSegment in h['OBX']:
+        #print(obxSegment)
+        #print(obxSegment[3])
+        #print(obxSegment[3][0][1][0])
+        #print(obxSegment[7][0])
         if (obxSegment[3][0][1][0] in gene_map.keys() and obxSegment[7][0] == "-"):
             obxSegment[5][0] = gene_map[obxSegment[3][0][1][0]]
             obxSegment[1] = new_obx_index
@@ -119,6 +128,18 @@ def update_obx_seg_containing_gene(h, gene_map):
             temp_obx.append(obxSegment)
             updates += 1 
            # print(obxSegment[3][0][1][0])
+        elif obxSegment[3][0][1][0] == "BARCODE":
+            #print("barcode found")
+            obxSegment[5][0] = accessionId
+            obxSegment[1] = new_obx_index
+            new_obx_index +=1 
+            temp_obx.append(obxSegment) 
+        elif obxSegment[3][0][1][0] == "TUMOR TYPE":
+            #print("tumor type found")
+            obxSegment[5][0] = diagnosis
+            obxSegment[1] = new_obx_index
+            new_obx_index +=1 
+            temp_obx.append(obxSegment) 
     h_t = h[:]
     l = len(h)
     for i in range(l):

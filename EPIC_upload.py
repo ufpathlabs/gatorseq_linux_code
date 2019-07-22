@@ -147,11 +147,10 @@ def main():
                     continue
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
-               
                 vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
                     if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml") and os.path.isfile(vcfFolder+accessionId+".QCIreport.txt"):
-                        genes_list = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
+                        genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
                         gene_map={}
                         if(genes_list):
                             gene_map = dict(gene.split(" ", 1) for gene in genes_list)
@@ -161,7 +160,7 @@ def main():
                         hl7update.update_obr_segment(h)
                         hl7update.update_comments(h, open( vcfFolder+accessionId+".QCIreport.txt", mode="r",  encoding='utf-8').read())
                         hl7update.update_obx_segment(h)
-                        h = hl7update.update_obx_seg_containing_gene(h, gene_map)
+                        h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:

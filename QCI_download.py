@@ -370,10 +370,8 @@ def main():
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP']
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
-               # if(text_file):
-                #    copyfile(text_file, vcfFolder+accessionId+".QCIreport.txt")
-                 #   copyfile(xml_fileName, vcfFolder+accessionId+".QCIXml.xml")
-                
+                if not text_file:
+                    print("could not pull XML from QCI")
     
 
     #logging.debug('=======================Execution ends===========================')
