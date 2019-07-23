@@ -104,7 +104,7 @@ def parseXML(xml, accessionId, plm, accessionIdPath):
     return generateTxtFileAndSave(map['report'], accessionId, plm, accessionIdPath)
 
 def newLine():
-    return " \n \n" 
+    return "  \n" 
 
 # helper function to generate comments
 def populateIndividualText(text, i, list, nextSeperator, gene_map):
@@ -255,33 +255,34 @@ def generateTxtFileAndSave(map, accessionId, plm, accessionIdPath):
     text = addHeading(text, "6. Individual Variant Interpretations")            
     if variants is not None:
         for variant in variants:
+            if variant["assessment"] == "Uncertain Significance":
+                continue
             text += "Gene: " + str(variant["gene"]) + "\n"
             if variant.get("transcriptchange"):
-                text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) + "\n"
-                text += "    " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + "\n"
+                text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) +  "; " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + ";  "
             
             if variant.get("genomicchange"):
-                text += "    " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + "\n"
+                text += " " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + ";"
                 
             if variant.get("proteinchange"):
-                text += "    " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + "\n"
+                text += " " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + ";"
                 
             if variant.get("function"):
-                text += "    " + "Function: " + str(variant.get("function")) + "\n"
+                text += " " + "Function: " + str(variant.get("function")) + ";"
                 
             if variant.get("assessment"):
-                text += "    " + "Assessment: " + str(variant.get("assessment")) + "\n"
+                text += " " + "Assessment: " + str(variant.get("assessment")) + ";"
             if variant.get("actionability"):
-                text += "    " + "Classification: Tier " + str(variant.get("actionability")) + "\n"
+                text += " " + "Classification: Tier " + str(variant.get("actionability")) + ";"
                 
             if variant.get("allelefraction"):
-                text += "    " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + "\n"
+                text += " " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + ";"
                    
             if variant.get("variation"):
-                text += "    " + "Variation: " + str(variant.get("variation")) + "\n"
+                text += " " + "Variation: " + str(variant.get("variation")) + "\n"
             if variant.get("rcomment"):# and variant.get("rcomment")[0]:
                 #text += "    " + "Interpretation: " + str(variant.get("rcomment")[0].get("text")) + "\n"
-                text += "    " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
+                text += "   " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
             text += " \n"
     else:
         text += "    None"  + " \n"  
