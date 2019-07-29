@@ -10,7 +10,7 @@ import datetime
 from shutil import copyfile
 from shutil import move
 import xmltodict
-
+import time
 import datetime
 print(str(datetime.datetime.now()) + "\n")
 
@@ -107,14 +107,11 @@ def newLine():
     return "  \n" 
 
 # helper function to generate comments
-def populateIndividualText(text, i, list, nextSeperator, gene_map):
-    nextSeperator = nextSeperator.split(",")
+def populateIndividualText2(text, list, gene_map):
     foundAtleastOne = False
-    for iterator in range(i, len(list)):
+    for iterator in range(0, len(list)):
         variant = list[iterator]
         
-        if variant["assessment"] in nextSeperator:
-            break
         foundAtleastOne = True
         text += "    " +  str(variant["gene"]) + " " 
         if variant.get("transcriptchange"):
@@ -136,7 +133,9 @@ def populateIndividualText(text, i, list, nextSeperator, gene_map):
         gene_map[str(variant["gene"])] = variant
     if not foundAtleastOne:
         text += "    None" + " \n"
-    return text, iterator, gene_map
+    return text, gene_map
+
+
 
 def addHeading(text, heading):
     text += "------------------------------------------------------------" + "\n"
@@ -217,22 +216,32 @@ def generateTxtFileAndSave(map, accessionId, plm, accessionIdPath):
         text += "Diagnosis: " + map.get("diagnosis") + "\n"
         
     
+    pVar, likVar, uncVar = [], [], []
+    if variants is not None:
+        for variant in variants:
+            if variant["assessment"] == "Pathogenic":
+                pVar.append(variant)
+            elif variant["assessment"] == "Likely Pathogenic":
+                likVar.append(variant)
+            elif variant["assessment"] == "Uncertain Significance":
+                uncVar.append(variant)
+	
     text += newLine()
     text = addHeading(text, "1. Pathogenic variants")
     if variants is not None:
-        text, iterator, gene_map = populateIndividualText(text, 0, variants, "Likely Pathogenic,Uncertain Significance", gene_map)
+        text, gene_map = populateIndividualText2(text, pVar, gene_map)
     else:
         text += "    None" + " \n"
     text += " \n"
     text = addHeading(text, "2. Likely pathogenic variants")
     if variants is not None:
-        text, iterator, gene_map = populateIndividualText(text, iterator, variants, "Uncertain Significance", gene_map)
+        text, gene_map = populateIndividualText2(text, likVar, gene_map)
     else:
         text += "    None" + " \n"
     text += " \n"
     text = addHeading(text, "3. Variants of unknown significance (Tier 3)")
     if variants is not None:
-        text, iterator, gene_map = populateIndividualText(text, iterator, variants, "", gene_map)
+        text, gene_map = populateIndividualText2(text, uncVar, gene_map)
     else:
         text += "    None" + " \n"
 
@@ -374,7 +383,7 @@ def main():
                 if not text_file:
                     print("could not pull XML from QCI")
     
-
+    #time.sleep(600)    
     #logging.debug('=======================Execution ends===========================')
     excel_file.close()
 
