@@ -122,7 +122,7 @@ def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
         #print(obxSegment[3][0][1][0])
         #print(obxSegment[7][0])
         if (obxSegment[3][0][1][0] in gene_map.keys() and obxSegment[7][0] == "-"):
-            obxSegment[5][0] = gene_map[obxSegment[3][0][1][0]]
+            obxSegment[5][0] = ", ".join(gene_map[obxSegment[3][0][1][0]])
             obxSegment[1] = new_obx_index
             new_obx_index +=1
             temp_obx.append(obxSegment)
@@ -149,7 +149,7 @@ def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
             h_t.append(h[i])
     h_t.extend(temp_obx)
     #ToDo: remove the comment for False
-    if (updates != len(gene_map.keys())):
+    if (updates < len(gene_map.keys())):
         print('Some genes were not found in OBX segment! Please check logs.')
         return False
     else:
