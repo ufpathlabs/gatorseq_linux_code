@@ -153,8 +153,13 @@ def main():
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
                         gene_map={}
                         if(genes_list):
-                            gene_map = dict(gene.split(" ", 1) for gene in genes_list)
-                            
+                            for gene in genes_list:
+                                x = gene.split(" ", 1)
+                                if x[0] in gene_map.keys():
+                                    gene_map[x[0]].append(x[1])
+                                else:
+                                    gene_map[x[0]] = [x[1]]
+                            #gene_map = dict(gene.split(" ", 1) for gene in genes_list)
                         hl7update.update_msh_segment(h)
                         hl7update.update_orc_segment(h)
                         hl7update.update_obr_segment(h)
