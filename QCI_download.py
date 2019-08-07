@@ -168,8 +168,8 @@ def generateCommentsForDrug(text, drugMap, gene_map, isMatch):
             for treatment in drug['listTreatments']:
                 text += "    " + treatment.get("gene") + " "
                 variant = gene_map.get(treatment.get("gene"))
-                if variant.get("proteinchange"):
-                    text += str(variant.get("proteinchange").get("change")) + " "
+                if treatment.get("proteinchange"):
+                    text += str(treatment.get("proteinchange").get("change")) + " "
                 if variant.get("actionability"):
                     text += "Tier " + variant.get("actionability") + " "
                 if variant.get("assessment"):
