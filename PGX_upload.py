@@ -37,24 +37,22 @@ def replace_env(strname):
 
 
 LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
-GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
-GATOR_PGX_SAMPLE_INPUT_FOLDER = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
+#GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
+GATOR_PGX_SAMPLE_INPUT_FOLDER = replace_env(config_dict['GATOR_PGX_SAMPLE_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
-if CODE_ENV=='DevEnv':
-    MIRTH_GATORSEQ += '/TEST'
-else:
+if CODE_ENV=='ProdEnv':
     MIRTH_GATORSEQ += '/PROD'
+else:
+    MIRTH_GATORSEQ += '/TEST'
 
 def check_folders_exist():
-    if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
-        sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
+    #if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
+        #sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
 
     if not os.path.isdir(LINUX_ANALYSIS_OUT_FOLDER):
         sys.exit("ERROR: Does not have access to following folder: " + LINUX_ANALYSIS_OUT_FOLDER + "\n")
 
-    if not os.path.isfile(CONFIG_TOKENS_FILE):
-        sys.exit("ERROR: Does not have access to following folder: " + CONFIG_TOKENS_FILE + "\n") 
 
     if not os.path.isdir(MIRTH_GATORSEQ):
         sys.exit("ERROR: Does not have access to following folder: " + MIRTH_GATORSEQ + "\n") 
@@ -63,7 +61,7 @@ def check_folders_exist():
         sys.exit("ERROR: Does not have access to following folder: " + GATOR_PGX_SAMPLE_INPUT_FOLDER + "\n") 
 
 
-#check_folders_exist()
+check_folders_exist()
 def format_for_unity(x):
     if(x<10):
         return "0"+str(x)
@@ -192,7 +190,7 @@ def main():
     except:
         print(" Could not read folder")
         sys.exit()
-
+    print(csv_files)
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
         allhl7filenames.extend(filenames)
