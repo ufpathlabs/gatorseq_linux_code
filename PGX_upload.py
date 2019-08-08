@@ -129,11 +129,7 @@ class hl7update:
             isGenoType = "GENOTYPE" in obxSegment[3][0][1][0]
             gene = obxSegment[3][0][1][0].replace(" GENOTYPE", "").replace(" PHENOTYPE", "")
             gene = gene.replace(' ', '_')
-            if "CYP2C_" in gene:
-                print(gene)
             #if we find the value for that gene in csv, add it to the OBX segment, else add it as is.
-            if row.get(gene) is not None and (gene in report_genotype_only_arr and not isGenoType):
-                print("totest")
             if row.get(gene) is not None and not (gene in report_genotype_only_arr and not isGenoType):
                 try:
                     obxSegment[5][0] = row[gene].iloc[0].split("; ")[0] if isGenoType else row[gene].iloc[0].split("; ")[1]
@@ -190,7 +186,6 @@ def main():
     except:
         print(" Could not read folder")
         sys.exit()
-    print(csv_files)
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
         allhl7filenames.extend(filenames)
@@ -218,7 +213,6 @@ def main():
 
                 # search for messageId in the csv_files of GATOR_PGX_SAMPLE_INPUT_FOLDER
                 #if messageId == "100047187": #100047166  100047187
-                print("Im here")
                 foundMessageId = False
                 for f in csv_files:
                     #First, find the header in the csv (using the constraint that header starts with 'sample ID')
@@ -236,12 +230,13 @@ def main():
                     df.columns = df.columns.str.strip().str.replace(' ', '_')
                     # not found in this file and hence moving on to next file
                     if df[df['sample_ID'] == messageId].empty:
+                        continue
                         print("sample_ID " + messageId +" not found in this file: ", f)
                     else:
                         #ToDO: check for duplicate entries of sample Id
 
                         # found messageId and generating a new hl7 file
-                        print("processing ", len(df[df['sample_ID'] == messageId]), df[df['sample_ID'] == messageId])
+                        print("processing ", messageId, " which is found in file: ", f)
                         foundMessageId = True
                         newHl7.update_msh_segment()
                         newHl7.update_orc_segment()
@@ -255,6 +250,7 @@ def main():
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
-                            move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
+                            move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-PGX-' + get_current_formatted_date() + "-" + hl7_file_name) 
+
                             
 main()
