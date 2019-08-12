@@ -107,7 +107,8 @@ def main():
         print(" Could not open file! Please close Excel!")
         sys.exit()
     try:
-        xldf = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     except:
         print("Problem Reading Excel")
         sys.exit()

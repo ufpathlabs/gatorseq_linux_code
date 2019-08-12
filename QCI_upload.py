@@ -193,7 +193,8 @@ if __name__ == "__main__":
         print("Could not open file! Please close Excel!")
         sys.exit(0)
     try:
-        df = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        df_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        df = df_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     except:
         print("could not read excel")
         sys.exit()
