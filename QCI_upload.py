@@ -146,8 +146,8 @@ def generateXMLFileFromRow(row, xmlFilename):
     map["Test_Product_Code"] = row['Test_Product_Code']
     map["Primary_Tumor_Site"] = row['Primary_Tumor_Site']
     map["Report_Template"] = row['Report_Template']
-    map["accessionId"] =  row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP']
-    map["vcfFileName"] = row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP'] + '.vcf'
+    map["accessionId"] =  row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
+    map["vcfFileName"] = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP'] + '.vcf'
     if row.get("QCIType") is not None:
         map["QCIType"] = (row['QCIType'])
     else:
@@ -204,8 +204,8 @@ if __name__ == "__main__":
 
     for index, row in df.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
-            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'] + '_' + row['TIME_STAMP']  + "/"
-            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP']
+            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'].strip() + '_' + row['TIME_STAMP']  + "/"
+            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             vcfFileName = accessionId + ".vcf"
             if accessionIdMap.get(accessionId) is not None:
                # print(accessionId, " is already uploaded and hence not uploading again")

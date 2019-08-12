@@ -376,8 +376,8 @@ def main():
 
     for index, row in xldf.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
-            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'] + '_' + row['TIME_STAMP']  + "/"
-            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP']
+            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'].strip() + '_' + row['TIME_STAMP']  + "/"
+            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
                 if not text_file:
