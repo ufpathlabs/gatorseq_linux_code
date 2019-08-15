@@ -107,7 +107,8 @@ def main():
         print(" Could not open file! Please close Excel!")
         sys.exit()
     try:
-        xldf = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     except:
         print("Problem Reading Excel")
         sys.exit()
@@ -140,6 +141,9 @@ def main():
                     continue
                 if not(xldf['PLMO_Number'].str.contains( str(plm)).any()):
                    # print('PLMO '+ str(plm) +' is not found in excel')
+                    continue
+                if len(xldf['PLMO_Number'].str.findall(str(plm))) > 1:
+                    print(str(plm), " has duplicate entries in excel")
                     continue
                 #print((plm))
                 sample_dir_path = xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item()

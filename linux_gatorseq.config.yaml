@@ -15,6 +15,7 @@ LOCAL_HPC_MNT: '/ext/ufrc'
 LINUX_PATHOLOGY_FASTQ_FOLDER: '/ext/path/DRL/Molecular/NGS/NextSeq_Fastq'
 LINUX_ANALYSIS_OUT_FOLDER: '/ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq'
 GATOR_SEQ_SAMPLE_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/GS_Fastq_to_Analyze_V1_0.xlsx'
+GATOR_PGX_SAMPLE_INPUT_FOLDER: '/ext/path/DRL/Molecular/Assays/PGX/PGX_Beaker_Interface'
 
 LINUX_HPC_FASTQ_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Fastq'
 LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'

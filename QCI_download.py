@@ -168,8 +168,8 @@ def generateCommentsForDrug(text, drugMap, gene_map, isMatch):
             for treatment in drug['listTreatments']:
                 text += "    " + treatment.get("gene") + " "
                 variant = gene_map.get(treatment.get("gene"))
-                if variant.get("proteinchange"):
-                    text += str(variant.get("proteinchange").get("change")) + " "
+                if treatment.get("proteinchange"):
+                    text += str(treatment.get("proteinchange").get("change")) + " "
                 if variant.get("actionability"):
                     text += "Tier " + variant.get("actionability") + " "
                 if variant.get("assessment"):
@@ -366,7 +366,8 @@ def main():
         print(" Could not open file! Please close Excel!")
         sys.exit()
     try:
-        xldf = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     except:
         print("Problem Reading Excel")
         sys.exit()
@@ -376,8 +377,8 @@ def main():
 
     for index, row in xldf.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
-            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'] + '_' + row['TIME_STAMP']  + "/"
-            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1] + '_' + row['TIME_STAMP']
+            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'].strip() + '_' + row['TIME_STAMP']  + "/"
+            accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
                 if not text_file:
