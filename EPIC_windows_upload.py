@@ -143,17 +143,18 @@ def main():
                 if (not plm):
                     print('PLM not found in HL7 message!')
                     continue
-                if not(xldf['PLMO_Number'].str.contains( str(plm)).any()):
+                if xldf[xldf['PLMO_Number'] == str(plm)].empty:
                    # print('PLMO '+ str(plm) +' is not found in excel')
                     continue
-                if len(xldf['PLMO_Number'].str.findall(str(plm))) > 1:
+                if len(xldf[xldf['PLMO_Number'] == str(plm)]) > 1:
                     print(str(plm), " has duplicate entries in excel")
                     continue
-                print((plm))
-                # try:
-                sample_dir_path = xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item()
-                # except:
-                    # print(plm, "-----------------------------")
+                #print((plm))
+                try:
+                    sample_dir_path = xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item()
+                except:
+                    print(plm, "-----------------------------")
+                    continue
                 if (not sample_dir_path):
                     continue
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
