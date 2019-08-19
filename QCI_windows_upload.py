@@ -17,7 +17,7 @@ from shutil import copyfile
 from shutil import move
 import time
 import datetime
-print("\n", str(datetime.datetime.now()) + "\n")
+print(str(datetime.datetime.now()) + "\n")
 GATOR_SEQ_SAMPLE_INPUT_FILE = r'G:\DRL\Molecular\NGS\GatorSeq\ProdEnv\1_GS_Fastq_to_Analyze_V1_0.xlsx'
 LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
 

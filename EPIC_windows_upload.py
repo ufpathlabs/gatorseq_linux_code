@@ -188,7 +188,7 @@ def main():
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt") 
                         else:
-                            print("Couldn't replace '-' in hl7. Check logs for more details!")
+                            print("Couldn't replace '-' in hl7. Check logs for more details!", hl7_file_name, str(plm))
                     else:
                         print("XML was not yet generated for the  " + accessionId)
 
