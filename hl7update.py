@@ -111,7 +111,7 @@ def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
     for i in range(l):
         del temp_obx[l-i-1]
     new_obx_index = 1
-    toReplace = {"ERBB2": "ERBB2/HER2","NSD2" : "WHSC1"}
+    toReplace = {"ERBB2": "ERBB2/HER2","NSD2" : "WHSC1", "MRTFA": "MKL1"}
     for gene in gene_map.keys():
         if gene in toReplace.keys():
             gene_map[toReplace[gene]] = gene_map[gene]
