@@ -18,14 +18,18 @@ GATOR_SEQ_SAMPLE_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/1_GS
 GATOR_PGX_SAMPLE_INPUT_FOLDER: '/ext/path/DRL/Molecular/Assays/PGX/PGX_Beaker_Interface'
 
 LINUX_HPC_FASTQ_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Fastq'
-LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
+#LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
 
 HPC_FASTQ_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Fastq'
-HPC_ANALYSIS_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/GatorSeq_Analysis'
+
+LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/chamala/share/GatorSeq_Share/CODE_ENV/gatorseq_hpc_code/analysis'
+HPC_ANALYSIS_FOLDER: '/ufrc/chamala/share/GatorSeq_Share/CODE_ENV/gatorseq_hpc_code/analysis'
 GATOR_SEQ_HPC_CODE_DIR: '/ufrc/chamala/share/GatorSeq_Share/CODE_ENV/gatorseq_hpc_code/next_flow'
+
+
 MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
 
-HPC_NEXTFLOW_PROGRAM: 'module load nextflow/0.32.0; nextflow '
+HPC_NEXTFLOW_PROGRAM: 'module load nextflow/19.04.1; module load singularity/3.2.0; nextflow '
 
 GSBW_VERSION: '3.0'
 

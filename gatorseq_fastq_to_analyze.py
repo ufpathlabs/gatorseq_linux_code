@@ -43,7 +43,6 @@ HPC_ANALYSIS_FOLDER = replace_env(config_dict['HPC_ANALYSIS_FOLDER'])
 LINUX_HPC_FASTQ_FOLDER = replace_env(config_dict['LINUX_HPC_FASTQ_FOLDER'])
 HPC_FASTQ_FOLDER = replace_env(config_dict['HPC_FASTQ_FOLDER'])
 GATOR_SEQ_HPC_CODE_DIR = replace_env(config_dict['GATOR_SEQ_HPC_CODE_DIR'])
-#HPC_SNAKEMAKE_PROGRAM = config_dict['HPC_SNAKEMAKE_PROGRAM']
 HPC_NEXTFLOW_PROGRAM = replace_env(config_dict['HPC_NEXTFLOW_PROGRAM'])
 HPC_SFTP = replace_env(config_dict['HPC_SFTP'])
 LOCAL_PATHOLOGY_MNT = replace_env(config_dict['LOCAL_PATHOLOGY_MNT'])
@@ -239,20 +238,6 @@ for row in range(2, sheet.max_row + 1):
         #print(FASTQ_FILES_DIR)
 
         HPC_RUN_CMD =   "#!/bin/bash\n" 
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --job-name=" + HPC_JOB_PREFIX + ".cronjob.sh\n" 
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --output=" + HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".slurm.%A_%a.out\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --error=" + HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".slurm.%A_%a.err\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --ntasks=1\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --nodes=1\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --cpus-per-task=2\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --mem-per-cpu=5gb\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --time=5:00:00\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --qos=chamala\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "#SBATCH --account=chamala\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "export SLURM_TMPDIR="+HPC_ANALYSIS_FOLDER+"\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "\n\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "echo SLURM_TMPDIR $SLURM_TMPDIR ;\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "echo TMPDIR $TMPDIR ;\n"
 
         HPC_RUN_CMD = HPC_RUN_CMD + "SAMPLE_RUN_DIR=" + HPC_RUN_DIR +  ";\n"
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f $SAMPLE_RUN_DIR" +  ";\n"
@@ -262,13 +247,6 @@ for row in range(2, sheet.max_row + 1):
         HPC_RUN_CMD = HPC_RUN_CMD + "\n\n"
 
 
-        #HPC_RUN_CMD = HPC_RUN_CMD + ". /etc/profile.d/modules.sh\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + ". /etc/profile.d/slurm.sh\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_OPTS='-Xms2G -Xmx5G'\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + 'echo JAVA_OPTS1="$JAVA_OPTS"\n'
-        #HPC_RUN_CMD = HPC_RUN_CMD + "unset _JAVA_OPTIONS; export _JAVA_OPTIONS='-Xms2g -Xmx18g';\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + "ulimit -c unlimited;\n"
-        #HPC_RUN_CMD = HPC_RUN_CMD + 'echo JAVA_OPTS2="$JAVA_OPTS"\n'
         HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_TEMP=$SAMPLE_RUN_DIR"+"\n"
         HPC_RUN_CMD = HPC_RUN_CMD + HPC_NEXTFLOW_PROGRAM + " run \\\n" +\
         GATOR_SEQ_HPC_CODE_DIR +"/gatorseq_nextflow.nf \\\n"+\
@@ -282,13 +260,10 @@ for row in range(2, sheet.max_row + 1):
         " --CODE_ENV=" + CODE_ENV + " ;\n"
 
 
-        #" --FASTQ_FILES_DIR=" + FASTQ_FILES_DIR + " \\\n" +\
 
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/.nextflow* ;\n"
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/work ;\n"
 
-
-            #+ ">" + LINUX_HPC_RUN_DIR_CRONJOB_LOG + "\n" 
 
         cron_fw = open(LINUX_HPC_RUN_DIR_CRONJOB,'w')
         cron_fw.write(HPC_RUN_CMD)
