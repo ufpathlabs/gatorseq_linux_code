@@ -248,8 +248,9 @@ for row in range(2, sheet.max_row + 1):
 
 
         HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_TEMP=$SAMPLE_RUN_DIR"+"\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "export NXF_ASSETS=$SAMPLE_RUN_DIR"+"\n"
         HPC_RUN_CMD = HPC_RUN_CMD + HPC_NEXTFLOW_PROGRAM + " run \\\n" +\
-        GATOR_SEQ_HPC_CODE_DIR +"/gatorseq_nextflow.nf \\\n"+\
+        GATOR_SEQ_HPC_CODE_DIR +" -r " + GSBW_VERSION + " \\\n"+\
         "  -with-report -with-trace -with-timeline -with-dag flowchart.html \\\n" +\
         "  -resume \\\n" +\
         " --FASTQ_ROOT_DIR_SUFFIX=" + FASTQ_ROOT_DIR_SUFFIX + " \\\n" +\
