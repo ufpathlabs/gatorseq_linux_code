@@ -48,6 +48,7 @@ HPC_SFTP = replace_env(config_dict['HPC_SFTP'])
 LOCAL_PATHOLOGY_MNT = replace_env(config_dict['LOCAL_PATHOLOGY_MNT'])
 LOCAL_HPC_MNT = replace_env(config_dict['LOCAL_HPC_MNT'])
 GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
+NEXTFLOW_GIT_REPO = replace_env(config_dict['NEXTFLOW_GIT_REPO'])
 
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
@@ -264,6 +265,7 @@ for row in range(2, sheet.max_row + 1):
 
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/.nextflow* ;\n"
         HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/work ;\n"
+        HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/" + NEXTFLOW_GIT_REPO + ";\n"
 
 
         cron_fw = open(LINUX_HPC_RUN_DIR_CRONJOB,'w')
