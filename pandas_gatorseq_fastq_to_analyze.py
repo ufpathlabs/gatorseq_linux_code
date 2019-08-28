@@ -17,7 +17,7 @@ CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
 
 #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+""
-CODE_ENV="test"
+CODE_ENV="DevEnv"
 
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
@@ -83,9 +83,6 @@ def check_folders_exist():
 
     if not os.path.isdir(LINUX_PATHOLOGY_FASTQ_FOLDER):
         sys.exit("ERROR: Does not have access to following folder: " + LINUX_PATHOLOGY_FASTQ_FOLDER + "\n") 
-
-    if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
-        sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
 
 
 check_folders_exist()
