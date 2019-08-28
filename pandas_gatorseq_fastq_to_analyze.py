@@ -192,12 +192,12 @@ if __name__ == "__main__":
         if len(directories) == 0:
             row["STATUS"] = "RUN"
             row["MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
-            save_workbook()
+            save_workbook(xldf)
             continue
         elif len(directories) > 1:
             row["STATUS"] = "FAILED"
             row["MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
-            save_workbook()
+            save_workbook(xldf)
             continue
         else:
             linux_hpc_sample_path = directories[0]
@@ -220,7 +220,7 @@ if __name__ == "__main__":
             if len(stdout_list) == 0:
                 row["STATUS"] = "RUN"
                 row["MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
-                save_workbook()
+                save_workbook(xldf)
 
                 rsync_hpc_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                     sample_path + "/ " + HPC_SFTP + ":" +\
@@ -243,7 +243,7 @@ if __name__ == "__main__":
             row['STATUS'] = "SUBMITTED"
             row['TIME_STAMP'] = time_stamp 
             row['MESSAGE'] = "Currently job is running."
-            save_workbook()
+            save_workbook(xldf)
 
             HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
             HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
@@ -301,11 +301,11 @@ if __name__ == "__main__":
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/SUCCESS.txt"):
                     row["STATUS"] = "DONE"
                     row["MESSAGE"] = "Successfully processed"
-                    save_workbook()
+                    save_workbook(xldf)
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/FAILED.txt"):
                     row["STATUS"] = "FAILED"
                     row["MESSAGE"] = "ERROR: Failed while running on HPC"
-                    save_workbook()
+                    save_workbook(xldf)
 
         elif status == 'FAILED':
             pass
@@ -315,6 +315,6 @@ if __name__ == "__main__":
 
         else:
             row["MESSAGE"] = "ERROR: Invalid Status." 
-            save_workbook()
+            save_workbook(xldf)
         
 
