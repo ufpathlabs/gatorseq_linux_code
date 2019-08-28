@@ -92,7 +92,7 @@ check_folders_exist()
 
 def save_workbook(df):
     try:
-        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE, index=False)
     except:
         print("could not save excel")
         sys.exit()
@@ -211,7 +211,6 @@ if __name__ == "__main__":
 
         ## Check if the sample directory exist
         if status == 'RUN':
-            print("running from pandas")
             ### Check sample folders are synced properly 
             rsync_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                 sample_path + "/ " +\
@@ -249,8 +248,8 @@ if __name__ == "__main__":
 
             HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
             HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
-            LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".testJob.sh"
-            LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".testJob.sh.log"
+            LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".cronjob.sh"
+            LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".cronjon.sh.log"
             #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+'/'+run_prefix+'*/'+sample_prefix+'*'
             FASTQ_ROOT_DIR_SUFFIX=run_prefix+'*/'+sample_prefix+'*'
             #print(FASTQ_FILES_DIR)
@@ -284,7 +283,6 @@ if __name__ == "__main__":
             HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/work ;\n"
             HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/" + NEXTFLOW_GIT_REPO + ";\n"
 
-            print(HPC_RUN_CMD)
             cron_fw = open(LINUX_HPC_RUN_DIR_CRONJOB,'w')
             cron_fw.write(HPC_RUN_CMD)
             cron_fw.close()
