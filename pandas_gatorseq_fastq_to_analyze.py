@@ -39,7 +39,7 @@ def replace_env(strname):
 LINUX_PATHOLOGY_FASTQ_FOLDER = replace_env(config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
 #ToDo: remove this
-GATOR_SEQ_SAMPLE_INPUT_FILE = '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/3_GS_Fastq_to_Analyze_V1_0.xlsx'#replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
+GATOR_SEQ_SAMPLE_INPUT_FILE = '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/3_GS_Fastq_to_Analyze_V1_0.xlsx'#replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 LINUX_HPC_ANALYSIS_FOLDER = replace_env(config_dict['LINUX_HPC_ANALYSIS_FOLDER'])
 HPC_ANALYSIS_FOLDER = replace_env(config_dict['HPC_ANALYSIS_FOLDER'])
 LINUX_HPC_FASTQ_FOLDER = replace_env(config_dict['LINUX_HPC_FASTQ_FOLDER'])
