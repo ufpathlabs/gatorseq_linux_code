@@ -97,7 +97,11 @@ work_sheet = sheetList[0]
 sheet = wb[work_sheet]
 
 def save_workbook(df):
-    df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    try:
+        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    except:
+        print("could not save excel")
+        sys.exit()
 
 def check_workbook():
     try: 
@@ -139,10 +143,6 @@ except:
 for index, row in xldf.iterrows():
     
     #print(row)
-    sample_path_index = 'A' + str(row)
-    status_index = 'B' + str(row)
-    time_stamp_index = 'C' + str(row)
-    error_index = 'D' + str(row)
     sample_path=row['SAMPLE_DIR_PATH']
     status=row["STATUS"]
     #print(sample_path)
@@ -198,8 +198,8 @@ for index, row in xldf.iterrows():
         save_workbook()
         continue
     elif len(directories) > 1:
-        sheet[status_index] = "FAILED"
-        sheet[error_index] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
+        row["STATUS"] = "FAILED"
+        row["MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
         save_workbook()
         continue
     else:
@@ -221,8 +221,8 @@ for index, row in xldf.iterrows():
         #need to decode from bytes to str
         stdout_list = proc.communicate()[0].decode()
         if len(stdout_list) == 0:
-            sheet[status_index] = "RUN"
-            sheet[error_index] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
+            row["STATUS"] = "RUN"
+            row["MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
             save_workbook()
 
             rsync_hpc_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
@@ -245,12 +245,12 @@ for index, row in xldf.iterrows():
 
         row['STATUS'] = "SUBMITTED"
         row['TIME_STAMP'] = time_stamp 
-        sheet[error_index] = "Currently job is running."
+        row['MESSAGE'] = "Currently job is running."
         save_workbook()
 
         HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
         HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
-        LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".cronjob.sh"
+        LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".testJob.sh"
         LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".cronjob.sh.log"
         #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+'/'+run_prefix+'*/'+sample_prefix+'*'
         FASTQ_ROOT_DIR_SUFFIX=run_prefix+'*/'+sample_prefix+'*'
@@ -293,7 +293,7 @@ for index, row in xldf.iterrows():
         print("Submitted: "+ LINUX_HPC_RUN_DIR_CRONJOB + "\n")
 
     elif status == 'SUBMITTED':
-        time_stamp = sheet[time_stamp_index].value
+        time_stamp = row["TIME_STAMP"]
         linux_analysis_out_sample_dir = LINUX_ANALYSIS_OUT_FOLDER + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
         hpc_analysis_out_sample_dir = LINUX_HPC_ANALYSIS_FOLDER + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
 
@@ -302,12 +302,12 @@ for index, row in xldf.iterrows():
             if os.path.isdir(hpc_analysis_out_sample_dir):
                 pass
             elif os.path.isfile(linux_analysis_out_sample_dir + "/SUCCESS.txt"):
-                sheet[status_index] = "DONE"
-                sheet[error_index] = "Successfully processed"
+                row["STATUS"] = "DONE"
+                row["MESSAGE"] = "Successfully processed"
                 save_workbook()
             elif os.path.isfile(linux_analysis_out_sample_dir + "/FAILED.txt"):
-                sheet[status_index] = "FAILED"
-                sheet[error_index] = "ERROR: Failed while running on HPC"
+                row["STATUS"] = "FAILED"
+                row["MESSAGE"] = "ERROR: Failed while running on HPC"
                 save_workbook()
 
     elif status == 'FAILED':
@@ -317,7 +317,7 @@ for index, row in xldf.iterrows():
         pass
 
     else:
-        sheet[error_index] = "ERROR: Invalid Status." 
+        row["MESSAGE"] = "ERROR: Invalid Status." 
         save_workbook()
         
 
