@@ -17,7 +17,8 @@ CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
 
 #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+""
-CODE_ENV="DevEnv"
+#For Development uncomment below line
+# CODE_ENV="DevEnv"
 
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
@@ -28,7 +29,7 @@ with open(CONFIG_FILE, 'r') as stream:
         sys.exit()
 
 
-# CODE_ENV=script_path.split('/')[-2]
+CODE_ENV=script_path.split('/')[-2]
 USER_NAME=os.environ['USER']
 
 def replace_env(strname):
@@ -38,8 +39,7 @@ def replace_env(strname):
 
 LINUX_PATHOLOGY_FASTQ_FOLDER = replace_env(config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
-#ToDo: remove this
-GATOR_SEQ_SAMPLE_INPUT_FILE = '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/3_GS_Fastq_to_Analyze_V1_0.xlsx'#replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
+GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 LINUX_HPC_ANALYSIS_FOLDER = replace_env(config_dict['LINUX_HPC_ANALYSIS_FOLDER'])
 HPC_ANALYSIS_FOLDER = replace_env(config_dict['HPC_ANALYSIS_FOLDER'])
 LINUX_HPC_FASTQ_FOLDER = replace_env(config_dict['LINUX_HPC_FASTQ_FOLDER'])
