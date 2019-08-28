@@ -38,7 +38,8 @@ def replace_env(strname):
 
 LINUX_PATHOLOGY_FASTQ_FOLDER = replace_env(config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
-GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
+#ToDo: remove this
+GATOR_SEQ_SAMPLE_INPUT_FILE = '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/3_GS_Fastq_to_Analyze_V1_0.xlsx'#replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 LINUX_HPC_ANALYSIS_FOLDER = replace_env(config_dict['LINUX_HPC_ANALYSIS_FOLDER'])
 HPC_ANALYSIS_FOLDER = replace_env(config_dict['HPC_ANALYSIS_FOLDER'])
 LINUX_HPC_FASTQ_FOLDER = replace_env(config_dict['LINUX_HPC_FASTQ_FOLDER'])
@@ -210,6 +211,7 @@ if __name__ == "__main__":
 
         ## Check if the sample directory exist
         if status == 'RUN':
+            print("running from pandas")
             ### Check sample folders are synced properly 
             rsync_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                 sample_path + "/ " +\
@@ -248,7 +250,7 @@ if __name__ == "__main__":
             HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
             HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
             LINUX_HPC_RUN_DIR_CRONJOB=LINUX_HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX + ".testJob.sh"
-            LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".cronjob.sh.log"
+            LINUX_HPC_RUN_DIR_CRONJOB_LOG = LINUX_HPC_ANALYSIS_FOLDER + "/" + HPC_JOB_PREFIX + ".testJob.sh.log"
             #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+'/'+run_prefix+'*/'+sample_prefix+'*'
             FASTQ_ROOT_DIR_SUFFIX=run_prefix+'*/'+sample_prefix+'*'
             #print(FASTQ_FILES_DIR)
@@ -282,7 +284,7 @@ if __name__ == "__main__":
             HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/work ;\n"
             HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f " + HPC_RUN_DIR + "/" + NEXTFLOW_GIT_REPO + ";\n"
 
-
+            print(HPC_RUN_CMD)
             cron_fw = open(LINUX_HPC_RUN_DIR_CRONJOB,'w')
             cron_fw.write(HPC_RUN_CMD)
             cron_fw.close()
