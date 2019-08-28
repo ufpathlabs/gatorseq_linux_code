@@ -17,7 +17,7 @@ CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
 
 #FASTQ_FILES_DIR=HPC_FASTQ_FOLDER+""
-#CODE_ENV="test"
+CODE_ENV="test"
 
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
@@ -28,7 +28,7 @@ with open(CONFIG_FILE, 'r') as stream:
         sys.exit()
 
 
-CODE_ENV=script_path.split('/')[-2]
+# CODE_ENV=script_path.split('/')[-2]
 USER_NAME=os.environ['USER']
 
 def replace_env(strname):
