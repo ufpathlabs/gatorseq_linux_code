@@ -1,65 +1,0 @@
-Thu Aug 22 19:15:02 EDT 2019
-/ext/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0
-rsync -ltgoDvzrn --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0/ 
-
-mv: cannot stat ‘/ext/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.cronjob.sh’: No such file or directory
-mv: cannot stat ‘/ext/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.cronjob.sh.slurm*’: No such file or directory
-rm: cannot remove ‘/ext/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.cronjob.sh.log’: No such file or directory
-rsync -ltgoDvzr --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0/ 
-receiving incremental file list
-created directory /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0
-./
-START.txt
-           0   0%    0.00kB/s    0:00:00          78 100%   76.17kB/s    0:00:00 (xfer#1, to-check=16/18)
-SUCCESS.txt
-           0   0%    0.00kB/s    0:00:00          92 100%   17.97kB/s    0:00:00 (xfer#2, to-check=15/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.Fusions_final.xls
-           0   0%    0.00kB/s    0:00:00         743 100%   31.55kB/s    0:00:00 (xfer#3, to-check=14/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.Fusions_merged.xls
-           0   0%    0.00kB/s    0:00:00        2221 100%   57.08kB/s    0:00:00 (xfer#4, to-check=13/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.Fusions_only_final.xls
-           0   0%    0.00kB/s    0:00:00         743 100%   12.73kB/s    0:00:00 (xfer#5, to-check=12/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.bam
-           0   0%    0.00kB/s    0:00:00    16074010   5%   15.33MB/s    0:00:18    33283079  11%   15.88MB/s    0:00:16    49883422  16%   15.86MB/s    0:00:15    68520888  22%   16.34MB/s    0:00:13    87175034  28%   16.96MB/s    0:00:12   105810429  34%   17.30MB/s    0:00:11   124434375  41%   17.78MB/s    0:00:09   142678432  47%   17.68MB/s    0:00:08   161330531  53%   17.69MB/s    0:00:07   179938546  59%   17.68MB/s    0:00:06   198547106  65%   17.68MB/s    0:00:05   217168805  71%   17.77MB/s    0:00:04   235810558  77%   17.77MB/s    0:00:03   254663829  84%   17.82MB/s    0:00:02   273549689  90%   17.89MB/s    0:00:01   292433501  96%   17.95MB/s    0:00:00   302543399 100%   17.41MB/s    0:00:16 (xfer#6, to-check=11/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.bam.bai
-           0   0%    0.00kB/s    0:00:00     4595440 100%  136.95MB/s    0:00:00 (xfer#7, to-check=10/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.completes_logs.txt
-           0   0%    0.00kB/s    0:00:00       52760 100%    1.17MB/s    0:00:00 (xfer#8, to-check=9/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.coverage.csv
-           0   0%    0.00kB/s    0:00:00         119 100%    2.37kB/s    0:00:00 (xfer#9, to-check=8/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.summary.csv
-           0   0%    0.00kB/s    0:00:00        1847 100%   26.53kB/s    0:00:00 (xfer#10, to-check=7/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.vcf
-           0   0%    0.00kB/s    0:00:00      743379 100%    8.86MB/s    0:00:00 (xfer#11, to-check=6/18)
-TS-00-00_BC11_TESTDNA2-0-000_20190822152903711590DevEnv3.0.vep.vcf.txt
-           0   0%    0.00kB/s    0:00:00          25 100%    0.25kB/s    0:00:00 (xfer#12, to-check=5/18)
-flowchart.html
-           0   0%    0.00kB/s    0:00:00        8237 100%   75.89kB/s    0:00:00 (xfer#13, to-check=4/18)
-libjansi-64.so
-           0   0%    0.00kB/s    0:00:00       48340 100%  417.76kB/s    0:00:00 (xfer#14, to-check=3/18)
-report.html
-           0   0%    0.00kB/s    0:00:00     2964883 100%   19.23MB/s    0:00:00 (xfer#15, to-check=2/18)
-timeline.html
-           0   0%    0.00kB/s    0:00:00        7686 100%   47.51kB/s    0:00:00 (xfer#16, to-check=1/18)
-trace.txt
-           0   0%    0.00kB/s    0:00:00        1275 100%    7.07kB/s    0:00:00 (xfer#17, to-check=0/18)
-
-Number of files: 18
-Number of files transferred: 17
-Total file size: 310971267 bytes
-Total transferred file size: 310971267 bytes
-Literal data: 310971267 bytes
-Matched data: 0 bytes
-File list size: 698
-File list generation time: 0.142 seconds
-File list transfer time: 0.000 seconds
-Total bytes sent: 337
-Total bytes received: 305395753
-
-sent 337 bytes  received 305395753 bytes  13573159.56 bytes/sec
-total size is 310971267  speedup is 1.02
-/ext/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822184505923660DevEnv3.0
-rsync -ltgoDvzrn --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822184505923660DevEnv3.0/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20190822184505923660DevEnv3.0/ 
-
-rsync -ltgoDvzr --progress --stats path-svc-mol@sftp.rc.ufl.edu:/ufrc/chamala/share/GatorSeq_Share/DevEnv/gatorseq_hpc_code/analysis/TS-00-00_BC11_TESTDNA2-0-000_20190822184505923660DevEnv3.0/ /ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq/TS-00-00/TS-00-00_BC11_TESTDNA2-0-000_20190822184505923660DevEnv3.0/ 
-receiving incremental file list
