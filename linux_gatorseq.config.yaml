@@ -34,3 +34,4 @@ GSBW_VERSION: '4.2'
 NEXTFLOW_GIT_REPO: 'srikarchamala'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
+GATOR_SEQ_VERSION: '4.2'
