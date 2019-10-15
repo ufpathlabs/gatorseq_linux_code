@@ -2,10 +2,11 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONFIG_FILE="$SCRIPT_DIR/linux_gatorseq.config.yaml"
 
-LINUX_HPC_ANALYSIS_FOLDER=$(cat $CONFIG_FILE |grep "^LINUX_HPC_ANALYSIS_FOLDER:" |cut -d"'" -f2)
-
-HPC_ANALYSIS_FOLDER=$(cat $CONFIG_FILE |grep "^HPC_ANALYSIS_FOLDER:" |cut -d"'" -f2)
+CODE_ENV=$(echo $SCRIPT_DIR|rev|cut -d '/' -f2|rev) 
+LINUX_HPC_ANALYSIS_FOLDER=$(cat $CONFIG_FILE |grep "^LINUX_HPC_ANALYSIS_FOLDER:" |cut -d"'" -f2 | sed "s|CODE_ENV|$CODE_ENV|g")
+HPC_ANALYSIS_FOLDER=$(cat $CONFIG_FILE |grep "^HPC_ANALYSIS_FOLDER:" |cut -d"'" -f2 | sed "s|CODE_ENV|$CODE_ENV|g")
 LINUX_ANALYSIS_OUT_FOLDER=$(cat $CONFIG_FILE |grep "^LINUX_ANALYSIS_OUT_FOLDER:" |cut -d"'" -f2)
+
 HPC_SFTP=$(cat $CONFIG_FILE |grep "^HPC_SFTP:" |cut -d"'" -f2)
 
 

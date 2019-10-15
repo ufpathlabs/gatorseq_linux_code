@@ -139,10 +139,10 @@ def main():
                 if (not plm):
                     print('PLM not found in HL7 message!')
                     continue
-                if not(xldf['PLMO_Number'].str.contains( str(plm)).any()):
-                   # print('PLMO '+ str(plm) +' is not found in excel')
+                if xldf[xldf['PLMO_Number'] == str(plm)].empty:
+                    # print('PLMO '+ str(plm) +' is not found in excel')
                     continue
-                if len(xldf['PLMO_Number'].str.findall(str(plm))) > 1:
+                if len(xldf[xldf['PLMO_Number'] == str(plm)]) > 1:
                     print(str(plm), " has duplicate entries in excel")
                     continue
                 #print((plm))
