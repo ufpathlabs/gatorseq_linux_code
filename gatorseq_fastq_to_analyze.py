@@ -114,8 +114,8 @@ def check_failure(log_file):
     return False
 
 def populate_error_msg(row, error_message, xldf):
-    row["STATUS"] = "FAILED"
-    row["MESSAGE"] = error_message
+    xldf.at[index, "STATUS"] = "FAILED"
+    xldf.at[index, "MESSAGE"] = error_message
     save_workbook(xldf)
 
 # This checks if workbook is open; if so it will exit out
@@ -141,8 +141,8 @@ if __name__ == "__main__":
     for index, row in xldf.iterrows():
         
         #print(row)
-        sample_path=row['SAMPLE_DIR_PATH']
-        status=row["STATUS"]
+        sample_path=xldf.at[index, 'SAMPLE_DIR_PATH']
+        status=xldf.at[index, "STATUS"]
         #print(sample_path)
         #print(status)
         #print(list(status))
@@ -156,8 +156,8 @@ if __name__ == "__main__":
             continue
 
         if sample_path == '':
-            row["STATUS"] = "FAILED"
-            row["MESSAGE"] = "ERROR: Invalid directory"
+            xldf.at[index, "STATUS"] = "FAILED"
+            xldf.at[index, "MESSAGE"] = "ERROR: Invalid directory"
             save_workbook(xldf)
             continue
 
@@ -172,13 +172,13 @@ if __name__ == "__main__":
 
         if len(directories) == 0:
             #ToDO: replace error messages with definition
-            row["STATUS"] = "FAILED"
-            row["MESSAGE"] = "ERROR: Following directory extention not found:" + sample_path
+            xldf.at[index, "STATUS"] = "FAILED"
+            xldf.at[index, "MESSAGE"] = "ERROR: Following directory extention not found:" + sample_path
             save_workbook(xldf)
             continue
         elif len(directories) > 1:
-            row["STATUS"] = "FAILED"
-            row["MESSAGE"] = "ERROR: More than one directory extention found:" + ';'.join(directories)
+            xldf.at[index, "STATUS"] = "FAILED"
+            xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found:" + ';'.join(directories)
             save_workbook(xldf)
             continue
         else:
@@ -191,13 +191,13 @@ if __name__ == "__main__":
         listing = glob.glob(linux_hpc_sample_path)
         directories=[d for d in listing if os.path.isdir(d)]
         if len(directories) == 0:
-            row["STATUS"] = "RUN"
-            row["MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
+            xldf.at[index, "STATUS"] = "RUN"
+            xldf.at[index, "MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
             save_workbook(xldf)
             continue
         elif len(directories) > 1:
-            row["STATUS"] = "FAILED"
-            row["MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
+            xldf.at[index, "STATUS"] = "FAILED"
+            xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
             save_workbook(xldf)
             continue
         else:
@@ -219,8 +219,8 @@ if __name__ == "__main__":
             #need to decode from bytes to str
             stdout_list = proc.communicate()[0].decode()
             if len(stdout_list) == 0:
-                row["STATUS"] = "RUN"
-                row["MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
+                xldf.at[index, "STATUS"] = "RUN"
+                xldf.at[index, "MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
                 save_workbook(xldf)
 
                 rsync_hpc_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
@@ -241,9 +241,9 @@ if __name__ == "__main__":
 
             run_log = sample_path + "/" + time_stamp + ".log"
 
-            row['STATUS'] = "SUBMITTED"
-            row['TIME_STAMP'] = time_stamp 
-            row['MESSAGE'] = "Currently job is running."
+            xldf.at[index, 'STATUS'] = "SUBMITTED"
+            xldf.at[index, 'TIME_STAMP'] = time_stamp 
+            xldf.at[index, 'MESSAGE'] = "Currently job is running."
             save_workbook(xldf)
 
             HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
@@ -290,7 +290,7 @@ if __name__ == "__main__":
             print("Submitted: "+ LINUX_HPC_RUN_DIR_CRONJOB + "\n")
 
         elif status == 'SUBMITTED':
-            time_stamp = row["TIME_STAMP"]
+            time_stamp = xldf.at[index, "TIME_STAMP"]
             linux_analysis_out_sample_dir = LINUX_ANALYSIS_OUT_FOLDER + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
             hpc_analysis_out_sample_dir = LINUX_HPC_ANALYSIS_FOLDER + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
 
@@ -299,12 +299,12 @@ if __name__ == "__main__":
                 if os.path.isdir(hpc_analysis_out_sample_dir):
                     pass
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/SUCCESS.txt"):
-                    row["STATUS"] = "DONE"
-                    row["MESSAGE"] = "Successfully processed"
+                    xldf.at[index, "STATUS"] = "DONE"
+                    xldf.at[index, "MESSAGE"] = "Successfully processed"
                     save_workbook(xldf)
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/FAILED.txt"):
-                    row["STATUS"] = "FAILED"
-                    row["MESSAGE"] = "ERROR: Failed while running on HPC"
+                    xldf.at[index, "STATUS"] = "FAILED"
+                    xldf.at[index, "MESSAGE"] = "ERROR: Failed while running on HPC"
                     save_workbook(xldf)
 
         elif status == 'FAILED':
@@ -314,7 +314,7 @@ if __name__ == "__main__":
             pass
 
         else:
-            row["MESSAGE"] = "ERROR: Invalid Status." 
+            xldf.at[index, "MESSAGE"] = "ERROR: Invalid Status." 
             save_workbook(xldf)
         
 
