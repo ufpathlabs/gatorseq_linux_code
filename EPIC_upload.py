@@ -16,7 +16,13 @@ from shutil import move
 import xmltodict
 
 import datetime
+
+import random
+time.sleep(random.randint(1, 60))
+
 print(str(datetime.datetime.now()) + "\n")
+
+
 
 MIRTH_GATORSEQ = 'Z:\MIRTH_GATORSEQ\TEST'
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -191,7 +197,7 @@ def main():
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
-                            populateQCIMessage(xldf, indexes[0], "Out file available at :",out_file_path)
+                            populateQCIMessage(xldf, indexes[0], "Out file available")
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt") 
                         else:
