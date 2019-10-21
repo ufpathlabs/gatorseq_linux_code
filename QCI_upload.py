@@ -66,6 +66,7 @@ def save_workbook(df):
     except:
         print("could not save excel")
         sys.exit()
+        
 
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:
@@ -186,7 +187,7 @@ def checkStatus(url):
     return response.json()["status"]
 
 def populateQCIMessage(df, index, msg):
-    df.at[index, "QCI_Message"] = msg
+    df.at[index, "QCI_Upload_Message"] = msg
 
 # main method
 # 1. checks if excel is open and exits if it is open
