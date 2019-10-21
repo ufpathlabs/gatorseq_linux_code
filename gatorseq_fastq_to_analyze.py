@@ -131,6 +131,7 @@ if __name__ == "__main__":
     try:
             xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
             xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+            xldf = xldf.astype('object')
             excel_file.close()
     except:
         print("Problem Reading Excel")
