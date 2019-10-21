@@ -60,6 +60,14 @@ def check_folders_exist():
 
 check_folders_exist()
 
+def save_workbook(df):
+    try:
+        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE, index=False)
+    except:
+        print("could not save excel")
+        sys.exit()
+        
+
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:
     try:
@@ -178,6 +186,9 @@ def checkStatus(url):
     response = requests.get(url, headers = headers) 
     return response.json()["status"]
 
+def populateQCIMessage(df, index, msg):
+    df.at[index, "QCI_Upload_Message"] = msg
+
 # main method
 # 1. checks if excel is open and exits if it is open
 # 2. reads from excel
@@ -221,15 +232,17 @@ if __name__ == "__main__":
                     try:
                         status_code = uploadToQiagen(vcfFolder + accessionId + ".QCIUpload.zip")
                         print("UPLOADED ", accessionId, " to QCI with status: ", status_code)
+                        populateQCIMessage(df, index, "UPLOADED ", accessionId, " to QCI")
                         statusChanged = True
                     except:
                         print("error while uploading to Qiagen for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0] )
-
+                        populateQCIMessage(df, index, "error while uploading to Qiagen for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0])
                 except:
                     print("could not generate a zip file for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0] )
-
+                    populateQCIMessage(df, index, "could not generate a zip file for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0])
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
+                populateQCIMessage(df, index, "COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
     while len(PROCESSING_STATUS_URLS) > 0:
         time.sleep(60)
         for url in PROCESSING_STATUS_URLS: 
@@ -239,4 +252,5 @@ if __name__ == "__main__":
                 PROCESSING_STATUS_URLS.remove(url)
 
     excel_file.close()
+    save_workbook(df)
    # logging.basicConfig(filename='uploadToQiagen.log',level=logging.ERROR)
