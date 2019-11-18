@@ -234,9 +234,12 @@ if __name__ == "__main__":
         time.sleep(60)
         for url in PROCESSING_STATUS_URLS: 
             status = checkStatus(url)
-            if status != "PREPROCESSING":
+            if status == "DONE" or status == "FAILED":
                 print("final status of Data packet with url: ", url, " is ", status)
                 PROCESSING_STATUS_URLS.remove(url)
+            else:
+                print("retrying as status is not yet done or failed and url: ", url, " is ", status)
+
 
     excel_file.close()
    # logging.basicConfig(filename='uploadToQiagen.log',level=logging.ERROR)
