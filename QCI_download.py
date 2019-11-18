@@ -52,17 +52,6 @@ def check_folders_exist():
 
 check_folders_exist()
 
-def save_workbook(df):
-    try:
-        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE, index=False)
-    except:
-        print("could not save excel")
-        sys.exit()
-
-def populateQCIMessage(df, index, msg):
-    df.at[index, "QCI_Download_Message"] = msg
-
-
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:
     try:
@@ -394,16 +383,11 @@ def main():
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
                 if not text_file:
-                    populateQCIMessage(xldf, index, "could not pull XML from QCI")
                     print("could not pull XML from QCI")
-                else:
-                    populateQCIMessage(xldf, index, "comment file generated")
-                    
     
     #time.sleep(600)    
     #logging.debug('=======================Execution ends===========================')
     excel_file.close()
-    save_workbook(xldf)
 
 #for handler in logging.root.handlers[:]:
 #   logging.root.removeHandler(handler)
