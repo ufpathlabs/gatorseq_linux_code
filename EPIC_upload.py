@@ -62,16 +62,6 @@ def check_folders_exist():
 
 check_folders_exist()
 
-def save_workbook(df):
-    try:
-        df.to_excel(GATOR_SEQ_SAMPLE_INPUT_FILE, index=False)
-    except:
-        print("could not save excel")
-        sys.exit()
-
-def populateQCIMessage(df, index, msg):
-    df.at[index, "Epic_Upload_Message"] = msg
-
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:
     try:
@@ -154,15 +144,10 @@ def main():
                     continue
                 if len(xldf[xldf['PLMO_Number'] == str(plm)]) > 1:
                     print(str(plm), " has duplicate entries in excel")
-                    indexes = xldf.index[xldf['PLMO_Number'] == str(plm)].tolist()
-                    for i in range(0, len(indexes)):
-                        populateQCIMessage(xldf, indexes[i], "Duplicate PLMO ")
                     continue
                 #print((plm))
                 sample_dir_path = xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item()
-                indexes = xldf.index[xldf['PLMO_Number'] == str(plm)].tolist()
                 if (not sample_dir_path):
-                    populateQCIMessage(xldf, indexes[0], "No SampleDirectory path found ")
                     continue
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
@@ -191,20 +176,15 @@ def main():
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
-                            populateQCIMessage(xldf, indexes[0], "Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt") 
                         else:
                             print("Couldn't replace '-' in hl7. Check logs for more details!")
-                            populateQCIMessage(xldf, indexes[0], "Issue with hl7 generation")
-                            
                     else:
                         print("XML was not yet generated for the  " + accessionId)
-                        populateQCIMessage(xldf, indexes[0], "Comment file is not generated")
 
     #logging.debug('=======================Execution ends===========================')
     excel_file.close()
-    save_workbook(xldf)
 
 #for handler in logging.root.handlers[:]:
 #   logging.root.removeHandler(handler)
