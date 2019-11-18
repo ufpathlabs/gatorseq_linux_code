@@ -17,10 +17,6 @@ from shutil import copyfile
 from shutil import move
 import time
 import datetime
-
-import random
-time.sleep(random.randint(1, 60))
-
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
 #LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
@@ -236,17 +232,17 @@ if __name__ == "__main__":
                     try:
                         status_code = uploadToQiagen(vcfFolder + accessionId + ".QCIUpload.zip")
                         print("UPLOADED ", accessionId, " to QCI with status: ", status_code)
-                        populateQCIMessage(df, index, "Uploaded  to QCI")
+                        populateQCIMessage(df, index, "UPLOADED ", accessionId, " to QCI")
                         statusChanged = True
                     except:
                         print("error while uploading to Qiagen for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0] )
-                        populateQCIMessage(df, index, "Error while uploading to Qiagen" )
+                        populateQCIMessage(df, index, "error while uploading to Qiagen for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0])
                 except:
                     print("could not generate a zip file for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0] )
-                    populateQCIMessage(df, index, "Could not generate a zip file")
+                    populateQCIMessage(df, index, "could not generate a zip file for accessionId: ", accessionId , " with exception: ", sys.exc_info()[0])
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
-                populateQCIMessage(df, index, "Could not find vcf file")
+                populateQCIMessage(df, index, "COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
     while len(PROCESSING_STATUS_URLS) > 0:
         time.sleep(60)
         for url in PROCESSING_STATUS_URLS: 

@@ -12,9 +12,6 @@ from shutil import move
 import xmltodict
 import time
 import datetime
-import random
-time.sleep(random.randint(1, 60))
-
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
