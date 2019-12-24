@@ -14,7 +14,7 @@ import datetime
 from shutil import copyfile
 from shutil import move
 import xmltodict
-
+from filelock import FileLock
 import datetime
 print(str(datetime.datetime.now()) + "\n")
 
@@ -100,6 +100,16 @@ def main():
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
+     # try to acquire a lock on excel file before proceeding further. no other script can access it now.
+    file_to_lock =  GATOR_SEQ_SAMPLE_INPUT_FILE + ".lock"
+    lock = FileLock(file_to_lock)
+    try:
+        lock.acquire(timeout=1)
+    except:
+        print("some other script is using it")
+        sys.exit()
+
+
     #Check if excel file is opened by any other user
     try: 
         excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")

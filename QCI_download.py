@@ -12,6 +12,7 @@ from shutil import move
 import xmltodict
 import time
 import datetime
+from filelock import FileLock
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -360,6 +361,15 @@ def callQCIApi(accessionId, plm, accessionIdPath):
 # 5. processes the genes and moves the new hl7 file to a results folder where it gets pushed to EPIC
 # 6. archives the initial file 
 def main():
+    # try to acquire a lock on excel file before proceeding further. no other script can access it now.
+    file_to_lock =  GATOR_SEQ_SAMPLE_INPUT_FILE + ".lock"
+    lock = FileLock(file_to_lock)
+    try:
+        lock.acquire(timeout=1)
+    except:
+        print("some other script is using it")
+        sys.exit()
+
     #Check if excel file is opened by any other user
     try: 
         excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")

@@ -123,13 +123,13 @@ def populate_error_msg(row, error_message, xldf):
 
 if __name__ == "__main__":
 
-    # file_to_lock =  GATOR_SEQ_SAMPLE_INPUT_FILE + ".lock"
-    # lock = FileLock(file_to_lock)
-    # try:
-    #     lock.acquire(timeout=1)
-    # except:
-    #     print("some other script is using it")
-    #     sys.exit()
+    file_to_lock =  GATOR_SEQ_SAMPLE_INPUT_FILE + ".lock"
+    lock = FileLock(file_to_lock)
+    try:
+        lock.acquire(timeout=1)
+    except:
+        print("some other script is using it")
+        sys.exit()
 
     # try:
 
@@ -331,5 +331,5 @@ if __name__ == "__main__":
     
     excel_file.close()
     # finally:
-    #     lock.release()
+    lock.release()
 

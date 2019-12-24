@@ -17,6 +17,7 @@ from shutil import copyfile
 from shutil import move
 import time
 import datetime
+from filelock import FileLock
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
 #LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
@@ -187,6 +188,14 @@ def checkStatus(url):
 #   4.2 upload to Qiagen by generating a XML file from row and a VCF file at the specified location in row.
 # 5. closes the excel in the end 
 if __name__ == "__main__":
+    # try to acquire a lock on excel file before proceeding further. no other script can access it now.
+    file_to_lock =  GATOR_SEQ_SAMPLE_INPUT_FILE + ".lock"
+    lock = FileLock(file_to_lock)
+    try:
+        lock.acquire(timeout=1)
+    except:
+        print("some other script is using it")
+        sys.exit()
     try: 
         excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
     except:
