@@ -6,6 +6,9 @@
 #
 
 CONFIG_TOKENS_FILE: 'config.tokens.yaml'
+TABLE_NAME: 'accession3'
+SQLITE_DB: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/test.db' #'C:\Users\s.majety\Desktop\test.db'
+
 SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
 SOURCE_PATHOLOGY_MNT: '/PATH$'
 

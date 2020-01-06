@@ -16,6 +16,8 @@ from shutil import move
 import xmltodict
 
 import datetime
+import traceback
+import sqlite3
 print(str(datetime.datetime.now()) + "\n")
 
 MIRTH_GATORSEQ = 'Z:\MIRTH_GATORSEQ\TEST'
@@ -41,6 +43,10 @@ LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER']
 GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
+
+TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
+SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
+
 if CODE_ENV=='DevEnv':
     MIRTH_GATORSEQ += '/TEST'
 else:
@@ -88,6 +94,16 @@ def getDrugMaps(treatmentsList):
         drugMap[treatment.get("drug").get("drugname")]['isMatch'] = drugMap[treatment.get("drug").get("drugname")]['isMatch'] or isMatch
         drugMap[treatment.get("drug").get("drugname")]['listTreatments'].append(treatment)
     return drugMap
+
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except:
+        print(traceback.format_exc())
+ 
+    return conn
+
 # 1. Tries to open excel and exits if already open
 # 2. Iterates over the folder and tries to read PLMO number from each hl7 file
 # 3. Checks if there is an entry in excel for that PLMO and retrieves the corresponding accession id.
@@ -101,17 +117,20 @@ def main():
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
     #Check if excel file is opened by any other user
-    try: 
-        excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
-    except:
-        print(" Could not open file! Please close Excel!")
-        sys.exit()
-    try:
-        xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
-        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    except:
-        print("Problem Reading Excel")
-        sys.exit()
+    # try: 
+    #     excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
+    # except:
+    #     print(" Could not open file! Please close Excel!")
+    #     sys.exit()
+    # try:
+    #     xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    #     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    # except:
+    #     print("Problem Reading Excel")
+    #     sys.exit()
+
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
+
 
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
@@ -184,7 +203,7 @@ def main():
                         print("XML was not yet generated for the  " + accessionId)
 
     #logging.debug('=======================Execution ends===========================')
-    excel_file.close()
+    # excel_file.close()
 
 #for handler in logging.root.handlers[:]:
 #   logging.root.removeHandler(handler)

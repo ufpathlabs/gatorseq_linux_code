@@ -17,6 +17,8 @@ from shutil import copyfile
 from shutil import move
 import time
 import datetime
+import traceback
+import sqlite3
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
 #LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
@@ -47,6 +49,9 @@ def replace_env(strname):
 LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
 GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE'] 
+
+TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
+SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
@@ -178,6 +183,15 @@ def checkStatus(url):
     response = requests.get(url, headers = headers) 
     return response.json()["status"]
 
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except:
+        print(traceback.format_exc())
+ 
+    return conn
+
 # main method
 # 1. checks if excel is open and exits if it is open
 # 2. reads from excel
@@ -187,17 +201,19 @@ def checkStatus(url):
 #   4.2 upload to Qiagen by generating a XML file from row and a VCF file at the specified location in row.
 # 5. closes the excel in the end 
 if __name__ == "__main__":
-    try: 
-        excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
-    except:
-        print("Could not open file! Please close Excel!")
-        sys.exit(0)
-    try:
-        df_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
-        df = df_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    except:
-        print("could not read excel")
-        sys.exit()
+    # try: 
+    #     excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
+    # except:
+    #     print("Could not open file! Please close Excel!")
+    #     sys.exit(0)
+    # try:
+    #     df_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    #     df = df_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    # except:
+    #     print("could not read excel")
+    #     sys.exit()
+
+    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
 
     statusChanged = False
     accessionIdMap = populateStatusMap()
