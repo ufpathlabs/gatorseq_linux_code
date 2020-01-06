@@ -79,10 +79,10 @@ QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
 PROCESSING_STATUS_URLS = []
 
 # Helper function to make a HTTP call
-def makePostCall(url, files, headers):
+def makePostCall(url, files, headers, SAMPLE_DIR_PATH):
     response = requests.post(url, files=files, headers=headers)
     if response.json() and response.json().get("status-url") is not None:
-        PROCESSING_STATUS_URLS.append(response.json()["status-url"])
+        PROCESSING_STATUS_URLS.append((response.json()["status-url"], SAMPLE_DIR_PATH))
     
     return response.json()["status"]
 
@@ -97,11 +97,11 @@ def generateAccessToken():
     return ast.literal_eval(response.content.decode("utf-8"))
     
 # uploads the zip to Qiagen API
-def uploadToQiagen(zipFile):
+def uploadToQiagen(zipFile, SAMPLE_DIR_PATH):
     accessToken = generateAccessToken()
     url = QCI_UPLOAD_URL
     files = {'file': open(zipFile,'rb')}
-    return makePostCall(url, files, {"Accept": "application/json", "Authorization": accessToken["access_token"]})
+    return makePostCall(url, files, {"Accept": "application/json", "Authorization": accessToken["access_token"]}, SAMPLE_DIR_PATH)
    
 # Generates xml from a dictionary 
 def createXMLFromDict(map, xmlFileName):
@@ -181,7 +181,7 @@ def populateStatusMap():
 def checkStatus(url):
     headers = {"Accept": "application/json", "Authorization": generateAccessToken()["access_token"]}
     response = requests.get(url, headers = headers) 
-    return response.json()["status"]
+    return (response.json()["status"], response.json())
 
 def create_connection(db_file):
     conn = None
@@ -191,6 +191,13 @@ def create_connection(db_file):
         print(traceback.format_exc())
  
     return conn
+
+def updateStatus(SAMPLE_DIR_PATH, message, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Upload_Message = '+ message +' where SAMPLE_DIR_PATH = "' + SAMPLE_DIR_PATH + '" ;'
+    cursor.execute(sql_update_query)
+    con.commit()
+    cursor.close()
 
 # main method
 # 1. checks if excel is open and exits if it is open
@@ -213,7 +220,7 @@ if __name__ == "__main__":
     #     print("could not read excel")
     #     sys.exit()
 
-    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
+    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Upload_Message = "" ;', create_connection(SQLITE_DB))
 
     statusChanged = False
     accessionIdMap = populateStatusMap()
@@ -235,7 +242,7 @@ if __name__ == "__main__":
                         zip.write(xmlFileName, accessionId + ".xml")
                         zip.write(vcfFolder + vcfFileName, accessionId + ".vcf")
                     try:
-                        status_code = uploadToQiagen(vcfFolder + accessionId + ".QCIUpload.zip")
+                        status_code = uploadToQiagen(vcfFolder + accessionId + ".QCIUpload.zip", row['SAMPLE_DIR_PATH'].strip())
                         print("UPLOADED ", accessionId, " to QCI with status: ", status_code)
                         statusChanged = True
                     except:
@@ -246,16 +253,23 @@ if __name__ == "__main__":
 
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
+    
+    conn = create_connection(SQLITE_DB)
+
     while len(PROCESSING_STATUS_URLS) > 0:
         time.sleep(60)
-        for url in PROCESSING_STATUS_URLS: 
-            status = checkStatus(url)
+        for url, SAMPLE_DIR_PATH in PROCESSING_STATUS_URLS: 
+            status, response = checkStatus(url)
             if status == "DONE" or status == "FAILED":
                 print("final status of Data packet with url: ", url, " is ", status)
                 PROCESSING_STATUS_URLS.remove(url)
+                if status == "DONE":
+                    updateStatus(SAMPLE_DIR_PATH, "Successfully Uploaded", conn)
+                else:
+                    updateStatus(SAMPLE_DIR_PATH, "Error while Uploading: " + response.get("errors"), conn)
             else:
-                print("retrying as status is not yet done or failed and url: ", url, " is ", status)
+                print("retrying as status is not yet done or failed and url: ", url[0], " is ", status)
 
-
-    excel_file.close()
+    conn.close()
+    # excel_file.close()
    # logging.basicConfig(filename='uploadToQiagen.log',level=logging.ERROR)

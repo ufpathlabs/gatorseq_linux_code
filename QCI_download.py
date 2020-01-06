@@ -366,6 +366,13 @@ def create_connection(db_file):
  
     return conn
 
+def updateStatus(SAMPLE_DIR_PATH, message, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = '+ message +' where SAMPLE_DIR_PATH = "' + SAMPLE_DIR_PATH + '" ;'
+    cursor.execute(sql_update_query)
+    con.commit()
+    cursor.close()
+
 # 1. Tries to open excel and exits if already open
 # 2. Iterates over the folder and tries to read PLMO number from each hl7 file
 # 3. Checks if there is an entry in excel for that PLMO and retrieves the corresponding accession id.
@@ -387,9 +394,10 @@ def main():
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Download_Message = "" ;', create_connection(SQLITE_DB))
 
     accessionIdStatusMap = populateStatusMap()
+    conn = create_connection(SQLITE_DB)
 
     for index, row in xldf.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
@@ -397,9 +405,14 @@ def main():
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
+                QCI_Download_Message = "Successfully Downloaded Message"
                 if not text_file:
                     print("could not pull XML from QCI")
-    
+                    QCI_Download_Message = "could not pull XML from QCI"
+                updateStatus(row['SAMPLE_DIR_PATH'], QCI_Download_Message, conn)
+                
+    conn.close()
+
     #time.sleep(600)    
     #logging.debug('=======================Execution ends===========================')
     # excel_file.close()

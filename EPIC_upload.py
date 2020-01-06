@@ -104,6 +104,13 @@ def create_connection(db_file):
  
     return conn
 
+def updateStatus(SAMPLE_DIR_PATH, message, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set EPIC_Upload_Message = '+ message +' where SAMPLE_DIR_PATH = "' + SAMPLE_DIR_PATH + '" ;'
+    cursor.execute(sql_update_query)
+    con.commit()
+    cursor.close()
+
 # 1. Tries to open excel and exits if already open
 # 2. Iterates over the folder and tries to read PLMO number from each hl7 file
 # 3. Checks if there is an entry in excel for that PLMO and retrieves the corresponding accession id.
@@ -130,7 +137,7 @@ def main():
     #     sys.exit()
 
     xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
-
+    conn = create_connection(SQLITE_DB)
 
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
@@ -196,12 +203,15 @@ def main():
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
-                            copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt") 
+                            copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt")
+                            updateStatus(sample_dir_path, "Successfully added hl7 file at " + time.ctime(), conn) 
                         else:
                             print("Couldn't replace '-' in hl7. Check logs for more details!")
+                            updateStatus(sample_dir_path, "Error in processing hl7 file", conn) 
                     else:
                         print("XML was not yet generated for the  " + accessionId)
 
+    conn.close()
     #logging.debug('=======================Execution ends===========================')
     # excel_file.close()
 
