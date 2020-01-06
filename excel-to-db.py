@@ -69,7 +69,7 @@ def read_excel_and_upsert(conn):
         # print(row['SAMPLE_DIR_PATH'], row['STATUS'], row['TIME_STAMP'], row['MESSAGE'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'])
         # update_task(conn, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method']))
         cur = conn.cursor()
-        cur.execute("SELECT * FROM "+TABLE_NAME+" where SAMPLE_DIR_PATH = '" + task[0] + "'")
+        cur.execute("SELECT * FROM "+TABLE_NAME+" where SAMPLE_DIR_PATH = '" + row['SAMPLE_DIR_PATH'] + "'")
         rows = cur.fetchall()
         if len(rows) > 0:
             sql = '''
