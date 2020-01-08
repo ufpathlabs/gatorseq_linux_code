@@ -37,17 +37,19 @@ def find_genes_from_XML(xmlFile):
             map["variant"] = [map.get("variant")]
         for variant in map.get("variant"):
             if variant["assessment"] == "Uncertain Significance":
-                print("ignoreing uncertain imortance genes: ", str(variant["gene"]))
+                if variant.get("gene") is not None:
+                    print("ignoring uncertain imortance genes: ", str(variant["gene"]))
                 continue
-            gene = ''
-            transcriptChange = ""
-            proteinChange = ""
-            if variant.get("transcriptchange"):
-                transcriptChange = variant["transcriptchange"]["change"]
-            if variant.get("proteinchange"):
-                proteinChange = variant["proteinchange"]["change"]
-            gene += str(variant["gene"]) + " " + transcriptChange + " " + proteinChange
-            genes_list.append(gene)
+            if variant.get("gene") is not None:
+                gene = ''
+                transcriptChange = ""
+                proteinChange = ""
+                if variant.get("transcriptchange"):
+                    transcriptChange = variant["transcriptchange"]["change"]
+                if variant.get("proteinchange"):
+                    proteinChange = variant["proteinchange"]["change"]
+                gene += str(variant["gene"]) + " " + transcriptChange + " " + proteinChange
+                genes_list.append(gene)
     return genes_list, diagnosis
 
 def get_first_obx_index(h):

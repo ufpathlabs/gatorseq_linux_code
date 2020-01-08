@@ -117,26 +117,26 @@ def populateIndividualText2(text, list, gene_map):
     foundAtleastOne = False
     for iterator in range(0, len(list)):
         variant = list[iterator]
-        
-        foundAtleastOne = True
-        text += "    " +  str(variant["gene"]) + " " 
-        if variant.get("transcriptchange"):
-            text += variant.get("transcriptchange").get("change") + " "
-        if variant.get("proteinchange"):
-            text += str(variant.get("proteinchange").get("change")) + " "
-        if variant.get("allelefraction"):
-            text += "VAF: " + str(variant.get("allelefraction")) + "%"
-        text += "    "
-        
-        if variant.get("chromosome"):
-            text += "chr"+variant.get("chromosome") + ":"
-        if variant.get("genomicchange"):
-            text += str(variant.get("genomicchange").get("change")) + "  "
-        if variant.get("actionability") is not None and variant["assessment"] != "Uncertain Significance":
-            text += "(Tier " + variant.get("actionability") + ")"
-        text += " \n"
-         
-        gene_map[str(variant["gene"])] = variant
+        if variant.get("gene") is not None:
+            foundAtleastOne = True
+            text += "    " +  str(variant["gene"]) + " " 
+            if variant.get("transcriptchange"):
+                text += variant.get("transcriptchange").get("change") + " "
+            if variant.get("proteinchange"):
+                text += str(variant.get("proteinchange").get("change")) + " "
+            if variant.get("allelefraction"):
+                text += "VAF: " + str(variant.get("allelefraction")) + "%"
+            text += "    "
+            
+            if variant.get("chromosome"):
+                text += "chr"+variant.get("chromosome") + ":"
+            if variant.get("genomicchange"):
+                text += str(variant.get("genomicchange").get("change")) + "  "
+            if variant.get("actionability") is not None and variant["assessment"] != "Uncertain Significance":
+                text += "(Tier " + variant.get("actionability") + ")"
+            text += " \n"
+            
+            gene_map[str(variant["gene"])] = variant
     if not foundAtleastOne:
         text += "    None" + " \n"
     return text, gene_map
@@ -272,33 +272,34 @@ def generateTxtFileAndSave(map, accessionId, plm, accessionIdPath):
         for variant in variants:
             if variant["assessment"] == "Uncertain Significance":
                 continue
-            text += "Gene: " + str(variant["gene"]) + "\n"
-            if variant.get("transcriptchange"):
-                text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) +  "; " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + ";  "
-            
-            if variant.get("genomicchange"):
-                text += " " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + ";"
+            if variant.get("gene") is not None:
+                text += "Gene: " + str(variant["gene"]) + "\n"
+                if variant.get("transcriptchange"):
+                    text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) +  "; " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + ";  "
                 
-            if variant.get("proteinchange"):
-                text += " " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + ";"
-                
-            if variant.get("function"):
-                text += " " + "Function: " + str(variant.get("function")) + ";"
-                
-            if variant.get("assessment"):
-                text += " " + "Assessment: " + str(variant.get("assessment")) + ";"
-            if variant.get("actionability"):
-                text += " " + "Classification: Tier " + str(variant.get("actionability")) + ";"
-                
-            if variant.get("allelefraction"):
-                text += " " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + ";"
-                   
-            if variant.get("variation"):
-                text += " " + "Variation: " + str(variant.get("variation")) + "\n"
-            if variant.get("rcomment"):# and variant.get("rcomment")[0]:
-                #text += "    " + "Interpretation: " + str(variant.get("rcomment")[0].get("text")) + "\n"
-                text += "   " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
-            text += " \n"
+                if variant.get("genomicchange"):
+                    text += " " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + ";"
+                    
+                if variant.get("proteinchange"):
+                    text += " " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + ";"
+                    
+                if variant.get("function"):
+                    text += " " + "Function: " + str(variant.get("function")) + ";"
+                    
+                if variant.get("assessment"):
+                    text += " " + "Assessment: " + str(variant.get("assessment")) + ";"
+                if variant.get("actionability"):
+                    text += " " + "Classification: Tier " + str(variant.get("actionability")) + ";"
+                    
+                if variant.get("allelefraction"):
+                    text += " " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + ";"
+                    
+                if variant.get("variation"):
+                    text += " " + "Variation: " + str(variant.get("variation")) + "\n"
+                if variant.get("rcomment"):# and variant.get("rcomment")[0]:
+                    #text += "    " + "Interpretation: " + str(variant.get("rcomment")[0].get("text")) + "\n"
+                    text += "   " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
+                text += " \n"
     else:
         text += "    None"  + " \n"  
     text += newLine()
