@@ -160,7 +160,7 @@ def generateXMLFileFromRow(row, xmlFilename):
     map["Pre_Filter"] = row["Pre_Filter"]
     map["TreatmentsPolicy"] = row["Treatments_Policy"]
     map["ReportingMethod"] = row["Reporting_Method"]
-    map["Test_Product_Profile "] = row["Test_Product_Profile "]
+    map["Test_Product_Profile "] = row["Test_Product_Profile"]
     xmlFileName = createXMLFromDict(map, xmlFilename)
     return xmlFileName
     
@@ -194,8 +194,8 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Upload_Message = '+ message +' where SAMPLE_DIR_PATH = "' + SAMPLE_DIR_PATH + '" ;'
-    cursor.execute(sql_update_query)
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Upload_Message = ? where SAMPLE_DIR_PATH = ? ;'
+    cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()
 
@@ -236,8 +236,9 @@ if __name__ == "__main__":
                 continue
 
             if os.path.isfile(vcfFolder + vcfFileName):
-                try: 
-                    xmlFileName = generateXMLFileFromRow(row,  vcfFolder + accessionId + ".QCIUpload.xml")
+                
+                xmlFileName = generateXMLFileFromRow(row,  vcfFolder + accessionId + ".QCIUpload.xml")
+                try:
                     with zipfile.ZipFile( vcfFolder + accessionId + ".QCIUpload.zip", 'w') as zip: 
                         zip.write(xmlFileName, accessionId + ".xml")
                         zip.write(vcfFolder + vcfFileName, accessionId + ".vcf")
@@ -257,18 +258,18 @@ if __name__ == "__main__":
     conn = create_connection(SQLITE_DB)
 
     while len(PROCESSING_STATUS_URLS) > 0:
-        time.sleep(60)
+        time.sleep(30)
         for url, SAMPLE_DIR_PATH in PROCESSING_STATUS_URLS: 
             status, response = checkStatus(url)
             if status == "DONE" or status == "FAILED":
                 print("final status of Data packet with url: ", url, " is ", status)
-                PROCESSING_STATUS_URLS.remove(url)
+                PROCESSING_STATUS_URLS.remove((url, SAMPLE_DIR_PATH))
                 if status == "DONE":
                     updateStatus(SAMPLE_DIR_PATH, "Successfully Uploaded", conn)
                 else:
-                    updateStatus(SAMPLE_DIR_PATH, "Error while Uploading: " + response.get("errors"), conn)
+                    updateStatus(SAMPLE_DIR_PATH, "Error while Uploading: " + str(response.get("errors")), conn)
             else:
-                print("retrying as status is not yet done or failed and url: ", url[0], " is ", status)
+                print("retrying as status is not yet done or failed and url: ", url, " is ", status)
 
     conn.close()
     # excel_file.close()

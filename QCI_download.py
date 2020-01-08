@@ -368,8 +368,8 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = '+ message +' where SAMPLE_DIR_PATH = "' + SAMPLE_DIR_PATH + '" ;'
-    cursor.execute(sql_update_query)
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = ? where SAMPLE_DIR_PATH = ? ;'
+    cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()
 

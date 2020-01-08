@@ -120,10 +120,12 @@ def check_failure(log_file):
 
 def populate_error_msg(row, error_message, xldf, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = '+error_message+' and STATUS = "FAILED" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+error_message+'" , STATUS = "FAILED" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    print(sql_update_query)
     cursor.execute(sql_update_query)
     con.commit()
-    print("Record Updated successfully ")
+    print("Record Updated successfully to " + error_message)
+    # print(row)
     cursor.close()
 
     # xldf.at[index, "STATUS"] = "FAILED"
@@ -132,7 +134,7 @@ def populate_error_msg(row, error_message, xldf, con):
 
 def populate_message_and_status(row, message, status, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = '+ message +' and STATUS = '+ status +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'" , STATUS = '+ status +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
     cursor.execute(sql_update_query)
     con.commit()
     print("Record Updated successfully ")
@@ -140,7 +142,7 @@ def populate_message_and_status(row, message, status, con):
 
 def populate_message_and_status_and_timestamp(row, message, status, time_stamp, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = '+ message +' and STATUS = '+ status +' and TIME_STAMP = '+ time_stamp +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'", STATUS = '+ status +' and TIME_STAMP = '+ time_stamp +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
     cursor.execute(sql_update_query)
     con.commit()
     print("Record Updated successfully ")
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "RUN" or where status =  "SUBMITTED" ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "RUN" or status =  "SUBMITTED" ;', create_connection(SQLITE_DB))
     conn = create_connection(SQLITE_DB)
     for index, row in xldf.iterrows():
         
