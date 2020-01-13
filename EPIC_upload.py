@@ -106,7 +106,7 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set EPIC_Upload_Message = ? where SAMPLE_DIR_PATH = ? ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set EPIC_Upload_Message = ?, EPIC_Re_Run = "" where SAMPLE_DIR_PATH = ? ;'
     cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()
@@ -136,7 +136,7 @@ def main():
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Upload_Message = "" or EPIC_Re_Run = "YES") ;', create_connection(SQLITE_DB))
     conn = create_connection(SQLITE_DB)
 
     allhl7filenames = []
@@ -178,6 +178,8 @@ def main():
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
                 vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
+                Perc_Target_Cells =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Target_Cells'].item()
+                Perc_Tumor =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Tumor'].item()
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
                     if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml") and os.path.isfile(vcfFolder+accessionId+".QCIreport.txt"):
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
@@ -195,7 +197,7 @@ def main():
                         hl7update.update_obr_segment(h)
                         hl7update.update_comments(h, open( vcfFolder+accessionId+".QCIreport.txt", mode="r",  encoding='utf-8').read())
                         hl7update.update_obx_segment(h)
-                        h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis)
+                        h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:

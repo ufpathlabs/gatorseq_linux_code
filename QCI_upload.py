@@ -194,7 +194,7 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Upload_Message = ? where SAMPLE_DIR_PATH = ? ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Upload_Message = ?, QCI_Re_Run = "" where SAMPLE_DIR_PATH = ? ;'
     cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     #     print("could not read excel")
     #     sys.exit()
 
-    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Upload_Message = "" ;', create_connection(SQLITE_DB))
+    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "YES");', create_connection(SQLITE_DB))
 
     statusChanged = False
     accessionIdMap = populateStatusMap()
@@ -231,9 +231,15 @@ if __name__ == "__main__":
             vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  row['SAMPLE_DIR_PATH'].strip() + '_' + row['TIME_STAMP']  + "/"
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             vcfFileName = accessionId + ".vcf"
-            if accessionIdMap.get(accessionId) is not None:
+            if row['QCI_Re_Run'].lower() != "yes" and accessionIdMap.get(accessionId) is not None:
                # print(accessionId, " is already uploaded and hence not uploading again")
                 continue
+            
+            if row['QCI_Re_Run'].lower() != "yes":
+                os.remove(vcfFolder + accessionId + ".QCIUpload.xml")
+                os.remove(vcfFolder + accessionId + ".QCIUpload.zip")
+                print("files removed as rerunning QCI_upload")
+
 
             if os.path.isfile(vcfFolder + vcfFileName):
                 

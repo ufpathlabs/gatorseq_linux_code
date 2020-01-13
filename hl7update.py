@@ -106,7 +106,7 @@ def update_obx_segment(h):
                 obx_segment[19] = obx_segment[14]
 
 
-def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
+def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor):
     updates = 0
     temp_obx = h[:]
     l = len(h)
@@ -142,6 +142,19 @@ def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
             obxSegment[1] = new_obx_index
             new_obx_index +=1 
             temp_obx.append(obxSegment) 
+        elif obxSegment[3][0][1][0] == "TARGET CELLS":
+            #print("tumor type found")
+            obxSegment[5][0] = diagnosis
+            obxSegment[1] = new_obx_index
+            new_obx_index +=1 
+            temp_obx.append(obxSegment) 
+        elif obxSegment[3][0][1][0] == "Tumor":
+            #print("tumor type found")
+            obxSegment[5][0] = diagnosis
+            obxSegment[1] = new_obx_index
+            new_obx_index +=1 
+            temp_obx.append(obxSegment) 
+
     h_t = h[:]
     l = len(h)
     for i in range(l):

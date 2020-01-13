@@ -88,6 +88,9 @@ def read_excel_and_upsert(conn):
             xldf.at[index, "QCI_Upload_Message"] = row[14]
             xldf.at[index, "QCI_Download_Message"] = row[15]
             xldf.at[index, "EPIC_Upload_Message"] = row[16]
+            xldf.at[index, "QCI_Re_Run"] = row[19]
+            xldf.at[index, "EPIC_Re_Run"] = row[20]
+
         cur.close()
             
     try:

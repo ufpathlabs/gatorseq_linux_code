@@ -85,22 +85,25 @@ def read_excel_and_upsert(conn):
                 Report_Template = ?,
                 QCIType = ?,
                 Treatments_Policy = ?,
-                Reporting_Method = ?
+                Reporting_Method = ?,
+                Perc_Target_Cells = ?,
+                Perc_Tumor = ?,
+                QCI_Re_Run = ?
             WHERE SAMPLE_DIR_PATH = ''' + "'" + row['SAMPLE_DIR_PATH'] + "';"
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method']))
+            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'],  row['QCI_Re_Run'], row['EPIC_Re_Run'], row['Perc_Target_Cells'], row['Perc_Tumor']))
             conn.commit()
             cur2.close()
         else:
             sql = ''' INSERT into '''+TABLE_NAME+'''(SAMPLE_DIR_PATH, STATUS, TIME_STAMP, MESSAGE, PLMO_Number, 
         Test_Product_Profile , Test_Product_Code, Diagnosis, Primary_Tumor_Site, Pre_Filter, 
-                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
+                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message, ,  QCI_Re_Run, EPIC_Re_Run, Perc_Target_Cells, Perc_Tumor) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
             #     ON CONFLICT(SAMPLE_DIR_PATH)
             #     DO UPDATE
             #   SET STATUS = excluded.STATUS
             #   ;'''
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['TIME_STAMP'], row['MESSAGE'], row['PLMO_Number'],  row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'], "", "", ""))
+            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['TIME_STAMP'], row['MESSAGE'], row['PLMO_Number'],  row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'], "", "", "",  row['QCI_Re_Run'], row['EPIC_Re_Run'], row['Perc_Target_Cells'], row['Perc_Tumor']))
             conn.commit()
             cur2.close()
     

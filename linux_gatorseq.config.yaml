@@ -6,7 +6,7 @@
 #
 
 CONFIG_TOKENS_FILE: 'config.tokens.yaml'
-TABLE_NAME: 'accession4'
+TABLE_NAME: 'accession5'
 SQLITE_DB: 'test.sqlite'  #'/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/test.sqlite' 
 
 SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
