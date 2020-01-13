@@ -220,7 +220,7 @@ if __name__ == "__main__":
     #     print("could not read excel")
     #     sys.exit()
 
-    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "YES");', create_connection(SQLITE_DB))
+    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "yes");', create_connection(SQLITE_DB))
 
     statusChanged = False
     accessionIdMap = populateStatusMap()

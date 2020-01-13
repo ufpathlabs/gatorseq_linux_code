@@ -136,8 +136,40 @@ def main():
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Upload_Message = "" or EPIC_Re_Run = "YES") ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Upload_Message = "" or EPIC_Re_Run = "yes") ;', create_connection(SQLITE_DB))
     conn = create_connection(SQLITE_DB)
+
+    #re_run logic
+    # if a row is to be rerun, move the input hl7 file from ORDERS_ARCHIVE folder to ORDERS folder
+    # the rows to re-run is a rare case and hence, each time, we are querying all files in archive (will not be a time complexity issue)
+    rerun_barcodes = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Re_Run = "yes") ;', create_connection(SQLITE_DB))
+    for index, row in rerun_barcodes.iterrows():
+        excel_row_plmo = row['PLMO_Number']
+        for (dirpath, dirnames, filenames) in os.walk(ORDERS_ARCHIVE_DIR):
+            for fileName in filenames:
+                try:
+                    hl7file = open(ORDERS_ARCHIVE_DIR + fileName, mode="r").read()
+                except:
+                    continue
+                arr = hl7file.split("\n\n") #split by blank lines
+                c=0
+                for hl7msg in arr: 
+                    if hl7msg: 
+                        msg_unix_fmt = hl7msg.replace("\n","\r")
+                        h = hl7.parse(msg_unix_fmt)
+                        # Read PLM id from HL7 message and then compare it with the plmo in reRun_excel
+                        try:
+                            plm = h['ORC'][0][2]
+                        except:
+                            continue
+                        if (plm) and plm == excel_row_plmo:
+                            try:
+                                os.rename(ORDERS_ARCHIVE_DIR + fileName, ORDERS_DIR + fileName)
+                            except:
+                                print("cannot move file from archive to orders during re-run case")
+
+    #---------- additional step removing initially created hl7.txt file is below ------------
+            
 
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
@@ -180,6 +212,15 @@ def main():
                 vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
                 Perc_Target_Cells =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Target_Cells'].item()
                 Perc_Tumor =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Tumor'].item()
+                
+                force_re_run = True if xldf[xldf['PLMO_Number'] == str(plm)]['EPIC_Re_Run'].item() == "yes" else False
+                if force_re_run:
+                    try:
+                        os.remove(vcfFolder+accessionId+".hl7.txt")
+                    except:
+                        pass
+                
+                
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
                     if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml") and os.path.isfile(vcfFolder+accessionId+".QCIreport.txt"):
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")

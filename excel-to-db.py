@@ -92,7 +92,7 @@ def read_excel_and_upsert(conn):
                 EPIC_Re_Run = ?
             WHERE SAMPLE_DIR_PATH = ''' + "'" + row['SAMPLE_DIR_PATH'] + "';"
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'], row['Perc_Target_Cells'], row['Perc_Tumor'],  row['QCI_Re_Run'], row['EPIC_Re_Run']))
+            cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'], row['Perc_Target_Cells'], row['Perc_Tumor'],  str(row['QCI_Re_Run']).lower(), str(row['EPIC_Re_Run']).lower() ))
             conn.commit()
             cur2.close()
         else:
