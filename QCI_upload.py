@@ -235,10 +235,13 @@ if __name__ == "__main__":
                # print(accessionId, " is already uploaded and hence not uploading again")
                 continue
             
-            if row['QCI_Re_Run'].lower() != "yes":
-                os.remove(vcfFolder + accessionId + ".QCIUpload.xml")
-                os.remove(vcfFolder + accessionId + ".QCIUpload.zip")
-                print("files removed as rerunning QCI_upload")
+            if row['QCI_Re_Run'].lower() == "yes":
+                try:
+                    os.remove(vcfFolder + accessionId + ".QCIUpload.xml")
+                    os.remove(vcfFolder + accessionId + ".QCIUpload.zip")
+                except OSError:
+                    pass
+                print("files removed, if exists as rerunning QCI_upload")
 
 
             if os.path.isfile(vcfFolder + vcfFileName):
