@@ -179,8 +179,8 @@ def main():
         try:
             hl7file = open(ORDERS_DIR + hl7_file_name, mode="r").read()
         except:
-
             continue
+        
         arr = hl7file.split("\n\n") #split by blank lines
         #Iterate all HL7 messages in file
         #move('/ext/mirth_gatorseq/MIRTH_GATORSEQ/TEST/ORDERS/61-4caadebf-812c-4b31-b30e-a95673c85e5f.txt', '/ext/mirth_gatorseq/MIRTH_GATORSEQ/TEST/ORDERS_ARCHIVE/61-4caadebf-812c-4b31-b30e-a95673c85e5f.txt')
@@ -211,7 +211,12 @@ def main():
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
                 vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
                 Perc_Target_Cells =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Target_Cells'].item()
+                if Perc_Target_Cells == "":
+                    Perc_Target_Cells = None
+
                 Perc_Tumor =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Tumor'].item()
+                if Perc_Tumor == "":
+                    Perc_Tumor = None
                 
                 force_re_run = True if xldf[xldf['PLMO_Number'] == str(plm)]['EPIC_Re_Run'].item() == "yes" else False
                 if force_re_run:
