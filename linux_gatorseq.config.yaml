@@ -6,7 +6,7 @@
 #
 
 CONFIG_TOKENS_FILE: 'config.tokens.yaml'
-TABLE_NAME: 'accession5'
+TABLE_NAME: 'gatorseq_processing'
 SQLITE_DB: 'test.sqlite'  #'/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/test.sqlite' 
 MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
 MYSQL_USERNAME: 'com_path_imm_lab_t'
