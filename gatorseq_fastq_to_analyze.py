@@ -134,7 +134,7 @@ def populate_error_msg(row, error_message, xldf, con):
 
 def populate_message_and_status(row, message, status, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'" , STATUS = '+ status +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'" , STATUS = "'+ status +'" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
     cursor.execute(sql_update_query)
     con.commit()
     print("Record Updated successfully ")
@@ -142,10 +142,10 @@ def populate_message_and_status(row, message, status, con):
 
 def populate_message_and_status_and_timestamp(row, message, status, time_stamp, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'", STATUS = '+ status +' and TIME_STAMP = '+ time_stamp +' where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'", STATUS = "'+ status +'" , TIME_STAMP = "'+ time_stamp +'" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
     cursor.execute(sql_update_query)
     con.commit()
-    print("Record Updated successfully ")
+    print("Record Updated successfully ", sql_update_query)
     cursor.close()
 
 def create_connection(db_file):

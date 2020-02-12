@@ -162,7 +162,7 @@ def main():
                             plm = h['ORC'][0][2]
                         except:
                             continue
-                        if (plm) and plm == excel_row_plmo:
+                        if (plm) and str(plm) == excel_row_plmo:
                             try:
                                 os.rename(ORDERS_ARCHIVE_DIR + fileName, ORDERS_DIR + fileName)
                             except:
@@ -224,6 +224,17 @@ def main():
                         os.remove(vcfFolder+accessionId+".hl7.txt")
                     except:
                         pass
+                    try:
+                        os.remove(vcfFolder+accessionId+".QCIXml.xml")
+                    except:
+                        pass
+                    print(sample_dir_path)
+                    cursor = conn.cursor()
+                    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "" where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
+                    cursor.execute(sql_update_query)
+                    print(sql_update_query)
+                    conn.commit()
+                    cursor.close()
                 
                 
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
