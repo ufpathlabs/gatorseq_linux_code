@@ -84,6 +84,12 @@ QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
 MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
 
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
+
 PROCESSING_STATUS_URLS = []
 
 # Helper function to make a HTTP call

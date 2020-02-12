@@ -12,6 +12,10 @@ MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
 MYSQL_USERNAME: 'com_path_imm_lab_t'
 MYSQL_DATABASE: 'com_path_imm_lab_t'
 
+PROD_MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
+PROD_MYSQL_USERNAME: 'com_path_imm_lab_t'
+PROD_MYSQL_DATABASE: 'com_path_imm_lab_t'
+
 
 SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
 SOURCE_PATHOLOGY_MNT: '/PATH$'

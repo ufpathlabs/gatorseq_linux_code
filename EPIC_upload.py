@@ -86,6 +86,12 @@ QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
 MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
 
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
+
 
 #populates a map with each drug name. it is required as we need to show the treatments grouped by drugnames
 def getDrugMaps(treatmentsList):
@@ -247,9 +253,9 @@ def main():
                         pass
                     print(sample_dir_path)
                     cursor = conn.cursor()
-                    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "", EPIC_Re_Run = "FETCHING_REPORT"  where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
+                    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "", EPIC_Upload_Message = "", EPIC_Re_Run = "FETCHING_REPORT"  where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
                     cursor.execute(sql_update_query)
-                    print(sql_update_query)
+                    # print(sql_update_query)
                     conn.commit()
                     cursor.close()
                 
