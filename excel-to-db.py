@@ -85,22 +85,22 @@ def read_excel_and_upsert(conn):
         if len(rows) > 0:
             sql = '''
             UPDATE '''+TABLE_NAME+'''
-            SET SAMPLE_DIR_PATH = ?,
-                STATUS = ?,
-                PLMO_Number = ?,
-                Test_Product_Profile = ?,
-                Test_Product_Code = ?,
-                Diagnosis = ?,
-                Primary_Tumor_Site = ?,
-                Pre_Filter = ?,
-                Report_Template = ?,
-                QCIType = ?,
-                Treatments_Policy = ?,
-                Reporting_Method = ?,
-                Perc_Target_Cells = ?,
-                Perc_Tumor = ?,
-                QCI_Re_Run = ?,
-                EPIC_Re_Run = ?
+            SET SAMPLE_DIR_PATH = %s,
+                STATUS = %s,
+                PLMO_Number = %s,
+                Test_Product_Profile = %s,
+                Test_Product_Code = %s,
+                Diagnosis = %s,
+                Primary_Tumor_Site = %s,
+                Pre_Filter = %s,
+                Report_Template = %s,
+                QCIType = %s,
+                Treatments_Policy = %s,
+                Reporting_Method = %s,
+                Perc_Target_Cells = %s,
+                Perc_Tumor = %s,
+                QCI_Re_Run = %s,
+                EPIC_Re_Run = %s
             WHERE SAMPLE_DIR_PATH = ''' + "'" + row['SAMPLE_DIR_PATH'] + "';"
             cur2 = conn.cursor()
             cur2.execute(sql, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'], row['Perc_Target_Cells'], row['Perc_Tumor'],  str(row['QCI_Re_Run']).lower(), str(row['EPIC_Re_Run']).lower() ))
@@ -109,7 +109,7 @@ def read_excel_and_upsert(conn):
         else:
             sql = ''' INSERT into '''+TABLE_NAME+'''(SAMPLE_DIR_PATH, STATUS, TIME_STAMP, MESSAGE, PLMO_Number, 
         Test_Product_Profile , Test_Product_Code, Diagnosis, Primary_Tumor_Site, Pre_Filter, 
-                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message, QCI_Re_Run, EPIC_Re_Run, Perc_Target_Cells, Perc_Tumor) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); '''
+                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message, QCI_Re_Run, EPIC_Re_Run, Perc_Target_Cells, Perc_Tumor) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); '''
             #     ON CONFLICT(SAMPLE_DIR_PATH)
             #     DO UPDATE
             #   SET STATUS = excluded.STATUS
