@@ -10,6 +10,7 @@ from filelock import FileLock
 import traceback
 import sqlite3
 import yaml
+import mysql.connector
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -53,8 +54,17 @@ except:
 
 def create_connection(db_file):
     conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
     try:
-        conn = sqlite3.connect(db_file)
+        conn = mysql.connector.connect(
+            host="mysql09c.ahc.ufl.edu",
+            user="com_path_imm_lab_t",
+            passwd="Rf#LwkOxHi7AXTTf"
+        )
     except:
         print(traceback.format_exc())
  
