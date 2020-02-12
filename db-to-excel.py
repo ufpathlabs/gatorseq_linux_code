@@ -37,6 +37,22 @@ GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FI
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
 SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+
+CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
+config_token_dict=dict()
+with open(CONFIG_TOKENS_FILE, 'r') as stream:
+    try:
+        config_token_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
+
 file_to_lock = GATOR_SEQ_SAMPLE_INPUT_FILE + '.lock'
 lock = FileLock(file_to_lock)
 try:
@@ -61,10 +77,10 @@ def create_connection(db_file):
 
     try:
         conn = mysql.connector.connect(
-            host="mysql09c.ahc.ufl.edu",
-            user="com_path_imm_lab_t",
-            passwd="Rf#LwkOxHi7AXTTf",
-            database="com_path_imm_lab_t"
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
         )
     except:
         print(traceback.format_exc())

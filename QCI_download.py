@@ -14,6 +14,8 @@ import time
 import datetime
 import traceback
 import sqlite3
+import mysql.connector
+
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -45,6 +47,11 @@ GATOR_SEQ_VERSION = config_dict['GATOR_SEQ_VERSION']
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
 SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
         sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
@@ -67,6 +74,7 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
 
 
 # Gets all the accessionIds with 'final' status. Used to check if a accessionId is ready to be pulled from Qiagen
@@ -359,9 +367,19 @@ def callQCIApi(accessionId, plm, accessionIdPath):
     return False
 
 def create_connection(db_file):
-    conn = None
+    # conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
     try:
-        conn = sqlite3.connect(db_file)
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
     except:
         print(traceback.format_exc())
  
@@ -369,7 +387,7 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = ? where SAMPLE_DIR_PATH = ? ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = %s where SAMPLE_DIR_PATH = %s ;'
     cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()

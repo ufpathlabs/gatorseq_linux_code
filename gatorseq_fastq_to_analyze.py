@@ -9,6 +9,7 @@ import yaml
 import pandas as pd
 import traceback
 import sqlite3
+import mysql.connector
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -57,6 +58,11 @@ NEXTFLOW_GIT_REPO = replace_env(config_dict['NEXTFLOW_GIT_REPO'])
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
 SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
 #HPC_ANALYSIS_FOLDER="/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
@@ -93,6 +99,16 @@ def check_folders_exist():
 
 check_folders_exist()
 
+CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
+config_token_dict=dict()
+with open(CONFIG_TOKENS_FILE, 'r') as stream:
+    try:
+        config_token_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
 
 
 def save_workbook(df):
@@ -150,8 +166,18 @@ def populate_message_and_status_and_timestamp(row, message, status, time_stamp, 
 
 def create_connection(db_file):
     conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
     try:
-        conn = sqlite3.connect(db_file)
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
     except:
         print(traceback.format_exc())
  

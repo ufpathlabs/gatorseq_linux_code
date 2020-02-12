@@ -18,9 +18,10 @@ import xmltodict
 import datetime
 import traceback
 import sqlite3
+import mysql.connector
+
 print(str(datetime.datetime.now()) + "\n")
 
-MIRTH_GATORSEQ = 'Z:\MIRTH_GATORSEQ\TEST'
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 config_dict=dict()
@@ -46,6 +47,11 @@ MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
 SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
+
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
 if CODE_ENV=='DevEnv':
     MIRTH_GATORSEQ += '/TEST'
@@ -78,6 +84,7 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
 
 
 #populates a map with each drug name. it is required as we need to show the treatments grouped by drugnames
@@ -97,8 +104,18 @@ def getDrugMaps(treatmentsList):
 
 def create_connection(db_file):
     conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
     try:
-        conn = sqlite3.connect(db_file)
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
     except:
         print(traceback.format_exc())
  
@@ -106,7 +123,7 @@ def create_connection(db_file):
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
-    sql_update_query = 'Update '+ TABLE_NAME +'  set EPIC_Upload_Message = ?, EPIC_Re_Run = "" where SAMPLE_DIR_PATH = ? ;'
+    sql_update_query = 'Update '+ TABLE_NAME +'  set EPIC_Upload_Message = %s, EPIC_Re_Run = "" where SAMPLE_DIR_PATH = %s ;'
     cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
     con.commit()
     cursor.close()
@@ -230,7 +247,7 @@ def main():
                         pass
                     print(sample_dir_path)
                     cursor = conn.cursor()
-                    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "" where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
+                    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "", EPIC_Re_Run = "FETCHING_REPORT"  where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
                     cursor.execute(sql_update_query)
                     print(sql_update_query)
                     conn.commit()
