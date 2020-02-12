@@ -63,11 +63,11 @@ def create_connection(db_file):
         conn = mysql.connector.connect(
             host="mysql09c.ahc.ufl.edu",
             user="com_path_imm_lab_t",
-            passwd="Rf#LwkOxHi7AXTTf"
+            passwd="Rf#LwkOxHi7AXTTf",
+            database="com_path_imm_lab_t"
         )
     except:
         print(traceback.format_exc())
-        
     return conn
 
 def read_excel_and_upsert(conn):
