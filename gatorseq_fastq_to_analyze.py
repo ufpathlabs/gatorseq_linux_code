@@ -170,6 +170,16 @@ def populate_message_and_status_and_timestamp(row, message, status, time_stamp, 
     print("Record Updated successfully ", sql_update_query)
     cursor.close()
 
+def create_run_log(row, time_stamp, con):
+    cursor = con.cursor()
+    sql_update_query = 'INSERT INTO gatorseq_run_log VALUES(%s, %s);'
+    cursor.execute(sql_update_query, (row['SAMPLE_DIR_PATH'], str(row['SAMPLE_DIR_PATH']) + "_" + time_stamp ))
+    con.commit()
+    print("added run log successfully ")
+    cursor.close()
+    
+
+
 def create_connection(db_file):
     conn = None
     # try:
@@ -208,7 +218,7 @@ if __name__ == "__main__":
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "RUN" or status =  "SUBMITTED" ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP != "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection(SQLITE_DB))
     conn = create_connection(SQLITE_DB)
     for index, row in xldf.iterrows():
         
@@ -288,7 +298,14 @@ if __name__ == "__main__":
 
 
         ## Check if the sample directory exist
-        if status == 'RUN':
+        if status == 'RUN' or status == 'RE-RUN':
+
+            #chacking if timestamp is already present againt that sample id
+            row_timestamp = xldf.at[index, 'TIME_STAMP']
+            if status == 'RUN' and row_timestamp != "":
+                populate_error_msg(row, "You cannot RUN a sample which is already run, to force run, change the STATUS to RE-RUN", xldf, conn)
+                continue
+
             ### Check sample folders are synced properly 
             rsync_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                 sample_path + "/ " +\
@@ -322,6 +339,7 @@ if __name__ == "__main__":
             run_log = sample_path + "/" + time_stamp + ".log"
             
             populate_message_and_status_and_timestamp(row, "Currently job is running.", "SUBMITTED", time_stamp, conn)
+            create_run_log(row, time_stamp, conn)
 
             # xldf.at[index, 'STATUS'] = "SUBMITTED"
             # xldf.at[index, 'TIME_STAMP'] = time_stamp 

@@ -286,7 +286,7 @@ def main():
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt")
-                            updateStatus(sample_dir_path, "Successfully added hl7 file at " + time.ctime(), conn) 
+                            updateStatus(sample_dir_path, "Successfully added hl7 file with accession id: " + accessionId, conn) 
                         else:
                             print("Couldn't replace '-' in hl7. Check logs for more details!")
                             updateStatus(sample_dir_path, "Error in processing hl7 file", conn) 
