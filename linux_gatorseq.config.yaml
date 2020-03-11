@@ -46,3 +46,6 @@ NEXTFLOW_GIT_REPO: 'srikarchamala'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
 GATOR_SEQ_VERSION: '4.2'
+
+ILLUMINA_SAMPLE_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/illumina.xlsx'
+ILLUMINA_TABLE_NAME: 'illumina_samples'

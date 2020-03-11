@@ -36,3 +36,22 @@ SAMPLE_DIR_PATH varchar(255) NOT NULL,
 AccessionId varchar(255)
 
 );
+
+CREATE TABLE illumina_samples
+(
+SAMPLE_NAME varchar(255) NOT NULL,
+PROJECT_NAME varchar(255) NOT NULL,
+GENDER varchar(255) DEFAULT 'UNKNOWN',
+
+APP_ID varchar(255),
+APP_NAME varchar(255),
+APP_VERSION_SLUG varchar(255),
+
+APP_SESSION_ID varchar(255),
+APP_SESSION_STATUS varchar(255),
+DATE_CREATED varchar(255),
+DATE_COMPLETED varchar(255),
+TOTAL_SIZE varchar(255),
+RUNNING_DURATION varchar(255)
+
+);
