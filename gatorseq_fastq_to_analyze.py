@@ -218,7 +218,7 @@ if __name__ == "__main__":
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP != "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP = "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection(SQLITE_DB))
     conn = create_connection(SQLITE_DB)
     for index, row in xldf.iterrows():
         
