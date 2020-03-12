@@ -105,11 +105,12 @@ def read_excel_and_upsert(conn):
             UPDATE '''+ILLUMINA_TABLE_NAME+'''
             SET SAMPLE_NAME = %s,
                 PROJECT_NAME = %s,
-                GENDER = %s,
+                GENDER = %s
                 
-            WHERE SAMPLE_NAME = ''' + "'" + row['SAMPLE_NAME'] + "';"
+            WHERE SAMPLE_NAME = %s;''' 
+            #print(sql)
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['GENDER'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['GENDER'], row['SAMPLE_NAME'] ))
             conn.commit()
             cur2.close()
         else:
@@ -126,13 +127,18 @@ def getJSONFromBashCommand(cmd):
     process = subprocess.Popen(cmd.split(), 
                            stdout=subprocess.PIPE)
                         #    universal_newlines=True)
-    jsonBin, _ = process.communicate()
-    return json.loads(jsonBin)
+    jsonBin, errors = process.communicate()
+   
+    if not errors:
+        return json.loads(jsonBin)
+    else:
+        print("error while executing the command-----------> ", cmd)
+        return None
 
 def findStatus(appSessionId):
-    statusJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs  --config UFMOL_ENTERPRISE appsession get --id=219690534 --format=json")
-    print(statusJson)
-
+    statusJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE appsession get --id=219690534 --format=json")
+    print(statusJson["Id"])
+    
 
                            
     
@@ -143,7 +149,7 @@ if __name__ == "__main__":
     connection = create_connection()
     read_excel_and_upsert(connection)
 
-
+    findStatus(1234)
     connection.close()
 
 
