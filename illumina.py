@@ -13,6 +13,13 @@ import yaml
 import mysql.connector
 import json
 
+PROJECT_ID_MAP = {
+    "CLIN_WGS": "152973821"
+}
+APPLICATION_ID_MAP = {
+    "CLIN_WGS": "9650641"
+}
+
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -138,10 +145,79 @@ def getJSONFromBashCommand(cmd):
 def findStatus(appSessionId):
     statusJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE appsession get --id=219690534 --format=json")
     print(statusJson["Id"])
-    
 
+def updateRowWithStatus(sampleName, status, appSessionLabel, conn):
+    cur = conn.cursor()
+    updateSql = "update "+ ILLUMINA_TABLE_NAME +" set APP_SESSION_STATUS = %s, APP_SESSION_ID = %s where SAMPLE_NAME = %s;"
+    cur.execute(updateSql, (status, appSessionLabel, sampleName))
+    cur.close()
+
+def submitJob(applicationId, projectId, appSessionName, appSessionLabel):
+    gender = "auto"
+    # if genderProvided:
+    #     gender = genderProvided
+    bashCommand = """/home/path-svc-mol/Illumina_Binary/bin/bs \
+        --config UFMOL_ENTERPRISE 
+        application launch 
+        --id=""" + applicationId + """ 
+        --option=project-id:""" + projectId + """ \
+        --option=ht-ref:hg19-altaware-cnv-anchor.v8 \
+        --option=cnv_checkbox:1 \
+        --option=cnv_ref:1 \
+        --option=cnv_segmentation_mode:slm \
+        --option=sv_checkbox:1 \
+        --option=eh_checkbox:1 \
+        --option=output_format:BAM \
+        --option=vcf_or_gvcf:GVCF \
+        --option=dupmark_checkbox:1 \
+        --option=vc_enable_bqd_checkbox:1 \
+        --option=metrics_checkbox:1 \
+        --option=md5_all:1 \
+        --option=automation_checkbox:1 \
+        --option=automation-sample-id:216890698 \
+        --option=automation-sex:""" + gender + """ \
+        --option=app-session-name: """ + appSessionName + """ \
+        --appsession-label=""" + appSessionLabel + """ \
+        --format=json 
+    """
+    print(bashCommand)
+    submitJobResponseJson = getJSONFromBashCommand(bashCommand)
+    return submitJobResponseJson
+         
+
+
+
+#read the database for any jobs with APP_SESSION_STATUS == "" 
+def getJobsToSubmit(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = '';")
+    rows = cur.fetchall()
+    cur.close()
+    if len(rows):
+        for row in rows:
+            sampleId = None
+            getSampleIdResponseJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  biosample get --name=" + row['SAMPLE_NAME'] + " --format=json")
+            if getSampleIdResponseJson:
+                sampleId = getSampleIdResponseJson["Id"]
+                #submitting the job
+                projectId = PROJECT_ID_MAP.get(row["PROJECT_NAME"]) 
+                applicationId = APPLICATION_ID_MAP.get(row["PROJECT_NAME"])
+                if projectId and applicationId and sampleId:
+                    time_stamp = str(datetime.datetime.now()).replace('-', '').replace(' ','').replace(':', '').replace('.', '')
+                    time_stamp = time_stamp + CODE_ENV
+                    appSessionName = str(row['SAMPLE_NAME']) + "_AppSessionName_" + time_stamp
+                    appSessionLabel = str(row['SAMPLE_NAME']) + "_AppSessionLabel_" + time_stamp
+
+                    jobSubmitted = submitJob(applicationId, projectId, appSessionName, appSessionLabel)
+                    if jobSubmitted:
+                        updateRowWithStatus(row['SAMPLE_NAME'], "Submitted", appSessionLabel, connection)
+                    else:
+                        print("error while submitting the job")
+                    
+            else:
+                print("unable to get sample Id for sample: " + row["SAMPLE_NAME"])
+                continue
                            
-    
     
 
 
@@ -149,7 +225,8 @@ if __name__ == "__main__":
     connection = create_connection()
     read_excel_and_upsert(connection)
 
-    findStatus(1234)
+    toSubmitJobs = getJobsToSubmit(connection)
+    # findStatus(1234)
     connection.close()
 
 
