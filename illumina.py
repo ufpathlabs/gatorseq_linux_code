@@ -150,6 +150,7 @@ def updateRowWithStatus(sampleName, status, appSessionLabel, conn):
     cur = conn.cursor()
     updateSql = "update "+ ILLUMINA_TABLE_NAME +" set APP_SESSION_STATUS = %s, APP_SESSION_ID = %s where SAMPLE_NAME = %s;"
     cur.execute(updateSql, (status, appSessionLabel, sampleName))
+    conn.commit()
     cur.close()
 
 def submitJob(applicationId, projectId, appSessionName, appSessionLabel):
@@ -180,7 +181,7 @@ def submitJob(applicationId, projectId, appSessionName, appSessionLabel):
         --appsession-label=""" + appSessionLabel + """ \
         --format=json 
     """
-    print(bashCommand)
+    #print(bashCommand)
     submitJobResponseJson = getJSONFromBashCommand(bashCommand)
     return submitJobResponseJson
          
@@ -196,26 +197,28 @@ def getJobsToSubmit(conn):
     if len(rows):
         for row in rows:
             sampleId = None
-            getSampleIdResponseJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  biosample get --name=" + row['SAMPLE_NAME'] + " --format=json")
+            sampleName = row[0]
+            getSampleIdResponseJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  biosample get --name=" + sampleName + " --format=json")
             if getSampleIdResponseJson:
                 sampleId = getSampleIdResponseJson["Id"]
                 #submitting the job
-                projectId = PROJECT_ID_MAP.get(row["PROJECT_NAME"]) 
-                applicationId = APPLICATION_ID_MAP.get(row["PROJECT_NAME"])
+                projectId = PROJECT_ID_MAP.get(row[1]) 
+                applicationId = APPLICATION_ID_MAP.get(row[1])
                 if projectId and applicationId and sampleId:
                     time_stamp = str(datetime.datetime.now()).replace('-', '').replace(' ','').replace(':', '').replace('.', '')
                     time_stamp = time_stamp + CODE_ENV
-                    appSessionName = str(row['SAMPLE_NAME']) + "_AppSessionName_" + time_stamp
-                    appSessionLabel = str(row['SAMPLE_NAME']) + "_AppSessionLabel_" + time_stamp
+                    appSessionName = str(row[0]) + "_AppSessionName_" + time_stamp
+                    appSessionLabel = str(row[0]) + "_AppSessionLabel_" + time_stamp
 
                     jobSubmitted = submitJob(applicationId, projectId, appSessionName, appSessionLabel)
                     if jobSubmitted:
-                        updateRowWithStatus(row['SAMPLE_NAME'], "Submitted", appSessionLabel, connection)
+                        print(jobSubmitted)
+                        updateRowWithStatus(row[0], "Submitted", appSessionLabel, connection)
                     else:
                         print("error while submitting the job")
                     
             else:
-                print("unable to get sample Id for sample: " + row["SAMPLE_NAME"])
+                print("unable to get sample Id for sample name: " + row[0])
                 continue
                            
     
@@ -223,7 +226,7 @@ def getJobsToSubmit(conn):
 
 if __name__ == "__main__":
     connection = create_connection()
-    read_excel_and_upsert(connection)
+    #read_excel_and_upsert(connection)
 
     toSubmitJobs = getJobsToSubmit(connection)
     # findStatus(1234)
