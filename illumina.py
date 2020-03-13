@@ -96,7 +96,7 @@ def create_connection():
  
     return conn
 
-
+# read the excel for all rows and add any new samples to database or update the rows in database.
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(ILLUMINA_SAMPLE_FILE)
     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
@@ -143,13 +143,28 @@ def getJSONFromBashCommand(cmd):
         return None
 
 def findStatus(appSessionId):
-    statusJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE appsession get --id=219690534 --format=json")
-    print(statusJson["Id"])
+    bashCommand = """/home/path-svc-mol/Illumina_Binary/bin/bs \
+        --config UFMOL_ENTERPRISE \
+        appsession get \
+        --name=""" + appSessionId + """ \
+        --format=json"""
+    statusJson = getJSONFromBashCommand(bashCommand)
+    if statusJson:
+        return statusJson["ExecutionStatus"]
+    else:
+        return None
 
 def updateRowWithStatus(sampleName, status, appSessionLabel, conn):
     cur = conn.cursor()
     updateSql = "update "+ ILLUMINA_TABLE_NAME +" set APP_SESSION_STATUS = %s, APP_SESSION_ID = %s where SAMPLE_NAME = %s;"
     cur.execute(updateSql, (status, appSessionLabel, sampleName))
+    conn.commit()
+    cur.close()
+
+def updateRowWithError(sampleName, status, conn):
+    cur = conn.cursor()
+    updateSql = "update "+ ILLUMINA_TABLE_NAME +" set APP_SESSION_STATUS = %s where SAMPLE_NAME = %s;"
+    cur.execute(updateSql, (status, sampleName))
     conn.commit()
     cur.close()
 
@@ -188,8 +203,8 @@ def submitJob(applicationId, projectId, appSessionName, appSessionLabel):
 
 
 
-#read the database for any jobs with APP_SESSION_STATUS == "" 
-def getJobsToSubmit(conn):
+#read the database for any jobs with APP_SESSION_STATUS == "" and tries to submit them. 
+def submitNewJobs(conn):
     cur = conn.cursor()
     cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = '';")
     rows = cur.fetchall()
@@ -213,23 +228,37 @@ def getJobsToSubmit(conn):
                     jobSubmitted = submitJob(applicationId, projectId, appSessionName, appSessionLabel)
                     if jobSubmitted:
                         print(jobSubmitted)
-                        updateRowWithStatus(row[0], "Submitted", appSessionLabel, connection)
+                        updateRowWithStatus(row[0], "In Progress", appSessionLabel, connection)
                     else:
-                        print("error while submitting the job")
+                        print("-----------------error while submitting the job---------------------")
+                        updateRowWithError(row[0], "Error while submitting, please check with tech team", connection)
                     
             else:
                 print("unable to get sample Id for sample name: " + row[0])
-                continue
                            
     
-
+def checkAndUpdateStatus(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = 'In Progress';")
+    rows = cur.fetchall()
+    cur.close()
+    if len(rows):
+        for row in rows:
+            status = findStatus(row[6])
+            #ToDo: check for other statuses
+            if status and status == "Complete":
+                updateRowWithStatus(row[0], status, row[6], conn)
+            
 
 if __name__ == "__main__":
     connection = create_connection()
+
     #read_excel_and_upsert(connection)
 
-    toSubmitJobs = getJobsToSubmit(connection)
-    # findStatus(1234)
+    submitNewJobs(connection)
+
+    checkAndUpdateStatus(connection)
+
     connection.close()
 
 
