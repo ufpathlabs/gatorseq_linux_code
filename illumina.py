@@ -135,8 +135,9 @@ def getJSONFromBashCommand(cmd):
                            stdout=subprocess.PIPE)
                         #    universal_newlines=True)
     jsonBin, errors = process.communicate()
-   
-    if not errors:
+    print(jsonBin)
+    print(errors) 
+    if not errors and len(jsonBin):
         return json.loads(jsonBin)
     else:
         print("error while executing the command-----------> ", cmd)
@@ -239,7 +240,7 @@ def submitNewJobs(conn):
     
 def checkAndUpdateStatus(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = 'In Progress';")
+    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = 'Submitted';")
     rows = cur.fetchall()
     cur.close()
     if len(rows):
