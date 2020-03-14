@@ -125,9 +125,7 @@ class hl7update:
             del temp_obx[l-i-1]
         new_obx_index = 1
         for obxSegment in self.h['OBX']:
-
-            if obxSegment[3][0][1][0] == "SARS-CoV-2, NAA":
-                #print("tumor type found")
+            if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = sample.result
                 obxSegment[1] = new_obx_index
                 new_obx_index +=1 
@@ -195,9 +193,8 @@ def checkIncomingHl7(sampleDict):
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                foundMessageId = False
                 if messageId in sampleDict:
-                    foundMessageId = True
+                    print("--------found----------")
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
@@ -215,12 +212,17 @@ def checkIncomingHl7(sampleDict):
 
 class Sample:
     def __init__(self, sample_name):
-        self.name = sample_name
+        self.name = str(sample_name)
         self.nCoV_N1 = None
         self.nCoV_N2 = None
         self.nCoV_N3 = None
         self.RP = None
         self.result = None
+    def __str__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
+
+    def __repr__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " | "
 
 def isFloatValue(value, maxThreshold):
     try:
@@ -240,27 +242,32 @@ def isFloatValue(value, maxThreshold):
     
 if __name__ == "__main__":
     CORONA_SAMPLE_INPUT_FILE = replace_env(config_dict['CORONA_SAMPLE_INPUT_FILE'])
-    xldf_full = pd.read_excel(CORONA_SAMPLE_INPUT_FILE, skiprows=range(0,34))
-    xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    xldf = pd.read_excel(CORONA_SAMPLE_INPUT_FILE, skiprows=range(0,34))
+    #print(xldf)
+    
+    # ToDo: stripping causing issues?
+    #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     # generate sample dictionary in below format:
     # {<sample name>: <Class Sample>}
     sampleDict = {}
     for index, row in xldf.iterrows():
-        sampleName = row["Sample Name"]
+        sampleName = str(row["Sample Name"])
         targetName = row["Target Name"]
         value = row["CT"]
         if sampleDict.get(sampleName) is None:
             sampleDict[sampleName] = Sample(sampleName)
 
         if targetName == "RP":
-            sampleDict[sampleName][targetName] = value
+            #sampleDict[sampleName].targetName = value
+            setattr(sampleDict[sampleName], "%s" % targetName, value)
         else:
             #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-            sampleDict[sampleName][targetName[4:]] = value
-
+            #sampleDict[sampleName].targetName[4:] = value
+            setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
+    #print(sampleDict)
     for sampleName in sampleDict.keys():
         sample = sampleDict[sampleName]
-        if sample.RP and isFloatValue(sample.RP, 35.0):
+        if sample.RP and not isFloatValue(sample.RP, 35.0):
             sample.result = "Invalid"
             continue
 
@@ -276,5 +283,6 @@ if __name__ == "__main__":
         if sample.result is None:
             print("------unable to identify result for the sample-----", sample)
             del sampleDict[sampleName]
-
+    print("below is the dictionary of all samples:")
+    print(sampleDict)
     checkIncomingHl7(sampleDict)
