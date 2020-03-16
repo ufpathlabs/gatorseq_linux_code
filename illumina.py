@@ -107,27 +107,28 @@ def read_excel_and_upsert(conn):
         cur = conn.cursor()
         cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where SAMPLE_NAME = '" + row['SAMPLE_NAME'] + "'")
         rows = cur.fetchall()
+        cur.close()
         if len(rows) > 0:
             sql = '''
             UPDATE '''+ILLUMINA_TABLE_NAME+'''
             SET SAMPLE_NAME = %s,
-                PROJECT_NAME = %s,
-                GENDER = %s
+                PROJECT_NAME = %s
                 
             WHERE SAMPLE_NAME = %s;''' 
             #print(sql)
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['GENDER'], row['SAMPLE_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['SAMPLE_NAME'] ))
             conn.commit()
             cur2.close()
         else:
-            sql = ''' INSERT into '''+ILLUMINA_TABLE_NAME+'''(SAMPLE_NAME, PROJECT_NAME, GENDER) values(%s,%s,%s); '''
+            sql = ''' INSERT into '''+ILLUMINA_TABLE_NAME+'''(SAMPLE_NAME, PROJECT_NAME) values(%s,%s); '''
             
             cur2 = conn.cursor()
             #print(sql)
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['GENDER'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'] ))
             conn.commit()
             cur2.close()
+    return xldf
     
     
 def getJSONFromBashCommand(cmd):
@@ -250,15 +251,27 @@ def checkAndUpdateStatus(conn):
             if status and status == "Complete":
                 updateRowWithStatus(row[0], status, row[6], conn)
             
+def populateStatusInExcel(conn, df):
+    for index, row in df.iterrows():
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where SAMPLE_NAME = '" + row['SAMPLE_NAME'] + "'")
+        cur.close()
+        rows = cur.fetchall()
+        if len(rows) > 0:
+            df.at[index, "APP_SESSION_STATUS"] = row[7]
+            df.at[index, "APP_SESSION_LABEL_ID"] = row[6]
+    df.to_excel(ILLUMINA_SAMPLE_FILE, index=False)
 
 if __name__ == "__main__":
     connection = create_connection()
 
-    #read_excel_and_upsert(connection)
+    df = read_excel_and_upsert(connection)
 
     submitNewJobs(connection)
 
     checkAndUpdateStatus(connection)
+
+    populateStatusInExcel(connection, df)
 
     connection.close()
 
