@@ -37,7 +37,7 @@ AccessionId varchar(255)
 
 );
 
-CREATE TABLE illumina_samples
+CREATE TABLE illumina_basespace_run
 (
 SAMPLE_NAME varchar(255) NOT NULL,
 PROJECT_NAME varchar(255) NOT NULL,
@@ -55,3 +55,4 @@ TOTAL_SIZE varchar(255),
 RUNNING_DURATION varchar(255)
 
 );
+

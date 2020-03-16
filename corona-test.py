@@ -1,6 +1,5 @@
 import requests 
 from requests.exceptions import HTTPError 
-import xmlschema 
 import time 
 import ast
 import sys
@@ -239,40 +238,60 @@ def isFloatValue(value, maxThreshold):
     
     
 if __name__ == "__main__":
-    CORONA_SAMPLE_INPUT_FILE = replace_env(config_dict['CORONA_SAMPLE_INPUT_FILE'])
-    xldf_full = pd.read_excel(CORONA_SAMPLE_INPUT_FILE, skiprows=range(0,34))
-    xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    # generate sample dictionary in below format:
-    # {<sample name>: <Class Sample>}
+    CORONAVIRUS_TEST_INPUT_FOLDER = replace_env(config_dict['CORONAVIRUS_TEST_INPUT_FOLDER'])
+    _files = filter(os.path.isfile, os.listdir(CORONAVIRUS_TEST_INPUT_FOLDER))
+    excel_files = [os.path.join(CORONAVIRUS_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
     sampleDict = {}
-    for index, row in xldf.iterrows():
-        sampleName = row["Sample Name"]
-        targetName = row["Target Name"]
-        value = row["CT"]
-        if sampleDict.get(sampleName) is None:
-            sampleDict[sampleName] = Sample(sampleName)
+    for eachExcel in excel_files:
+        xldf_full = pd.read_excel(eachExcel, skiprows=range(0,34))
+        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        # generate sample dictionary in below format:
+        # {<sample name>: <Class Sample>}
 
-        if targetName == "RP":
-            sampleDict[sampleName][targetName] = value
-        else:
-            #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-            sampleDict[sampleName][targetName[4:]] = value
+        for index, row in xldf.iterrows():
+            sampleName = row["Sample Name"]
+            targetName = row["Target Name"]
+            value = row["CT"]
+            if sampleDict.get(sampleName) is None:
+                sampleDict[sampleName] = Sample(sampleName)
+
+            if targetName == "RP":
+                sampleDict[sampleName][targetName] = value
+            else:
+                #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
+                sampleDict[sampleName][targetName[4:]] = value
 
     for sampleName in sampleDict.keys():
         sample = sampleDict[sampleName]
+
+        if all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Positive"
+            continue
+        elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Indeterminate"
+            continue
+        
         if sample.RP and isFloatValue(sample.RP, 35.0):
             sample.result = "Invalid"
             continue
+        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Negative"
 
-        if sample.nCoV_N1 and sample.nCoV_N2 and sample.nCoV_N3 and sample.RP:
-            if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-                sample.result = "Negative"
+
+
+        # if sample.RP and isFloatValue(sample.RP, 35.0):
+        #     sample.result = "Invalid"
+        #     continue
+
+        # if sample.nCoV_N1 and sample.nCoV_N2 and sample.nCoV_N3 and sample.RP:
+        #     if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Negative"
             
-            elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-                sample.result = "Indeterminate"
+        #     elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Indeterminate"
 
-            elif all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
-                sample.result = "Positive"
+        #     elif all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Positive"
         if sample.result is None:
             print("------unable to identify result for the sample-----", sample)
             del sampleDict[sampleName]
