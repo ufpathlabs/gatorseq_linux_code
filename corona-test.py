@@ -124,9 +124,7 @@ class hl7update:
             del temp_obx[l-i-1]
         new_obx_index = 1
         for obxSegment in self.h['OBX']:
-
-            if obxSegment[3][0][1][0] == "SARS-CoV-2, NAA":
-                #print("tumor type found")
+            if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = sample.result
                 obxSegment[1] = new_obx_index
                 new_obx_index +=1 
@@ -194,9 +192,8 @@ def checkIncomingHl7(sampleDict):
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                foundMessageId = False
                 if messageId in sampleDict:
-                    foundMessageId = True
+                    print("--------found----------")
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
@@ -214,12 +211,17 @@ def checkIncomingHl7(sampleDict):
 
 class Sample:
     def __init__(self, sample_name):
-        self.name = sample_name
+        self.name = str(sample_name)
         self.nCoV_N1 = None
         self.nCoV_N2 = None
         self.nCoV_N3 = None
         self.RP = None
         self.result = None
+    def __str__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
+
+    def __repr__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " | "
 
 def isFloatValue(value, maxThreshold):
     try:
@@ -295,5 +297,6 @@ if __name__ == "__main__":
         if sample.result is None:
             print("------unable to identify result for the sample-----", sample)
             del sampleDict[sampleName]
-
+    print("below is the dictionary of all samples:")
+    print(sampleDict)
     checkIncomingHl7(sampleDict)

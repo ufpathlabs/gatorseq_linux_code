@@ -208,7 +208,7 @@ def submitJob(applicationId, projectId, appSessionName, appSessionLabel):
 #read the database for any jobs with APP_SESSION_STATUS == "" and tries to submit them. 
 def submitNewJobs(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = '';")
+    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS is null;")
     rows = cur.fetchall()
     cur.close()
     if len(rows):
@@ -241,7 +241,7 @@ def submitNewJobs(conn):
     
 def checkAndUpdateStatus(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = 'Submitted';")
+    cur.execute("SELECT * FROM "+ILLUMINA_TABLE_NAME+" where APP_SESSION_STATUS = 'In Progress';")
     rows = cur.fetchall()
     cur.close()
     if len(rows):
