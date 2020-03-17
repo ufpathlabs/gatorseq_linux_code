@@ -23,7 +23,7 @@ APPLICATION_ID_MAP = {
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
-CONFIG_FILE=script_path + "/linux_gatorseq.config.yaml"
+CONFIG_FILE=os.path.dirname(__file__) + "/../linux_gatorseq.config.yaml"
 
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
@@ -49,7 +49,7 @@ MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
 # MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
 MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
-CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
+CONFIG_TOKENS_FILE = os.path.dirname(__file__) +  "/../" + config_dict['CONFIG_TOKENS_FILE']
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:
     try:
@@ -68,6 +68,7 @@ if CODE_ENV == "ProdEnv":
 
 
 file_to_lock = ILLUMINA_SAMPLE_FILE + '.lock'
+print(file_to_lock)
 lock = FileLock(file_to_lock)
 try:
     lock.acquire(timeout=1)
