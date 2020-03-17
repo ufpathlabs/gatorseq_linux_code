@@ -15,6 +15,7 @@ from shutil import move
 import csv
 import traceback
 import mysql.connector
+from filelock import FileLock
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -203,6 +204,11 @@ def addRowInDatabase(sample, PLMO):
     SQL_CONNECTION.commit()
     cur.close()
 
+# method to write the entire database table to excel
+def writeDataToExcel():
+    xldf = pd.read_sql_query('select * from '+ COVID_19_STATUS_TABLE +' ;', SQL_CONNECTION)
+    xldf.to_excel(COVID_19_TEST_STATUS_FILE)
+
 
 def checkIncomingHl7(sampleDict):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
@@ -340,5 +346,6 @@ if __name__ == "__main__":
     print("below is the dictionary of all samples:")
     print(sampleDict)
     checkIncomingHl7(sampleDict)
-
+    
+    writeDataToExcel()
     SQL_CONNECTION.close()
