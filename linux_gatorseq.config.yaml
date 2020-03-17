@@ -54,3 +54,4 @@ ILLUMINA_TABLE_NAME: 'illumina_basespace_run'
 #COVID-19
 COVID_19_TEST_INPUT_FOLDER: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/COVID_19/COVID_19_QuantStudio_Results'
 COVID_19_TEST_STATUS_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/COVID_19/COVID_19_EPIC_UPLOAD_LOG.xlsx' 
+COVID_19_STATUS_TABLE: 'covid_19_epic_uploaded_samples'

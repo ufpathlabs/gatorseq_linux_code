@@ -35,9 +35,7 @@ def replace_env(strname):
     return strname
 
 
-LINUX_ANALYSIS_OUT_FOLDER = replace_env(config_dict['LINUX_ANALYSIS_OUT_FOLDER'])
-#GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
-GATOR_PGX_SAMPLE_INPUT_FOLDER = replace_env(config_dict['GATOR_PGX_SAMPLE_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
+COVID_19_TEST_INPUT_FOLDER = replace_env(config_dict['COVID_19_TEST_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
 if CODE_ENV=='ProdEnv':
@@ -45,19 +43,39 @@ if CODE_ENV=='ProdEnv':
 else:
     MIRTH_GATORSEQ += '/TEST'
 
+COVID_19_TEST_STATUS_FILE = replace_env(config_dict['COVID_19_TEST_STATUS_FILE'])
+COVID_19_STATUS_TABLE = replace_env(config_dict['COVID_19_STATUS_TABLE'])
+
+CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
+config_token_dict=dict()
+with open(CONFIG_TOKENS_FILE, 'r') as stream:
+    try:
+        config_token_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
+
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
+
+
 def check_folders_exist():
     #if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
         #sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
 
-    if not os.path.isdir(LINUX_ANALYSIS_OUT_FOLDER):
-        sys.exit("ERROR: Does not have access to following folder: " + LINUX_ANALYSIS_OUT_FOLDER + "\n")
-
-
     if not os.path.isdir(MIRTH_GATORSEQ):
         sys.exit("ERROR: Does not have access to following folder: " + MIRTH_GATORSEQ + "\n") 
 
-    if not os.path.isdir(GATOR_PGX_SAMPLE_INPUT_FOLDER):
-        sys.exit("ERROR: Does not have access to following folder: " + GATOR_PGX_SAMPLE_INPUT_FOLDER + "\n") 
+    if not os.path.isdir(COVID_19_TEST_INPUT_FOLDER):
+        sys.exit("ERROR: Does not have access to following folder: " + COVID_19_TEST_INPUT_FOLDER + "\n") 
 
 
 check_folders_exist()
@@ -161,6 +179,28 @@ class hl7update:
             i += 1
 
 
+def create_connection():
+    conn = None
+    try:
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
+    except:
+        print(traceback.format_exc())
+    return conn
+SQL_CONNECTION = create_connection()
+# arguments are <class Sample> sample, str PLMO
+def addRowInDatabase(sample, PLMO):
+    cur = SQL_CONNECTION.cursor()
+    updateSql = "INSERT INTO "+ COVID_19_STATUS_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
+    cur.execute(updateSql, (sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    SQL_CONNECTION.commit()
+    cur.close()
+
+
 def checkIncomingHl7(sampleDict):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
@@ -189,6 +229,13 @@ def checkIncomingHl7(sampleDict):
                     continue
                 if (not messageId):
                     continue
+                
+                plm = None
+                try:
+                    plm = h['ORC'][0][2]
+                except:
+                    print("---------could not find PLMO in hl7 file: ", hl7_file_name)
+                    continue
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
@@ -205,8 +252,9 @@ def checkIncomingHl7(sampleDict):
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
                         print("Out file available at :",out_file_path)
-                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID-processed-' + get_current_formatted_date() + "-" + hl7_file_name) 
-
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                        if plm:
+                            addRowInDatabase(sampleDict[messageId], plm )
                     
 
 class Sample:
@@ -282,25 +330,13 @@ if __name__ == "__main__":
             continue
         if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
             sample.result = "Not Detected"
-
-
-
-        # if sample.RP and isFloatValue(sample.RP, 35.0):
-        #     sample.result = "Invalid"
-        #     continue
-
-        # if sample.nCoV_N1 and sample.nCoV_N2 and sample.nCoV_N3 and sample.RP:
-        #     if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-        #         sample.result = "Negative"
-            
-        #     elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-        #         sample.result = "Indeterminate"
-
-        #     elif all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
-        #         sample.result = "Positive"
+        
         if sample.result is None:
             print("------unable to identify result for the sample-----", sample)
             del sampleDict[sampleName]
+    
     print("below is the dictionary of all samples:")
     print(sampleDict)
     checkIncomingHl7(sampleDict)
+
+    SQL_CONNECTION.close()
