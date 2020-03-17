@@ -199,15 +199,18 @@ SQL_CONNECTION = create_connection()
 def addRowInDatabase(sample, PLMO):
     cur = SQL_CONNECTION.cursor()
     updateSql = "INSERT INTO "+ COVID_19_STATUS_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
-    print(type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.name, PLMO[0], get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    #print(type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.name, PLMO[0], str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
 # method to write the entire database table to excel
 def writeDataToExcel():
     xldf = pd.read_sql_query('select * from '+ COVID_19_STATUS_TABLE +' ;', SQL_CONNECTION)
-    xldf.to_excel(COVID_19_TEST_STATUS_FILE)
+    try:
+        xldf.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
+    except:
+        print("unable to save status excel, please close it")
 
 
 def checkIncomingHl7(sampleDict):
@@ -249,7 +252,7 @@ def checkIncomingHl7(sampleDict):
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict:
-                    print("--------found----------")
+                   # print("--------found----------")
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
@@ -260,8 +263,8 @@ def checkIncomingHl7(sampleDict):
                     if h:
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
-                        print("Out file available at :",out_file_path)
-                       # move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                        print("---> Out file available at :",out_file_path, "<---")
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
                             addRowInDatabase(sampleDict[messageId], plm )
                     
