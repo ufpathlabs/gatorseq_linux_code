@@ -13,6 +13,8 @@ import datetime
 from shutil import copyfile
 from shutil import move
 import csv
+import traceback
+import mysql.connector
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -196,7 +198,8 @@ SQL_CONNECTION = create_connection()
 def addRowInDatabase(sample, PLMO):
     cur = SQL_CONNECTION.cursor()
     updateSql = "INSERT INTO "+ COVID_19_STATUS_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
-    cur.execute(updateSql, (sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    print(type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.name, PLMO[0], get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -252,7 +255,7 @@ def checkIncomingHl7(sampleDict):
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
                         print("Out file available at :",out_file_path)
-                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                       # move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
                             addRowInDatabase(sampleDict[messageId], plm )
                     
@@ -288,13 +291,12 @@ def isFloatValue(value, maxThreshold):
     
     
 if __name__ == "__main__":
-    CORONAVIRUS_TEST_INPUT_FOLDER = replace_env(config_dict['CORONAVIRUS_TEST_INPUT_FOLDER'])
-    os.chdir(CORONAVIRUS_TEST_INPUT_FOLDER)
-    _files = filter(os.path.isfile, os.listdir(CORONAVIRUS_TEST_INPUT_FOLDER))
-    excel_files = [os.path.join(CORONAVIRUS_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
+    os.chdir(COVID_19_TEST_INPUT_FOLDER)
+    _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
+    excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
     sampleDict = {}
-    #print(excel_files)
-    for eachExcel in excel_files:
+    print(excel_files)
+    for eachExcel in excel_files[:1]:
         xldf = pd.read_excel(eachExcel, skiprows=range(0,34))
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
