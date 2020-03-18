@@ -203,11 +203,11 @@ def create_connection():
     return conn
 SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(sample, PLMO):
+def addRowInDatabase(sample, PLMO, MRN):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
-    print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s);"
+    #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -254,7 +254,13 @@ def checkIncomingHl7(sampleDict):
                 except:
                     print("---------could not find PLMO in hl7 file: ", hl7_file_name)
                     continue
-
+                
+                mrn = ""
+                try:
+                    mrn = h['PID'][0][3][0][0]
+                except:
+                    print("---------could not find MRN in hl7 file: ", hl7_file_name)
+                    
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict or plm[0] in sampleDict:
@@ -277,7 +283,7 @@ def checkIncomingHl7(sampleDict):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm )
+                            addRowInDatabase(givenSample, plm, str(mrn) )
                     
 
 class Sample:
