@@ -8,8 +8,7 @@ import shlex
 import yaml
 import pandas as pd
 import traceback
-import sqlite3
-import mysql.connector
+import database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -56,12 +55,6 @@ GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
 NEXTFLOW_GIT_REPO = replace_env(config_dict['NEXTFLOW_GIT_REPO'])
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
-
-MYSQL_HOST = config_dict['MYSQL_HOST']
-MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
-# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
-MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
@@ -100,21 +93,6 @@ def check_folders_exist():
 check_folders_exist()
 
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
-config_token_dict=dict()
-with open(CONFIG_TOKENS_FILE, 'r') as stream:
-    try:
-        config_token_dict=yaml.load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-        sys.exit()
-
-MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
-
-if CODE_ENV == "ProdEnv":
-    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
-    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
-    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
-    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
 
 
 def save_workbook(df):
@@ -180,24 +158,8 @@ def create_run_log(row, time_stamp, con):
     
 
 
-def create_connection(db_file):
-    conn = None
-    # try:
-    #     conn = sqlite3.connect(db_file)
-    # except:
-    #     print(traceback.format_exc())
-
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USERNAME,
-            passwd=MYSQL_PASSWAORD,
-            database=MYSQL_DATABASE
-        )
-    except:
-        print(traceback.format_exc())
- 
-    return conn
+def create_connection():
+    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 # This checks if workbook is open; if so it will exit out
 
@@ -218,8 +180,8 @@ if __name__ == "__main__":
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP = "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection(SQLITE_DB))
-    conn = create_connection(SQLITE_DB)
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP = "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection())
+    conn = create_connection()
     for index, row in xldf.iterrows():
         
         #print(row)

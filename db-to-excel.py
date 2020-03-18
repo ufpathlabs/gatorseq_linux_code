@@ -10,13 +10,12 @@ from filelock import FileLock
 import traceback
 import sqlite3
 import yaml
-import mysql.connector
+import database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
-
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
     try:
@@ -25,7 +24,7 @@ with open(CONFIG_FILE, 'r') as stream:
         print(exc)
         sys.exit()
 
-
+CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 CODE_ENV=script_path.split('/')[-2]
 USER_NAME=os.environ['USER']
 
@@ -35,29 +34,7 @@ def replace_env(strname):
 
 GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
-MYSQL_HOST = config_dict['MYSQL_HOST']
-MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
-# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
-MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
-
-CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
-config_token_dict=dict()
-with open(CONFIG_TOKENS_FILE, 'r') as stream:
-    try:
-        config_token_dict=yaml.load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-        sys.exit()
-
-MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
-
-if CODE_ENV == "ProdEnv":
-    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
-    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
-    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
-    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
 
 file_to_lock = GATOR_SEQ_SAMPLE_INPUT_FILE + '.lock'
 lock = FileLock(file_to_lock)
@@ -74,23 +51,8 @@ except:
     sys.exit()
 
 
-def create_connection(db_file):
-    conn = None
-    # try:
-    #     conn = sqlite3.connect(db_file)
-    # except:
-    #     print(traceback.format_exc())
-
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USERNAME,
-            passwd=MYSQL_PASSWAORD,
-            database=MYSQL_DATABASE
-        )
-    except:
-        print(traceback.format_exc())
-    return conn
+def create_connection():
+    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
@@ -133,7 +95,7 @@ def read_excel_and_upsert(conn):
         print("could not save excel")
         sys.exit()
         
-connection = create_connection(SQLITE_DB)
+connection = create_connection()
 read_excel_and_upsert(connection)
 connection.close()
 

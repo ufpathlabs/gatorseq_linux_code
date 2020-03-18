@@ -14,8 +14,7 @@ import time
 import datetime
 import traceback
 import sqlite3
-import mysql.connector
-
+import database_connection
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -45,12 +44,7 @@ CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 GATOR_SEQ_VERSION = config_dict['GATOR_SEQ_VERSION']
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
 
-MYSQL_HOST = config_dict['MYSQL_HOST']
-MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
-# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
-MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
@@ -74,14 +68,6 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
-MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
-
-if CODE_ENV == "ProdEnv":
-    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
-    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
-    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
-    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
-
 
 # Gets all the accessionIds with 'final' status. Used to check if a accessionId is ready to be pulled from Qiagen
 def getAllStatus():
@@ -372,24 +358,8 @@ def callQCIApi(accessionId, plm, accessionIdPath):
         return parseXML(y, accessionId, plm, accessionIdPath)
     return False
 
-def create_connection(db_file):
-    # conn = None
-    # try:
-    #     conn = sqlite3.connect(db_file)
-    # except:
-    #     print(traceback.format_exc())
-
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USERNAME,
-            passwd=MYSQL_PASSWAORD,
-            database=MYSQL_DATABASE
-        )
-    except:
-        print(traceback.format_exc())
- 
-    return conn
+def create_connection():
+    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
@@ -419,10 +389,10 @@ def main():
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Download_Message = "" ;', create_connection(SQLITE_DB))
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Download_Message = "" ;', create_connection())
 
     accessionIdStatusMap = populateStatusMap()
-    conn = create_connection(SQLITE_DB)
+    conn = create_connection()
 
     for index, row in xldf.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):

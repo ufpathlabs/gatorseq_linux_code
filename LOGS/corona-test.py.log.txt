@@ -1,0 +1,53 @@
+2020-03-18 09:16:02.163137
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:17:02.561477
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:18:02.579427
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+/home/path-svc-mol/Software/miniconda3/bin/python: can't open file '/usr/local/share/COMMON/CLINICAL_SHARE/GatorSeq/DevEnv/gatorseq_linux_code/COVID_19/COVID_19_EPIC_UPLOAD.py': [Errno 2] No such file or directory
+2020-03-18 09:20:01.913019
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:21:02.215013
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+---> Out file available at : /ext/mirth_gatorseq/MIRTH_GATORSEQ/TEST/RESULTS/hl7-100054916-output.txt <---
+2020-03-18 09:22:02.234503
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+---> Out file available at : /ext/mirth_gatorseq/MIRTH_GATORSEQ/TEST/RESULTS/hl7-100054916-output.txt <---
+2020-03-18 09:23:02.294653
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:24:02.297975
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:25:02.417642
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }
+2020-03-18 09:26:02.420591
+
+['/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/corona-sample.xlsx', '/ext/path/DRL/Molecular/NGS/GatorSeq/DevEnv/COVID_19/COVID_19_QuantStudio_Results/~$corona-sample.xlsx']
+below is the dictionary of all samples:
+{'NTC': Undetermined & Undetermined & Undetermined & Undetermined & None | , '100054806': 28.91900062561035 & 28.906999588012695 & 28.503000259399414 & 28.91900062561035 & Detected | , '100054805': 28.40999984741211 & 28.256000518798828 & 28.239999771118164 & 28.40999984741211 & Detected | , 'CNTC': Undetermined & Undetermined & Undetermined & 35 & Not Detected | , 'C100054806': 19.4 & 28.906999588012695 & 28.503000259399414 & 38.9 & Detected | , 'C100054805': 28.40999984741211 & Undetermined & 28.239999771118164 & 28.40999984741211 & Indeterminate | , '100054916': 28.91900062561035 & Undetermined & 28.91900062561035 & 28.91900062561035 & Indeterminate | }

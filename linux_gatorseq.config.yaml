@@ -7,10 +7,10 @@
 
 CONFIG_TOKENS_FILE: 'config.tokens.yaml'
 TABLE_NAME: 'gatorseq_processing'
-SQLITE_DB: 'test.sqlite'  #'/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/test.sqlite' 
-MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
-MYSQL_USERNAME: 'com_path_imm_lab_t'
-MYSQL_DATABASE: 'com_path_imm_lab_t'
+
+DEV_MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
+DEV_MYSQL_USERNAME: 'com_path_imm_lab_t'
+DEV_MYSQL_DATABASE: 'com_path_imm_lab_t'
 
 PROD_MYSQL_HOST: 'mysql09c.ahc.ufl.edu'
 PROD_MYSQL_USERNAME: 'com_path_imm_lab_t'
@@ -54,4 +54,4 @@ ILLUMINA_TABLE_NAME: 'illumina_basespace_run'
 #COVID-19
 COVID_19_TEST_INPUT_FOLDER: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/COVID_19/COVID_19_QuantStudio_Results'
 COVID_19_TEST_STATUS_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/COVID_19/COVID_19_EPIC_UPLOAD_LOG.xlsx' 
-COVID_19_STATUS_TABLE: 'covid_19_epic_uploaded_samples'
+COVID_19_EPIC_UPLOAD_TABLE: 'COVID_19_EPIC_UPLOAD'

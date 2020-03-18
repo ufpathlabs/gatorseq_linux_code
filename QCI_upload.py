@@ -19,7 +19,7 @@ import time
 import datetime
 import traceback
 import sqlite3
-import mysql.connector
+import database_connection
 
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
@@ -53,12 +53,6 @@ GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FI
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE'] 
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
-
-MYSQL_HOST = config_dict['MYSQL_HOST']
-MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
-# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
-MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
@@ -82,13 +76,6 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
-MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
-
-if CODE_ENV == "ProdEnv":
-    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
-    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
-    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
-    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
 
 PROCESSING_STATUS_URLS = []
 
@@ -197,24 +184,8 @@ def checkStatus(url):
     response = requests.get(url, headers = headers) 
     return (response.json()["status"], response.json())
 
-def create_connection(db_file):
-    conn = None
-    # try:
-    #     conn = sqlite3.connect(db_file)
-    # except:
-    #     print(traceback.format_exc())
-
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USERNAME,
-            passwd=MYSQL_PASSWAORD,
-            database=MYSQL_DATABASE
-        )
-    except:
-        print(traceback.format_exc())
- 
-    return conn
+def create_connection():
+    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
@@ -244,7 +215,7 @@ if __name__ == "__main__":
     #     print("could not read excel")
     #     sys.exit()
 
-    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "yes");', create_connection(SQLITE_DB))
+    df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "yes");', create_connection())
 
     statusChanged = False
     accessionIdMap = populateStatusMap()
@@ -288,7 +259,7 @@ if __name__ == "__main__":
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
     
-    conn = create_connection(SQLITE_DB)
+    conn = create_connection()
 
     while len(PROCESSING_STATUS_URLS) > 0:
         time.sleep(30)
