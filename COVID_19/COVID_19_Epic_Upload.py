@@ -17,7 +17,7 @@ import mysql.connector
 from filelock import FileLock
 from pathlib import Path
 import os.path
-
+import re
 print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -252,12 +252,12 @@ def checkIncomingHl7(sampleDict):
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                if messageId in sampleDict or plm in sampleDict:
+                if messageId in sampleDict or plm[0] in sampleDict:
                    # print("--------found----------")
                     if sampleDict.get(messageId) is not None:
                         givenSample =  sampleDict.get(messageId)
                     else:
-                        givenSample = sampleDict.get(plm)
+                        givenSample = sampleDict.get(plm[0])
                     print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
@@ -283,7 +283,7 @@ class Sample:
         self.nCoV_N3 = None
         self.RP = None
         self.result = None
-        self.completeSampleName = None
+        self.completeSampleName = completeSampleName
 
     def __str__(self):
         return str( self.completeSampleName) + ": " + str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
     sampleDict = {}
     plmoDict = {}
-    for eachExcel in excel_files:
+    for eachExcel in excel_files[:-1]:
         xldf = pd.read_excel(eachExcel, skiprows=range(0,34))
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
