@@ -202,7 +202,7 @@ def addRowInDatabase(sample, PLMO):
     cur = SQL_CONNECTION.cursor()
     updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
     #print(type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.name, PLMO[0], str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -252,14 +252,18 @@ def checkIncomingHl7(sampleDict):
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                if messageId in sampleDict:
+                if messageId in sampleDict or plm in sampleDict:
                    # print("--------found----------")
+                    if sampleDict.get(messageId) is not None:
+                        givenSample =  sampleDict.get(messageId)
+                    else:
+                        givenSample = sampleDict.get(plm)
                     print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
-                    h = newHl7.update_obx_seg_containing_gene( sampleDict[messageId] )
+                    h = newHl7.update_obx_seg_containing_gene( givenSample )
                     
                     out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(messageId)
                     if h:
@@ -268,22 +272,24 @@ def checkIncomingHl7(sampleDict):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(sampleDict[messageId], plm )
+                            addRowInDatabase(givenSample, plm )
                     
 
 class Sample:
-    def __init__(self, sample_name):
+    def __init__(self, sample_name, completeSampleName):
         self.name = str(sample_name)
         self.nCoV_N1 = None
         self.nCoV_N2 = None
         self.nCoV_N3 = None
         self.RP = None
         self.result = None
+        self.completeSampleName = None
+
     def __str__(self):
-        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
+        return str( self.completeSampleName) + ": " + str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
 
     def __repr__(self):
-        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " | "
+        return str( self.completeSampleName) + ": " + str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " | "
 
 def isFloatValue(value, maxThreshold):
     try:
@@ -306,7 +312,8 @@ if __name__ == "__main__":
     _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
     sampleDict = {}
-    for eachExcel in excel_files[:1]:
+    plmoDict = {}
+    for eachExcel in excel_files:
         xldf = pd.read_excel(eachExcel, skiprows=range(0,34))
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
@@ -314,16 +321,21 @@ if __name__ == "__main__":
 
         for index, row in xldf.iterrows():
             sampleName = str(row["Sample Name"])
+            if 'PLMO' in sampleName:
+                plm = re.findall(r"PLMO\d+-\d+" , sampleName)
+                if len(plm):
+                    sampleName = plm[0]
+            
             targetName = row["Target Name"]
             value = row["CT"]
+            
+            #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
             if sampleDict.get(sampleName) is None:
-                sampleDict[sampleName] = Sample(sampleName)
+                sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
             if targetName == "RP":
-                #sampleDict[sampleName][targetName] = value
                 setattr(sampleDict[sampleName], "%s" % targetName, value)
             else:
                 #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-                #sampleDict[sampleName][targetName[4:]] = value
                 setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
     for sampleName in sampleDict.keys():
