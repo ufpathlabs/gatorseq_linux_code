@@ -317,12 +317,12 @@ if __name__ == "__main__":
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
     sampleDict = {}
     plmoDict = {}
-    for eachExcel in excel_files[:-1]:
-        xldf = pd.read_excel(eachExcel, skiprows=range(0,34))
+    for eachExcel in excel_files:#[:-1]:
+        xldf = pd.read_excel(eachExcel, skiprows=range(0,35))
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
-
+        print(xldf.head())  
         for index, row in xldf.iterrows():
             sampleName = str(row["Sample Name"])
             if 'PLMO' in sampleName:
@@ -364,7 +364,7 @@ if __name__ == "__main__":
             del sampleDict[sampleName]
     
     #print("below is the dictionary of all samples:")
-    #print(sampleDict)
+    print(sampleDict)
     checkIncomingHl7(sampleDict)
     
     writeDataToExcel()
