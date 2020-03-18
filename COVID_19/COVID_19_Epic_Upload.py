@@ -364,7 +364,7 @@ if __name__ == "__main__":
             del sampleDict[sampleName]
     
     #print("below is the dictionary of all samples:")
-    print(sampleDict)
+    #print(sampleDict)
     checkIncomingHl7(sampleDict)
     
     writeDataToExcel()
