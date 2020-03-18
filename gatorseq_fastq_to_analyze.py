@@ -7,6 +7,9 @@ import subprocess
 import shlex
 import yaml
 import pandas as pd
+import traceback
+import sqlite3
+import mysql.connector
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -52,6 +55,14 @@ LOCAL_HPC_MNT = replace_env(config_dict['LOCAL_HPC_MNT'])
 GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
 NEXTFLOW_GIT_REPO = replace_env(config_dict['NEXTFLOW_GIT_REPO'])
 
+TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
+SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
+
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
 #HPC_ANALYSIS_FOLDER="/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
@@ -88,6 +99,22 @@ def check_folders_exist():
 
 check_folders_exist()
 
+CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
+config_token_dict=dict()
+with open(CONFIG_TOKENS_FILE, 'r') as stream:
+    try:
+        config_token_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
+
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
 
 
 def save_workbook(df):
@@ -113,32 +140,86 @@ def check_failure(log_file):
             return True
     return False
 
-def populate_error_msg(row, error_message, xldf):
-    xldf.at[index, "STATUS"] = "FAILED"
-    xldf.at[index, "MESSAGE"] = error_message
-    save_workbook(xldf)
+def populate_error_msg(row, error_message, xldf, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+error_message+'" , STATUS = "FAILED" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    print(sql_update_query)
+    cursor.execute(sql_update_query)
+    con.commit()
+    print("Record Updated successfully to " + error_message)
+    # print(row)
+    cursor.close()
+
+    # xldf.at[index, "STATUS"] = "FAILED"
+    # xldf.at[index, "MESSAGE"] = error_message
+    # save_workbook(xldf)
+
+def populate_message_and_status(row, message, status, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'" , STATUS = "'+ status +'" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    cursor.execute(sql_update_query)
+    con.commit()
+    print("Record Updated successfully ")
+    cursor.close()
+
+def populate_message_and_status_and_timestamp(row, message, status, time_stamp, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set MESSAGE = "'+ message +'", STATUS = "'+ status +'" , TIME_STAMP = "'+ time_stamp +'" where SAMPLE_DIR_PATH = "' + row['SAMPLE_DIR_PATH'] + '" ;'
+    cursor.execute(sql_update_query)
+    con.commit()
+    print("Record Updated successfully ", sql_update_query)
+    cursor.close()
+
+def create_run_log(row, time_stamp, con):
+    cursor = con.cursor()
+    sql_update_query = 'INSERT INTO gatorseq_run_log VALUES(%s, %s);'
+    cursor.execute(sql_update_query, (row['SAMPLE_DIR_PATH'], str(row['SAMPLE_DIR_PATH']) + "_" + time_stamp ))
+    con.commit()
+    print("added run log successfully ")
+    cursor.close()
+    
+
+
+def create_connection(db_file):
+    conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
+    try:
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
+    except:
+        print(traceback.format_exc())
+ 
+    return conn
 
 # This checks if workbook is open; if so it will exit out
 
 if __name__ == "__main__":
     
-    try: 
-        excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
-    except:
-        print(" Could not open file! Please close Excel!")
-        sys.exit()
+    # try: 
+    #     excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
+    # except:
+    #     print(" Could not open file! Please close Excel!")
+    #     sys.exit()
 
-    try:
-            xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
-            xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-            xldf = xldf.astype('object')
-            excel_file.close()
-    except:
-        print("Problem Reading Excel")
-        sys.exit()
-    
+    # try:
+    #         xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    #         xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    #         xldf = xldf.astype('object')
+    #         excel_file.close()
+    # except:
+    #     print("Problem Reading Excel")
+    #     sys.exit()
 
-
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where (status =  "RUN" and TIME_STAMP = "") or status =  "SUBMITTED" or status =  "RE-RUN"  ;', create_connection(SQLITE_DB))
+    conn = create_connection(SQLITE_DB)
     for index, row in xldf.iterrows():
         
         #print(row)
@@ -153,13 +234,14 @@ if __name__ == "__main__":
         try:
             sample_path = sample_path.strip(' \t\n\r\/.\*\+')
         except Exception:
-            populate_error_msg(row, "ERROR: Empty directory", xldf)
+            populate_error_msg(row, "ERROR: Empty directory", xldf, conn)
             continue
 
         if sample_path == '':
-            xldf.at[index, "STATUS"] = "FAILED"
-            xldf.at[index, "MESSAGE"] = "ERROR: Invalid directory"
-            save_workbook(xldf)
+            populate_error_msg(row, "ERROR: Invalid directory", xldf, conn)
+            # xldf.at[index, "STATUS"] = "FAILED"
+            # xldf.at[index, "MESSAGE"] = "ERROR: Invalid directory"
+            # save_workbook(xldf)
             continue
 
         run_prefix = sample_path.split('/')[0]
@@ -173,14 +255,17 @@ if __name__ == "__main__":
 
         if len(directories) == 0:
             #ToDO: replace error messages with definition
-            xldf.at[index, "STATUS"] = "FAILED"
-            xldf.at[index, "MESSAGE"] = "ERROR: Following directory extention not found:" + sample_path
-            save_workbook(xldf)
+            populate_error_msg(row, "ERROR: Following directory extention not found:" + sample_path, xldf, conn)
+            # xldf.at[index, "STATUS"] = "FAILED"
+            # xldf.at[index, "MESSAGE"] = "ERROR: Following directory extention not found:" + sample_path
+            # save_workbook(xldf)
             continue
         elif len(directories) > 1:
-            xldf.at[index, "STATUS"] = "FAILED"
-            xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found:" + ';'.join(directories)
-            save_workbook(xldf)
+            populate_error_msg(row, "ERROR: More than one directory extention found:" + ';'.join(directories) + sample_path, xldf, conn)
+
+            # xldf.at[index, "STATUS"] = "FAILED"
+            # xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found:" + ';'.join(directories)
+            # save_workbook(xldf)
             continue
         else:
             sample_path = directories[0]
@@ -192,14 +277,16 @@ if __name__ == "__main__":
         listing = glob.glob(linux_hpc_sample_path)
         directories=[d for d in listing if os.path.isdir(d)]
         if len(directories) == 0:
-            xldf.at[index, "STATUS"] = "RUN"
-            xldf.at[index, "MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
-            save_workbook(xldf)
+            populate_message_and_status(row, "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path, "RUN", conn)
+            # xldf.at[index, "STATUS"] = "RUN"
+            # xldf.at[index, "MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
+            # save_workbook(xldf)
             continue
         elif len(directories) > 1:
-            xldf.at[index, "STATUS"] = "FAILED"
-            xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
-            save_workbook(xldf)
+            populate_error_msg(row, "ERROR: More than one directory extention found on HPC:" + ';'.join(directories), xldf, conn)
+            # xldf.at[index, "STATUS"] = "FAILED"
+            # xldf.at[index, "MESSAGE"] = "ERROR: More than one directory extention found on HPC:" + ';'.join(directories)
+            # save_workbook(xldf)
             continue
         else:
             linux_hpc_sample_path = directories[0]
@@ -211,7 +298,14 @@ if __name__ == "__main__":
 
 
         ## Check if the sample directory exist
-        if status == 'RUN':
+        if status == 'RUN' or status == 'RE-RUN':
+
+            #chacking if timestamp is already present againt that sample id
+            row_timestamp = xldf.at[index, 'TIME_STAMP']
+            if status == 'RUN' and row_timestamp != "":
+                populate_error_msg(row, "You cannot RUN a sample which is already run, to force run, change the STATUS to RE-RUN", xldf, conn)
+                continue
+
             ### Check sample folders are synced properly 
             rsync_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                 sample_path + "/ " +\
@@ -220,9 +314,11 @@ if __name__ == "__main__":
             #need to decode from bytes to str
             stdout_list = proc.communicate()[0].decode()
             if len(stdout_list) == 0:
-                xldf.at[index, "STATUS"] = "RUN"
-                xldf.at[index, "MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
-                save_workbook(xldf)
+                populate_message_and_status(row, "WARNING:  Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path, "RUN", conn)
+
+                # xldf.at[index, "STATUS"] = "RUN"
+                # xldf.at[index, "MESSAGE"] = "WARNING: Directory is not completely in sync with HPC folder:" + linux_hpc_sample_path
+                # save_workbook(xldf)
 
                 rsync_hpc_check_cmd =  'rsync -ltgoDvzrn --progress --stats ' +\
                     sample_path + "/ " + HPC_SFTP + ":" +\
@@ -241,11 +337,14 @@ if __name__ == "__main__":
             time_stamp= time_stamp +CODE_ENV+GSBW_VERSION
 
             run_log = sample_path + "/" + time_stamp + ".log"
+            
+            populate_message_and_status_and_timestamp(row, "Currently job is running.", "SUBMITTED", time_stamp, conn)
+            create_run_log(row, time_stamp, conn)
 
-            xldf.at[index, 'STATUS'] = "SUBMITTED"
-            xldf.at[index, 'TIME_STAMP'] = time_stamp 
-            xldf.at[index, 'MESSAGE'] = "Currently job is running."
-            save_workbook(xldf)
+            # xldf.at[index, 'STATUS'] = "SUBMITTED"
+            # xldf.at[index, 'TIME_STAMP'] = time_stamp 
+            # xldf.at[index, 'MESSAGE'] = "Currently job is running."
+            # save_workbook(xldf)
 
             HPC_JOB_PREFIX= sample_prefix+ "_"+ time_stamp
             HPC_RUN_DIR=HPC_ANALYSIS_FOLDER+"/"+ HPC_JOB_PREFIX
@@ -300,13 +399,15 @@ if __name__ == "__main__":
                 if os.path.isdir(hpc_analysis_out_sample_dir):
                     pass
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/SUCCESS.txt"):
-                    xldf.at[index, "STATUS"] = "DONE"
-                    xldf.at[index, "MESSAGE"] = "Successfully processed"
-                    save_workbook(xldf)
+                    populate_message_and_status(row,"Successfully processed", "DONE", conn)
+                    # xldf.at[index, "STATUS"] = "DONE"
+                    # xldf.at[index, "MESSAGE"] = "Successfully processed"
+                    # save_workbook(xldf)
                 elif os.path.isfile(linux_analysis_out_sample_dir + "/FAILED.txt"):
-                    xldf.at[index, "STATUS"] = "FAILED"
-                    xldf.at[index, "MESSAGE"] = "ERROR: Failed while running on HPC"
-                    save_workbook(xldf)
+                    populate_message_and_status(row,"ERROR: Failed while running on HPC", "FAILED", conn)
+                    # xldf.at[index, "STATUS"] = "FAILED"
+                    # xldf.at[index, "MESSAGE"] = "ERROR: Failed while running on HPC"
+                    # save_workbook(xldf)
 
         elif status == 'FAILED':
             pass
@@ -315,7 +416,8 @@ if __name__ == "__main__":
             pass
 
         else:
-            xldf.at[index, "MESSAGE"] = "ERROR: Invalid Status." 
-            save_workbook(xldf)
+            populate_message_and_status(row,"ERROR:Invalid Status.", "FAILED", conn)
+            # xldf.at[index, "MESSAGE"] = "ERROR: Invalid Status." 
+            # save_workbook(xldf)
         
 

@@ -12,6 +12,10 @@ from shutil import move
 import xmltodict
 import time
 import datetime
+import traceback
+import sqlite3
+import mysql.connector
+
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -40,6 +44,14 @@ GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FI
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 GATOR_SEQ_VERSION = config_dict['GATOR_SEQ_VERSION']
 
+TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
+SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
+
+MYSQL_HOST = config_dict['MYSQL_HOST']
+MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
+# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
+MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
+
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
         sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 
@@ -62,6 +74,13 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
+MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
+
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
 
 
 # Gets all the accessionIds with 'final' status. Used to check if a accessionId is ready to be pulled from Qiagen
@@ -112,26 +131,26 @@ def populateIndividualText2(text, list, gene_map):
     foundAtleastOne = False
     for iterator in range(0, len(list)):
         variant = list[iterator]
-        
-        foundAtleastOne = True
-        text += "    " +  str(variant["gene"]) + " " 
-        if variant.get("transcriptchange"):
-            text += variant.get("transcriptchange").get("change") + " "
-        if variant.get("proteinchange"):
-            text += str(variant.get("proteinchange").get("change")) + " "
-        if variant.get("allelefraction"):
-            text += "VAF: " + str(variant.get("allelefraction")) + "%"
-        text += "    "
-        
-        if variant.get("chromosome"):
-            text += "chr"+variant.get("chromosome") + ":"
-        if variant.get("genomicchange"):
-            text += str(variant.get("genomicchange").get("change")) + "  "
-        if variant.get("actionability") is not None and variant["assessment"] != "Uncertain Significance":
-            text += "(Tier " + variant.get("actionability") + ")"
-        text += " \n"
-         
-        gene_map[str(variant["gene"])] = variant
+        if variant.get("gene") is not None:
+            foundAtleastOne = True
+            text += "    " +  str(variant["gene"]) + " " 
+            if variant.get("transcriptchange"):
+                text += variant.get("transcriptchange").get("change") + " "
+            if variant.get("proteinchange"):
+                text += str(variant.get("proteinchange").get("change")) + " "
+            if variant.get("allelefraction"):
+                text += "VAF: " + str(variant.get("allelefraction")) + "%"
+            text += "    "
+            
+            if variant.get("chromosome"):
+                text += "chr"+variant.get("chromosome") + ":"
+            if variant.get("genomicchange"):
+                text += str(variant.get("genomicchange").get("change")) + "  "
+            if variant.get("actionability") is not None and variant["assessment"] != "Uncertain Significance":
+                text += "(Tier " + variant.get("actionability") + ")"
+            text += " \n"
+            
+            gene_map[str(variant["gene"])] = variant
     if not foundAtleastOne:
         text += "    None" + " \n"
     return text, gene_map
@@ -267,33 +286,34 @@ def generateTxtFileAndSave(map, accessionId, plm, accessionIdPath):
         for variant in variants:
             if variant["assessment"] == "Uncertain Significance":
                 continue
-            text += "Gene: " + str(variant["gene"]) + "\n"
-            if variant.get("transcriptchange"):
-                text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) +  "; " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + ";  "
-            
-            if variant.get("genomicchange"):
-                text += " " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + ";"
+            if variant.get("gene") is not None:
+                text += "Gene: " + str(variant["gene"]) + "\n"
+                if variant.get("transcriptchange"):
+                    text += "    " + "Exon: " + str(variant.get("transcriptchange").get("exonNumber")) +  "; " + "Nucleotide: " + str(variant.get("transcriptchange").get("transcript")) + ":" + variant.get("transcriptchange").get("change") + ";  "
                 
-            if variant.get("proteinchange"):
-                text += " " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + ";"
-                
-            if variant.get("function"):
-                text += " " + "Function: " + str(variant.get("function")) + ";"
-                
-            if variant.get("assessment"):
-                text += " " + "Assessment: " + str(variant.get("assessment")) + ";"
-            if variant.get("actionability"):
-                text += " " + "Classification: Tier " + str(variant.get("actionability")) + ";"
-                
-            if variant.get("allelefraction"):
-                text += " " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + ";"
-                   
-            if variant.get("variation"):
-                text += " " + "Variation: " + str(variant.get("variation")) + "\n"
-            if variant.get("rcomment"):# and variant.get("rcomment")[0]:
-                #text += "    " + "Interpretation: " + str(variant.get("rcomment")[0].get("text")) + "\n"
-                text += "   " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
-            text += " \n"
+                if variant.get("genomicchange"):
+                    text += " " + "Genomic Location: " + str(variant.get("genomicchange").get("change")) + ";"
+                    
+                if variant.get("proteinchange"):
+                    text += " " + "Amino acid: " + str(variant.get("proteinchange").get("change")) + ";"
+                    
+                if variant.get("function"):
+                    text += " " + "Function: " + str(variant.get("function")) + ";"
+                    
+                if variant.get("assessment"):
+                    text += " " + "Assessment: " + str(variant.get("assessment")) + ";"
+                if variant.get("actionability"):
+                    text += " " + "Classification: Tier " + str(variant.get("actionability")) + ";"
+                    
+                if variant.get("allelefraction"):
+                    text += " " + "Allele Fraction: " + str(variant.get("allelefraction")) + "%(of "+ str(variant.get("readdepth")) +" reads)" + ";"
+                    
+                if variant.get("variation"):
+                    text += " " + "Variation: " + str(variant.get("variation")) + "\n"
+                if variant.get("rcomment"):# and variant.get("rcomment")[0]:
+                    #text += "    " + "Interpretation: " + str(variant.get("rcomment")[0].get("text")) + "\n"
+                    text += "   " + "Interpretation: " + str(variant.get("rcomment").get("text")) + "\n"
+                text += " \n"
     else:
         text += "    None"  + " \n"  
     text += newLine()
@@ -352,6 +372,32 @@ def callQCIApi(accessionId, plm, accessionIdPath):
         return parseXML(y, accessionId, plm, accessionIdPath)
     return False
 
+def create_connection(db_file):
+    # conn = None
+    # try:
+    #     conn = sqlite3.connect(db_file)
+    # except:
+    #     print(traceback.format_exc())
+
+    try:
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWAORD,
+            database=MYSQL_DATABASE
+        )
+    except:
+        print(traceback.format_exc())
+ 
+    return conn
+
+def updateStatus(SAMPLE_DIR_PATH, message, con):
+    cursor = con.cursor()
+    sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = %s where SAMPLE_DIR_PATH = %s ;'
+    cursor.execute(sql_update_query, (message, SAMPLE_DIR_PATH))
+    con.commit()
+    cursor.close()
+
 # 1. Tries to open excel and exits if already open
 # 2. Iterates over the folder and tries to read PLMO number from each hl7 file
 # 3. Checks if there is an entry in excel for that PLMO and retrieves the corresponding accession id.
@@ -361,20 +407,22 @@ def callQCIApi(accessionId, plm, accessionIdPath):
 # 6. archives the initial file 
 def main():
     #Check if excel file is opened by any other user
-    try: 
-        excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
-    except:
-        print(" Could not open file! Please close Excel!")
-        sys.exit()
-    try:
-        xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
-        xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    except:
-        print("Problem Reading Excel")
-        sys.exit()
+    # try: 
+    #     excel_file = open(GATOR_SEQ_SAMPLE_INPUT_FILE, "r+")
+    # except:
+    #     print(" Could not open file! Please close Excel!")
+    #     sys.exit()
+    # try:
+    #     xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    #     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    # except:
+    #     print("Problem Reading Excel")
+    #     sys.exit()
 
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and QCI_Download_Message = "" ;', create_connection(SQLITE_DB))
 
     accessionIdStatusMap = populateStatusMap()
+    conn = create_connection(SQLITE_DB)
 
     for index, row in xldf.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
@@ -382,12 +430,17 @@ def main():
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             if accessionIdStatusMap.get(accessionId) is not None and not os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                 text_file = callQCIApi(accessionId, row.get("PLMO_Number"), vcfFolder + accessionId)
+                QCI_Download_Message = "Successfully Downloaded Message"
                 if not text_file:
                     print("could not pull XML from QCI")
-    
+                    QCI_Download_Message = "could not pull XML from QCI"
+                updateStatus(row['SAMPLE_DIR_PATH'], QCI_Download_Message, conn)
+                
+    conn.close()
+
     #time.sleep(600)    
     #logging.debug('=======================Execution ends===========================')
-    excel_file.close()
+    # excel_file.close()
 
 #for handler in logging.root.handlers[:]:
 #   logging.root.removeHandler(handler)

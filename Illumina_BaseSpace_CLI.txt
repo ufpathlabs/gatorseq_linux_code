@@ -1,0 +1,96 @@
+
+
+############ FASTQ DATA FROM Gatorseq_NGS BASESPACE CLOUD #############
+
+basemount --unmount ~/BaseSpace_Mount
+basemount  --config UFMOL_ENTERPRISE  ~/BaseSpace_Mount
+ 
+Fastq files for each sample can be retrieved using below folder structure,
+~/BaseSpace_Mount/Projects/Gatorseq_NGS/Samples/NQ-20-01_BC703503_011/Files
+
+
+############ JOB SUBMISSION TO BASESPACE ON THE CLOUD #############
+
+######################################################################################
+### STEP 1
+### Using Sample Name get the Sample ID which will be used in the next field 
+### e.g., --option=automation-sample-id:216890698
+######################################################################################
+
+/home/path-svc-mol/Illumina_Binary/bin/bs  --config UFMOL_ENTERPRISE  biosample get --name="NQ-20-02_BC712507_Z8-5x" --format=json
+
+
+######################################################################################
+### STEP 2
+### Submitting the job
+######################################################################################
+
+/home/path-svc-mol/Illumina_Binary/bin/bs \
+--config UFMOL_ENTERPRISE \
+ application launch \
+--id=9650641 \
+--option=project-id:152973821 \
+--option=ht-ref:hg19-altaware-cnv-anchor.v8 \
+--option=cnv_checkbox:1 \
+--option=cnv_ref:1 \
+--option=cnv_segmentation_mode:slm \
+--option=sv_checkbox:1 \
+--option=eh_checkbox:1 \
+--option=output_format:BAM \
+--option=vcf_or_gvcf:GVCF \
+--option=dupmark_checkbox:1 \
+--option=vc_enable_bqd_checkbox:1 \
+--option=metrics_checkbox:1 \
+--option=md5_all:1 \
+--option=automation_checkbox:1 \
+--option=automation-sample-id:216890698 \
+--option=automation-sex:auto \
+--option=app-session-name:ChamalaTest2_AppSessionID_NQ-20-02_BC712507_Z8-5x_TEST1_2020_03_09 \
+--appsession-label="ChamalaTest2_AppSessionLabel_NQ-20-02_BC712507_Z8-5x_TEST1_2020_03_09" \
+--format=json 
+
+
+NOTE 1: Label for "app-session-name" will be like SAMPLENAME_AppSessionID_TIMESTAMP_ENV ; for example "NQ-20-02_BC712507_Z8-5x_AppSessionID_20190927123808574993_DevEnv"
+NOTE 2: Label for "appsession-label" will be like SAMPLENAME_AppSessionLabel_TIMESTAMP ; for example "NQ-20-02_BC712507_Z8-5x_AppSessionLabel_20190927123808574993_DevEnv"
+NOTE 3: "project-id" could be found by the URL of the BaseSpace GUI interface; If project name in the excel column is "CLIN_WGS" then project ID "152973821"
+NOTE 4: "--id=" is the aplication ID could be found by the URL of the BaseSpace GUI interface; If project name in the excel column is "CLIN_WGS" then app ID "9650641"
+
+
+######################################################################################
+### STEP 3
+### Query for the Status of the submitted job and update the database & excel
+######################################################################################
+
+/home/path-svc-mol/Illumina_Binary/bin/bs \
+--config UFMOL_ENTERPRISE \
+ appsession get \
+--name="ChamalaTest2_AppSessionLabel_NQ-20-02_BC712507_Z8-5x_TEST1_2020_03_09" --format=json
+
+
+############ DOWNLOAD DATA FROM ILLUMINA BASESPACE CLOUD #############
+
+######################################################################################
+### STEP 1
+### Download data using AppSessionLabel 
+######################################################################################
+
+
+basemount --unmount ~/BaseSpace_Mount
+basemount  --config UFMOL_ENTERPRISE  ~/BaseSpace_Mount
+ 
+Output files will reside under AppSessionLabel that we gave while submitting the job,
+~/BaseSpace_Mount/Projects/WGS/AppSessions/ChamalaTest2_AppSessionLabel_NQ-20-02_BC712507_Z8-5x_TEST1_2020_03_09/AppResults.*/Files
+
+
+############# Some Miscellaneous Commands ###################
+
+/home/path-svc-mol/Illumina_Binary/bin/bs --config=UFMOL_ENTERPRISE appsession get --id="219701549" --format=json
+
+/home/path-svc-mol/Illumina_Binary/bin/bs --config=UFMOL_ENTERPRISE appsession property get --property-name=Output.Datasets -i 219701549
+
+/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  dataset get --id=ds.e6e6677075bd431893035d415e166d70
+
+/home/path-svc-mol/Illumina_Binary/bin/bs --config=UFMOL_ENTERPRISE list appsession --project-id=152973821
+
+/home/path-svc-mol/Illumina_Binary/bin/bs --config=UFMOL_ENTERPRISE dataset list --project-id=152973821
+

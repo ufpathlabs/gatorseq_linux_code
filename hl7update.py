@@ -37,17 +37,19 @@ def find_genes_from_XML(xmlFile):
             map["variant"] = [map.get("variant")]
         for variant in map.get("variant"):
             if variant["assessment"] == "Uncertain Significance":
-                print("ignoreing uncertain imortance genes: ", str(variant["gene"]))
+                if variant.get("gene") is not None:
+                    print("ignoring uncertain imortance genes: ", str(variant["gene"]))
                 continue
-            gene = ''
-            transcriptChange = ""
-            proteinChange = ""
-            if variant.get("transcriptchange"):
-                transcriptChange = variant["transcriptchange"]["change"]
-            if variant.get("proteinchange"):
-                proteinChange = variant["proteinchange"]["change"]
-            gene += str(variant["gene"]) + " " + transcriptChange + " " + proteinChange
-            genes_list.append(gene)
+            if variant.get("gene") is not None:
+                gene = ''
+                transcriptChange = ""
+                proteinChange = ""
+                if variant.get("transcriptchange"):
+                    transcriptChange = variant["transcriptchange"]["change"]
+                if variant.get("proteinchange"):
+                    proteinChange = variant["proteinchange"]["change"]
+                gene += str(variant["gene"]) + " " + transcriptChange + " " + proteinChange
+                genes_list.append(gene)
     return genes_list, diagnosis
 
 def get_first_obx_index(h):
@@ -104,7 +106,7 @@ def update_obx_segment(h):
                 obx_segment[19] = obx_segment[14]
 
 
-def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
+def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor):
     updates = 0
     temp_obx = h[:]
     l = len(h)
@@ -140,6 +142,21 @@ def update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis):
             obxSegment[1] = new_obx_index
             new_obx_index +=1 
             temp_obx.append(obxSegment) 
+        elif obxSegment[3][0][1][0] == "% TARGET CELLS":
+            #print("tumor type found")
+            if Perc_Target_Cells:
+                obxSegment[5][0] = Perc_Target_Cells
+                obxSegment[1] = new_obx_index
+                new_obx_index +=1 
+                temp_obx.append(obxSegment) 
+        elif obxSegment[3][0][1][0] == "ATYPICAL LYMPHOCYTES IN MICRODISSECTED TISSUE":
+            #print("tumor type found")
+            if Perc_Tumor:
+                obxSegment[5][0] = Perc_Tumor
+                obxSegment[1] = new_obx_index
+                new_obx_index +=1 
+                temp_obx.append(obxSegment) 
+
     h_t = h[:]
     l = len(h)
     for i in range(l):

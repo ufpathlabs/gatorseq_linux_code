@@ -1,6 +1,5 @@
 import requests 
 from requests.exceptions import HTTPError 
-import xmlschema 
 import time 
 import ast
 import sys
@@ -117,29 +116,19 @@ class hl7update:
                 elif(len(obx_segment)>=19):
                     obx_segment[19] = obx_segment[14]
    
-    def update_obx_seg_containing_gene(self, row):
+    def update_obx_seg_containing_gene(self, sample):
         updates = 0
         temp_obx = self.h[:]
         l = len(self.h)
         for i in range(l):
             del temp_obx[l-i-1]
         new_obx_index = 1
-        report_genotype_only_arr = ["CYP2C_CLUSTER", "CYP4F2", "VKORC1"]
         for obxSegment in self.h['OBX']:
-            isGenoType = "GENOTYPE" in obxSegment[3][0][1][0]
-            gene = obxSegment[3][0][1][0].replace(" GENOTYPE", "").replace(" PHENOTYPE", "")
-            gene = gene.replace(' ', '_')
-            #if we find the value for that gene in csv, add it to the OBX segment, else add it as is.
-            if row.get(gene) is not None and not (gene in report_genotype_only_arr and not isGenoType):
-                try:
-                    obxSegment[5][0] = row[gene].iloc[0].split("; ")[0] if isGenoType else row[gene].iloc[0].split("; ")[1]
-                except:
-                    print('------------------------------', row[gene], isGenoType, obxSegment[3][0][1][0])
-            obxSegment[1] = new_obx_index
-            new_obx_index +=1
-            temp_obx.append(obxSegment)
-            updates += 1
-
+            if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
+                obxSegment[5][0] = sample.result
+                obxSegment[1] = new_obx_index
+                new_obx_index +=1 
+                temp_obx.append(obxSegment) 
             
         h_t = self.h[:]
         l = len(self.h)
@@ -171,21 +160,11 @@ class hl7update:
             obx_idx += 1
             i += 1
 
-def main():
+
+def checkIncomingHl7(sampleDict):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
-    try: 
-        #ToDo: check if they are sorted correctly
-
-        os.chdir(GATOR_PGX_SAMPLE_INPUT_FOLDER)
-        csv_files = filter(os.path.isfile, os.listdir(GATOR_PGX_SAMPLE_INPUT_FOLDER))
-        csv_files = [os.path.join(GATOR_PGX_SAMPLE_INPUT_FOLDER, f) for f in csv_files] # add path to each file
-        csv_files.sort(key=lambda x: os.path.getctime(x))
-
-    except:
-        print(" Could not read folder")
-        sys.exit()
     allhl7filenames = []
     for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
         allhl7filenames.extend(filenames)
@@ -203,7 +182,7 @@ def main():
                 msg_unix_fmt = hl7msg.replace("\n","\r")
                 h = hl7.parse(msg_unix_fmt)
                 newHl7 = hl7update(h)
-                #Read PLM id from HL7 message
+                #Read message id from HL7 message
                 try:
                     messageId = str(h['OBR'][0][3]).replace("^", "")
                 except:
@@ -211,46 +190,117 @@ def main():
                 if (not messageId):
                     continue
 
-                # search for messageId in the csv_files of GATOR_PGX_SAMPLE_INPUT_FOLDER
+                # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                foundMessageId = False
-                for f in csv_files:
-                    #First, find the header in the csv (using the constraint that header starts with 'sample ID')
-                    # And then create a data frame using pandas
-                    if foundMessageId:
-                        continue
-                    with open(f) as csvFile:
-                        readCSV = csv.reader(csvFile, delimiter=',')
-                        rowCount = -1
-                        for row in readCSV:
-                            rowCount += 1
-                            if len(row) > 0 and row[0] == 'sample ID':
-                                break 
-                    df = pd.read_csv(f, header=rowCount)
-                    df.columns = df.columns.str.strip().str.replace(' ', '_')
-                    # not found in this file and hence moving on to next file
-                    if df[df['sample_ID'] == messageId].empty:
-                        continue
-                        print("sample_ID " + messageId +" not found in this file: ", f)
-                    else:
-                        #ToDO: check for duplicate entries of sample Id
+                if messageId in sampleDict:
+                    print("--------found----------")
+                    newHl7.update_msh_segment()
+                    newHl7.update_orc_segment()
+                    newHl7.update_obr_segment()
+                    newHl7.update_obx_segment()
+                    h = newHl7.update_obx_seg_containing_gene( sampleDict[messageId] )
+                    
+                    out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(messageId)
+                    if h:
+                        with open(out_file_path, 'w' ,  encoding='utf-8') as f:
+                            f.write(str(h))
+                        print("Out file available at :",out_file_path)
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID-processed-' + get_current_formatted_date() + "-" + hl7_file_name) 
 
-                        # found messageId and generating a new hl7 file
-                        print("processing ", messageId, " which is found in file: ", f)
-                        foundMessageId = True
-                        newHl7.update_msh_segment()
-                        newHl7.update_orc_segment()
-                        newHl7.update_obr_segment()
-                        #newHl7.update_comments(open( r"C:\Users\s.majety\Desktop\PGX project\test.txt", mode="r",  encoding='utf-8').read())
-                        newHl7.update_obx_segment()
-                        h = newHl7.update_obx_seg_containing_gene( df[df['sample_ID'] == messageId])
-                        
-                        out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(messageId)
-                        if h:
-                            with open(out_file_path, 'w' ,  encoding='utf-8') as f:
-                                f.write(str(h))
-                            print("Out file available at :",out_file_path)
-                            move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-PGX-' + get_current_formatted_date() + "-" + hl7_file_name) 
+                    
 
-                            
-main()
+class Sample:
+    def __init__(self, sample_name):
+        self.name = str(sample_name)
+        self.nCoV_N1 = None
+        self.nCoV_N2 = None
+        self.nCoV_N3 = None
+        self.RP = None
+        self.result = None
+    def __str__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result)
+
+    def __repr__(self):
+        return str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " | "
+
+def isFloatValue(value, maxThreshold):
+    try:
+        val = float(value)
+        #ToDo: check RP condition, if RP > 35 then is it considered to be Undetermined
+        if maxThreshold and val > maxThreshold:
+            return False
+        return True
+
+    except:
+        if value == "Undetermined":
+            return False
+        else:
+            print("------------unable to identify the value-------------->", value)
+            return False
+    
+    
+if __name__ == "__main__":
+    CORONAVIRUS_TEST_INPUT_FOLDER = replace_env(config_dict['CORONAVIRUS_TEST_INPUT_FOLDER'])
+    os.chdir(CORONAVIRUS_TEST_INPUT_FOLDER)
+    _files = filter(os.path.isfile, os.listdir(CORONAVIRUS_TEST_INPUT_FOLDER))
+    excel_files = [os.path.join(CORONAVIRUS_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
+    sampleDict = {}
+    #print(excel_files)
+    for eachExcel in excel_files:
+        xldf = pd.read_excel(eachExcel, skiprows=range(0,34))
+        #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+        # generate sample dictionary in below format:
+        # {<sample name>: <Class Sample>}
+
+        for index, row in xldf.iterrows():
+            sampleName = str(row["Sample Name"])
+            targetName = row["Target Name"]
+            value = row["CT"]
+            if sampleDict.get(sampleName) is None:
+                sampleDict[sampleName] = Sample(sampleName)
+            if targetName == "RP":
+                #sampleDict[sampleName][targetName] = value
+                setattr(sampleDict[sampleName], "%s" % targetName, value)
+            else:
+                #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
+                #sampleDict[sampleName][targetName[4:]] = value
+                setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
+
+    for sampleName in sampleDict.keys():
+        sample = sampleDict[sampleName]
+
+        if all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Detected"
+            continue
+        elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]) and not all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Indeterminate"
+            continue
+        
+        if sample.RP and not isFloatValue(sample.RP, 40.0):
+            #INVALID Case is to be handled by pathologists separately and hence just continuing
+            #sample.result = "QNS"
+            continue
+        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+            sample.result = "Not Detected"
+
+
+
+        # if sample.RP and isFloatValue(sample.RP, 35.0):
+        #     sample.result = "Invalid"
+        #     continue
+
+        # if sample.nCoV_N1 and sample.nCoV_N2 and sample.nCoV_N3 and sample.RP:
+        #     if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Negative"
+            
+        #     elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Indeterminate"
+
+        #     elif all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
+        #         sample.result = "Positive"
+        if sample.result is None:
+            print("------unable to identify result for the sample-----", sample)
+            del sampleDict[sampleName]
+    print("below is the dictionary of all samples:")
+    print(sampleDict)
+    checkIncomingHl7(sampleDict)
