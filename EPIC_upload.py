@@ -18,7 +18,7 @@ import xmltodict
 import datetime
 import traceback
 import sqlite3
-import mysql.connector
+import database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -46,12 +46,6 @@ CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-SQLITE_DB = replace_env(config_dict['SQLITE_DB'])
-
-MYSQL_HOST = config_dict['MYSQL_HOST']
-MYSQL_USERNAME = config_dict['MYSQL_USERNAME']
-# MYSQL_PASSWAORD = config_dict['MYSQL_PASSWAORD']
-MYSQL_DATABASE = config_dict['MYSQL_DATABASE']
 
 if CODE_ENV=='DevEnv':
     MIRTH_GATORSEQ += '/TEST'
@@ -84,14 +78,6 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
 
 QCI_CLIENT_ID = config_token_dict['QCI_CLIENT_ID']
 QCI_CLIENT_ID_KEY = config_token_dict['QCI_CLIENT_ID_KEY']
-MYSQL_PASSWAORD = config_token_dict['MYSQL_PASSWAORD']
-
-if CODE_ENV == "ProdEnv":
-    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
-    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
-    MYSQL_PASSWAORD = config_token_dict['PROD_MYSQL_PASSWAORD']
-    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
-
 
 #populates a map with each drug name. it is required as we need to show the treatments grouped by drugnames
 def getDrugMaps(treatmentsList):
@@ -108,24 +94,9 @@ def getDrugMaps(treatmentsList):
         drugMap[treatment.get("drug").get("drugname")]['listTreatments'].append(treatment)
     return drugMap
 
-def create_connection(db_file):
-    conn = None
-    # try:
-    #     conn = sqlite3.connect(db_file)
-    # except:
-    #     print(traceback.format_exc())
+def create_connection():
+    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USERNAME,
-            passwd=MYSQL_PASSWAORD,
-            database=MYSQL_DATABASE
-        )
-    except:
-        print(traceback.format_exc())
- 
-    return conn
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()
@@ -159,13 +130,13 @@ def main():
     #     print("Problem Reading Excel")
     #     sys.exit()
 
-    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Upload_Message = "" or EPIC_Re_Run = "yes") ;', create_connection(SQLITE_DB))
-    conn = create_connection(SQLITE_DB)
+    xldf = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Upload_Message = "" or EPIC_Re_Run = "yes") ;', create_connection())
+    conn = create_connection()
 
     #re_run logic
     # if a row is to be rerun, move the input hl7 file from ORDERS_ARCHIVE folder to ORDERS folder
     # the rows to re-run is a rare case and hence, each time, we are querying all files in archive (will not be a time complexity issue)
-    rerun_barcodes = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Re_Run = "yes") ;', create_connection(SQLITE_DB))
+    rerun_barcodes = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (EPIC_Re_Run = "yes") ;', create_connection())
     for index, row in rerun_barcodes.iterrows():
         excel_row_plmo = row['PLMO_Number']
         for (dirpath, dirnames, filenames) in os.walk(ORDERS_ARCHIVE_DIR):
