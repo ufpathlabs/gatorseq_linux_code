@@ -76,6 +76,21 @@ if CODE_ENV == "DevEnv":
     MYSQL_PASSWORD = config_token_dict['DEV_MYSQL_PASSWORD']
     MYSQL_DATABASE = config_dict['DEV_MYSQL_DATABASE']
 
+file_to_lock = COVID_19_TEST_STATUS_FILE + '.lock'
+lock = FileLock(file_to_lock)
+try:
+    lock.acquire(timeout=1)
+except:
+    print("some other script is using it")
+    sys.exit()
+
+try: 
+    excel_file = open(COVID_19_TEST_STATUS_FILE, "r+")
+    status_df = pd.read_excel(COVID_19_TEST_STATUS_FILE)
+except:
+    print(" Could not open file! Please close Excel!")
+    sys.exit()
+
 
 def check_folders_exist():
     #if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
@@ -203,6 +218,15 @@ def create_connection():
     return conn
 SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
+def updateRowinDB(sample, PLMO, MRN):
+    cur = SQL_CONNECTION.cursor()
+    updateSql = "UPDATE "+ COVID_19_EPIC_UPLOAD_TABLE +" set PLMO_NUMBER = %s, MRN = %s, EPIC_UPLOAD_TIMESTAMP = %s WHERE QUANTSTUDIO_SPECIMEN_ID = %s;"
+    cur.execute(updateSql, (PLMO[0], MRN, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.completeSampleName))
+    SQL_CONNECTION.commit()
+    cur.close()
+
+
+# arguments are <class Sample> sample, str PLMO
 def addRowInDatabase(sample, PLMO, MRN):
     cur = SQL_CONNECTION.cursor()
     updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s);"
@@ -210,6 +234,7 @@ def addRowInDatabase(sample, PLMO, MRN):
     cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
+
 
 # method to write the entire database table to excel
 def writeDataToExcel():
@@ -283,7 +308,8 @@ def checkIncomingHl7(sampleDict):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn) )
+                            updateRowinDB(givenSample, plm, str(mrn))
+                            # addRowInDatabase(givenSample, plm, str(mrn) )
                     
 
 class Sample:
@@ -316,7 +342,18 @@ def isFloatValue(value, maxThreshold):
         else:
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
-    
+
+def addSampleDictToExcel(sampleDict, writeFlag):
+    for key in sampleDict.keys():
+        curSample = sampleDict[key]
+        if curSample.completeSampleName in status_df["QUANTSTUDIO_SPECIMEN_ID"]:
+            continue
+        else:
+            addRowInDatabase(curSample, "", "")
+            status_df.append([curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.nCoV_N3, curSample.RP, curSample.result])
+    if writeFlag:
+        status_df.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
+
     
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
@@ -373,7 +410,10 @@ if __name__ == "__main__":
     #print("below is the dictionary of all samples:")
     #print(sampleDict["PLMO20-000129"])
     #print(sampleDict)
-    checkIncomingHl7(sampleDict)
+    addSampleDictToExcel(sampleDict, True)
     
-    writeDataToExcel()
+    # checkIncomingHl7(sampleDict)
+    
+    # writeDataToExcel()
+
     SQL_CONNECTION.close()
