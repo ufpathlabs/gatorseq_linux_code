@@ -18,6 +18,7 @@ from filelock import FileLock
 from pathlib import Path
 import os.path
 import re
+import math
 print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -205,7 +206,7 @@ SQL_CONNECTION = create_connection()
 def addRowInDatabase(sample, PLMO):
     cur = SQL_CONNECTION.cursor()
     updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s, %s, %s, %s, %s, %s, %s);"
-    #print(type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     cur.execute(updateSql, (sample.completeSampleName, PLMO[0], str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
@@ -307,14 +308,14 @@ def isFloatValue(value, maxThreshold):
         if value == "Undetermined":
             return False
         else:
-            print("------------unable to identify the value-------------->", value)
+            print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
     
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
     _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
-    excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files] # add path to each file
+    excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
     sampleDict = {}
     plmoDict = {}
     for eachExcel in excel_files:#[:-1]:
@@ -322,7 +323,7 @@ if __name__ == "__main__":
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
-        print(xldf.head())  
+        #print(xldf.head())  
         for index, row in xldf.iterrows():
             sampleName = str(row["Sample Name"])
             if 'PLMO' in sampleName:
@@ -336,9 +337,9 @@ if __name__ == "__main__":
             #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
             if sampleDict.get(sampleName) is None:
                 sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
-            if targetName == "RP":
+            if targetName == "RP":# and not math.isnan(value):
                 setattr(sampleDict[sampleName], "%s" % targetName, value)
-            else:
+            else:# not math.isnan(value):
                 #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
                 setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
@@ -364,6 +365,7 @@ if __name__ == "__main__":
             del sampleDict[sampleName]
     
     #print("below is the dictionary of all samples:")
+    #print(sampleDict["PLMO20-000129"])
     #print(sampleDict)
     checkIncomingHl7(sampleDict)
     
