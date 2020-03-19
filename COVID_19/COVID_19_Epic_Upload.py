@@ -352,7 +352,7 @@ def addSampleDictToExcel(sampleDict, writeFlag):
             continue
         else:
             #addRowInDatabase(curSample, "", "")
-            status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.nCoV_N3, curSample.RP, curSample.result]
+            status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, "", curSample.RP, curSample.result]
     #print(len(status_df))
     if writeFlag:
         status_df.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
@@ -392,10 +392,10 @@ if __name__ == "__main__":
     for sampleName in sampleDict.keys():
         sample = sampleDict[sampleName]
 
-        if all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
+        if all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None)]):#, isFloatValue(sample.nCoV_N3, None)]):
             sample.result = "Detected"
             continue
-        elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]) and not all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]) and not all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
             sample.result = "Indeterminate"
             continue
         
@@ -403,7 +403,7 @@ if __name__ == "__main__":
             #INVALID Case is to be handled by pathologists separately and hence just continuing
             #sample.result = "QNS"
             continue
-        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
+        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
             sample.result = "Not Detected"
         
         if sample.result is None:
