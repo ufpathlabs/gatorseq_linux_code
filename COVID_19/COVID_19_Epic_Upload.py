@@ -86,7 +86,8 @@ except:
 
 try: 
     excel_file = open(COVID_19_TEST_STATUS_FILE, "r+")
-    status_df = pd.read_excel(COVID_19_TEST_STATUS_FILE)
+    #status_df = pd.read_excel(COVID_19_TEST_STATUS_FILE)
+    status_df = pd.DataFrame(columns=['SAMPLE_NAME', 'PLMO', 'MRN', 'TIMESTAMP', 'N1', 'N2', 'N3', 'RP', 'RESULT'])
 except:
     print(" Could not open file! Please close Excel!")
     sys.exit()
@@ -401,7 +402,7 @@ if __name__ == "__main__":
         
         if sample.RP and not isFloatValue(sample.RP, 40.0):
             #INVALID Case is to be handled by pathologists separately and hence just continuing
-            #sample.result = "QNS"
+            sample.result = "Invalid"
             continue
         if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
             sample.result = "Not Detected"
