@@ -344,16 +344,19 @@ def isFloatValue(value, maxThreshold):
             return False
 
 def addSampleDictToExcel(sampleDict, writeFlag):
+    #print(status_df.head())
+    #print(sampleDict)
     for key in sampleDict.keys():
         curSample = sampleDict[key]
         if curSample.completeSampleName in status_df["QUANTSTUDIO_SPECIMEN_ID"]:
             continue
         else:
-            addRowInDatabase(curSample, "", "")
-            status_df.append([curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.nCoV_N3, curSample.RP, curSample.result])
+            #addRowInDatabase(curSample, "", "")
+            status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.nCoV_N3, curSample.RP, curSample.result]
+    #print(len(status_df))
     if writeFlag:
         status_df.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
-
+        print("-> status file written successfully <-")
     
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
