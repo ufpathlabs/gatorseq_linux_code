@@ -203,11 +203,11 @@ def create_connection():
     return conn
 SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(sample, PLMO, MRN, ptName):
+def addRowInDatabase(sample, PLMO, MRN, ptName, excelFileName):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, ptName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, ptName, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -220,7 +220,7 @@ def writeDataToExcel():
         print("unable to save status excel, please close it")
 
 
-def checkIncomingHl7(sampleDict):
+def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
@@ -288,7 +288,7 @@ def checkIncomingHl7(sampleDict):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName.replace("^", " ")) )
+                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName.replace("^", " ")), excelFile )
                     
 
 class Sample:
@@ -322,7 +322,7 @@ def isFloatValue(value, maxThreshold):
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
-def addSampleDictToExcel(sampleDict, writeFlag):
+def addSampleDictToExcel(sampleDict, excelName, writeFlag):
     #print(status_df.head())
     #print(sampleDict)
     status_df = pd.DataFrame(columns=['SAMPLE_NAME', 'PLMO', 'MRN', 'TIMESTAMP', 'N1', 'N2', 'RP', 'RESULT'])
@@ -335,7 +335,7 @@ def addSampleDictToExcel(sampleDict, writeFlag):
             status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.RP, curSample.result]
     #print(len(status_df))
     if writeFlag:
-        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG, index=False)
+        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG + "_" + excelName, index=False)
         print("-> status file written successfully <-")
 
 
@@ -343,19 +343,47 @@ if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
     _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
-    sampleDict = {}
-    plmoDict = {}
-    print(excel_files) 
     
-    for eachExcel in excel_files:
+    print(excel_files) 
+
+    fileNames = []
+    toProcess = []
+    for f in excel_files:
+        if "_SAMPLE_MAP" in f:
+            sampleGroupName = f[:f.index("_SAMPLE_MAP")]
+            if sampleGroupName + "_RESULTED.xlsx" not in excel_files:
+                fileNames.append(sampleGroupName)
+    
+    for f in fileNames:
+        sampleResult = f + "_SAMPLE_RESULTS.xlsx"
+        sampleMap = f + "_SAMPLE_MAP.xlsx"
+        sampleToContainer = {}
+        df = pd.read_excel(sampleMap)
+        for i, row in df.iterrows():
+            sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
+        results_df = pd.read_excel(sampleResult, skip_rows=35)
+        results_df["CONTAINER_ID"] = None
+
+        for i, row in results_df.iterrows():
+            results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
         
-        xldf = pd.read_excel(eachExcel, skiprows=range(0,35))
+        print(results_df.head())
+        toProcess.append(f + "_UPDATED_CONTAINER_ID.xlsx")
+        results_df.to_excel(f + "_UPDATED_CONTAINER_ID.xlsx", index=False)
+        
+
+
+    for f in toProcess:
+        sampleDict = {}
+        plmoDict = {}
+        eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
+        xldf = pd.read_excel(eachExcel)
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
         #print(xldf.head())  
         for index, row in xldf.iterrows():
-            sampleName = str(row["Sample Name"])
+            sampleName = str(row["CONTAINER_ID"])
             if 'PLMO' in sampleName:
                 plm = re.findall(r"PLMO\d+-\d+" , sampleName)
                 if len(plm):
@@ -375,33 +403,33 @@ if __name__ == "__main__":
                 #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
                 setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
-    for sampleName in sampleDict.keys():
-        sample = sampleDict[sampleName]
+        for sampleName in sampleDict.keys():
+            sample = sampleDict[sampleName]
 
-        if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
-            sample.result = "Detected"
-            continue
-        elif any([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]):
-            sample.result = "Indeterminate"
-            continue
+            if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
+                sample.result = "Detected"
+                continue
+            elif any([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]):
+                sample.result = "Indeterminate"
+                continue
+            
+            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40 and type(sample.nCoV_N2) == "float" and sample.nCoV_N2 > 40  ):
+                #INVALID Case is to be handled by pathologists separately and hence just continuing
+                sample.result = "Invalid"
+                continue
+            if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
+                sample.result = "Not Detected"
+            
+            if sample.result is None:
+                print("------unable to identify result for the sample-----", sample)
+                #del sampleDict[sampleName]
+                sample.result = "Invalid"
+        #print("below is the dictionary of all samples:")
+        #print(sampleDict["PLMO20-000129"])
+        #print(sampleDict)
+        #checkIncomingHl7(sampleDict, f)
         
-        if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40 and type(sample.nCoV_N2) == "float" and sample.nCoV_N2 > 40  ):
-            #INVALID Case is to be handled by pathologists separately and hence just continuing
-            sample.result = "Invalid"
-            continue
-        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
-            sample.result = "Not Detected"
+        addSampleDictToExcel(sampleDict, f, True) 
         
-        if sample.result is None:
-            print("------unable to identify result for the sample-----", sample)
-            #del sampleDict[sampleName]
-            sample.result = "Invalid"
-    #print("below is the dictionary of all samples:")
-    #print(sampleDict["PLMO20-000129"])
-    #print(sampleDict)
-    #checkIncomingHl7(sampleDict)
-    
-    addSampleDictToExcel(sampleDict, True) 
-    
-    #writeDataToExcel()
+        #writeDataToExcel()
     SQL_CONNECTION.close()
