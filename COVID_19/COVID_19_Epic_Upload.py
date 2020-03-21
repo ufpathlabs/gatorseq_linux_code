@@ -203,9 +203,9 @@ SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
 def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, sample.name, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -217,7 +217,7 @@ def writeDataToExcel(excelName):
         xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1], index=False)
     except:
         print("unable to save status excel, please close it")
-    print("--------done writeToExcel method------------")
+    print("--------done writeToExcel method and writing done to", COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1])
 
 def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
