@@ -201,11 +201,11 @@ def create_connection():
     return conn
 SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(sample, PLMO, MRN, ptName, excelFileName):
+def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, ptName, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
@@ -214,10 +214,11 @@ def writeDataToExcel(excelName):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     try:
-        xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + "_1" + excelName.split("/")[-1], index=False)
+        xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1], index=False)
     except:
         print("unable to save status excel, please close it")
     print("--------done writeToExcel method------------")
+
 def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
@@ -263,7 +264,27 @@ def checkIncomingHl7(sampleDict, excelFile):
                 try:
                     ptName = h['PID'][0][5][0]
                 except:
-                    print("---------could not find PATIENT_NAME in hl7 file: ", hl7_file_name)            
+                    print("---------could not find PATIENT_NAME in hl7 file: ", hl7_file_name) 
+
+                ptSex = ""
+                try:
+                    ptSex = h['PID'][0][8][0]
+                except:
+                    print("---------could not find PATIENT_SEX in hl7 file: ", hl7_file_name) 
+
+                ptAge = -1
+                try:
+                    ptAge = 2020 - int(h['PID'][0][7][0][:4]) 
+                except:
+                    print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name) 
+
+                ordDept = ""
+                try:
+                    ordDept = h['OBR'][0][15][0]
+                except:
+                    print("---------could not find Ordering_DEPT in hl7 file: ", hl7_file_name) 
+
+
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict or plm[0] in sampleDict:
@@ -286,7 +307,7 @@ def checkIncomingHl7(sampleDict, excelFile):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName), excelFile )
+                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -419,7 +440,7 @@ if __name__ == "__main__":
                 sample.result = "Not Detected"
             
             if sample.result is None:
-                print("------unable to identify result for the sample-----", sample)
+                print("------ Last resort reached -----", sample)
                 #del sampleDict[sampleName]
                 sample.result = "Invalid"
         #print("below is the dictionary of all samples:")
