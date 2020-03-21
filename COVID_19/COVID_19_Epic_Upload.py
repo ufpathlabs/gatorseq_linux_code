@@ -212,14 +212,14 @@ def addRowInDatabase(sample, PLMO, MRN, ptName, excelFileName):
     cur.close()
 
 # method to write the entire database table to excel
-def writeDataToExcel():
-    xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' ;', SQL_CONNECTION)
+def writeDataToExcel(excelName):
+    xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     try:
-        xldf.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
+        xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + "_1" + excelName.split("/")[-1], index=False)
     except:
         print("unable to save status excel, please close it")
-
-
+    print("--------done writeToExcel method------------")
 def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
@@ -288,7 +288,7 @@ def checkIncomingHl7(sampleDict, excelFile):
                         print("---> Out file available at :",out_file_path, "<---")
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName.replace("^", " ")), excelFile )
+                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName), excelFile )
                     
 
 class Sample:
@@ -335,7 +335,7 @@ def addSampleDictToExcel(sampleDict, excelName, writeFlag):
             status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.RP, curSample.result]
     #print(len(status_df))
     if writeFlag:
-        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG + "_" + excelName, index=False)
+        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG + "_" + excelName.split("/")[-1], index=False)
         print("-> status file written successfully <-")
 
 
@@ -343,8 +343,6 @@ if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
     _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
-    
-    print(excel_files) 
 
     fileNames = []
     toProcess = []
@@ -361,10 +359,12 @@ if __name__ == "__main__":
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
-        results_df = pd.read_excel(sampleResult, skip_rows=35)
+        
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
         results_df["CONTAINER_ID"] = None
-
-        for i, row in results_df.iterrows():
+        
+        
+        for index, row in results_df.iterrows():
             results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
         
         print(results_df.head())
@@ -427,9 +427,9 @@ if __name__ == "__main__":
         #print("below is the dictionary of all samples:")
         #print(sampleDict["PLMO20-000129"])
         #print(sampleDict)
-        #checkIncomingHl7(sampleDict, f)
+        checkIncomingHl7(sampleDict, f)
+        writeDataToExcel(f)  
+        #addSampleDictToExcel(sampleDict, f, True) 
         
-        addSampleDictToExcel(sampleDict, f, True) 
-        
-        #writeDataToExcel()
+    #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
