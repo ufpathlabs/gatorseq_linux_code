@@ -213,6 +213,7 @@ def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFile
 def writeDataToExcel(excelName):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
+    xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
     try:
         xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1], index=False)
     except:
