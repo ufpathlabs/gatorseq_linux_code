@@ -40,15 +40,13 @@ def replace_env(strname):
     strname=strname.replace("USER_NAME",USER_NAME).replace("CODE_ENV",CODE_ENV)
     return strname
 
-COVID_19_TEST_STATUS_FILE = replace_env(config_dict['COVID_19_TEST_STATUS_FILE'])
 COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['COVID_19_EPIC_UPLOAD_TABLE'])
 COVID_19_TEST_INPUT_FOLDER = replace_env(config_dict['COVID_19_TEST_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
-
+COVID_19_TEST_SAMPLE_LOG = replace_env(config_dict['COVID_19_TEST_SAMPLE_LOG'])
 CONFIG_TOKENS_FILE = parent_path  + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
 if CODE_ENV=='ProdEnv':
     MIRTH_GATORSEQ += '/PROD'
-    COVID_19_TEST_STATUS_FILE = replace_env(config_dict['COVID_19_TEST_STATUS_FILE_PROD'])
     COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['COVID_19_EPIC_UPLOAD_TABLE_PROD'])
     COVID_19_TEST_INPUT_FOLDER = replace_env(config_dict['COVID_19_TEST_INPUT_FOLDER_PROD']) 
 else:
@@ -203,24 +201,26 @@ def create_connection():
     return conn
 SQL_CONNECTION = create_connection()
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(sample, PLMO, MRN):
+def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s,%s, %s, %s, %s, %s, %s, %s, %s);"
+    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, PLMO[0], MRN, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (sample.completeSampleName, sample.name, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
     SQL_CONNECTION.commit()
     cur.close()
 
 # method to write the entire database table to excel
-def writeDataToExcel():
-    xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' ;', SQL_CONNECTION)
+def writeDataToExcel(excelName):
+    xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
+    xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
     try:
-        xldf.to_excel(COVID_19_TEST_STATUS_FILE, index=False)
+        xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1], index=False)
     except:
         print("unable to save status excel, please close it")
+    print("done writeToExcel method and writing done to -->", COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1])
 
-
-def checkIncomingHl7(sampleDict):
+def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
@@ -260,7 +260,32 @@ def checkIncomingHl7(sampleDict):
                     mrn = h['PID'][0][3][0][0]
                 except:
                     print("---------could not find MRN in hl7 file: ", hl7_file_name)
-                    
+        
+                ptName = ""
+                try:
+                    ptName = h['PID'][0][5][0]
+                except:
+                    print("---------could not find PATIENT_NAME in hl7 file: ", hl7_file_name) 
+
+                ptSex = ""
+                try:
+                    ptSex = h['PID'][0][8][0]
+                except:
+                    print("---------could not find PATIENT_SEX in hl7 file: ", hl7_file_name) 
+
+                ptAge = -1
+                try:
+                    ptAge = 2020 - int(h['PID'][0][7][0][:4]) 
+                except:
+                    print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name) 
+
+                ordDept = ""
+                try:
+                    ordDept = h['OBR'][0][15][0]
+                except:
+                    print("---------could not find Ordering_DEPT in hl7 file: ", hl7_file_name) 
+
+
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict or plm[0] in sampleDict:
@@ -269,21 +294,21 @@ def checkIncomingHl7(sampleDict):
                         givenSample =  sampleDict.get(messageId)
                     else:
                         givenSample = sampleDict.get(plm[0])
-                    print("processing hl7 input file: ", hl7_file_name)                   
+                    #print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
                     h = newHl7.update_obx_seg_containing_gene( givenSample )
                     
-                    out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(messageId)
+                    out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
                     if h:
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
-                        print("---> Out file available at :",out_file_path, "<---")
+                        print("Out file available at :",out_file_path)
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn) )
+                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -317,26 +342,75 @@ def isFloatValue(value, maxThreshold):
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
-    
+def addSampleDictToExcel(sampleDict, excelName, writeFlag):
+    #print(status_df.head())
+    #print(sampleDict)
+    status_df = pd.DataFrame(columns=['SAMPLE_NAME', 'PLMO', 'MRN', 'TIMESTAMP', 'N1', 'N2', 'RP', 'RESULT'])
+    for key in sampleDict.keys():
+        curSample = sampleDict[key]
+        if curSample.completeSampleName in status_df["SAMPLE_NAME"]:
+            continue
+        else:
+            #addRowInDatabase(curSample, "", "")
+            status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.RP, curSample.result]
+    #print(len(status_df))
+    if writeFlag:
+        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG + "_" + excelName.split("/")[-1], index=False)
+        print("-> status file written successfully <-")
+
+
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
     _files = filter(os.path.isfile, os.listdir(COVID_19_TEST_INPUT_FOLDER))
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
-    sampleDict = {}
-    plmoDict = {}
-    for eachExcel in excel_files:#[:-1]:
-        xldf = pd.read_excel(eachExcel, skiprows=range(0,35))
+
+    fileNames = []
+    toProcess = []
+    for f in excel_files:
+        if "_SAMPLE_MAP" in f:
+            sampleGroupName = f[:f.index("_SAMPLE_MAP")]
+            if sampleGroupName + "_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
+                fileNames.append(sampleGroupName)
+    
+    for f in fileNames:
+        sampleResult = f + "_SAMPLE_RESULTS.xlsx"
+        sampleMap = f + "_SAMPLE_MAP.xlsx"
+        sampleToContainer = {}
+        df = pd.read_excel(sampleMap)
+        for i, row in df.iterrows():
+            sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
+        
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
+        results_df["CONTAINER_ID"] = None
+        
+        
+        for index, row in results_df.iterrows():
+            results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
+        
+        #print(results_df.head())
+        toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
+        results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
+        
+
+
+    for f in toProcess:
+        sampleDict = {}
+        plmoDict = {}
+        eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
+        xldf = pd.read_excel(eachExcel)
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
         #print(xldf.head())  
         for index, row in xldf.iterrows():
-            sampleName = str(row["Sample Name"])
+            sampleName = str(row["CONTAINER_ID"])
             if 'PLMO' in sampleName:
                 plm = re.findall(r"PLMO\d+-\d+" , sampleName)
                 if len(plm):
                     sampleName = plm[0]
-            
+
+            sampleName = sampleName.replace("\\", "")            
+
             targetName = row["Target Name"]
             value = row["CT"]
             
@@ -349,31 +423,33 @@ if __name__ == "__main__":
                 #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
                 setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
-    for sampleName in sampleDict.keys():
-        sample = sampleDict[sampleName]
+        for sampleName in sampleDict.keys():
+            sample = sampleDict[sampleName]
 
-        if all([isFloatValue(sample.nCoV_N1, None), isFloatValue(sample.nCoV_N2, None), isFloatValue(sample.nCoV_N3, None)]):
-            sample.result = "Detected"
-            continue
-        elif any([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]) and not all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-            sample.result = "Indeterminate"
-            continue
+            if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
+                sample.result = "Detected"
+                continue
+            elif any([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]):
+                sample.result = "Indeterminate"
+                continue
+            
+            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40 and type(sample.nCoV_N2) == "float" and sample.nCoV_N2 > 40  ):
+                #INVALID Case is to be handled by pathologists separately and hence just continuing
+                sample.result = "Invalid"
+                continue
+            if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
+                sample.result = "Not Detected"
+            
+            if sample.result is None:
+                print("------ Last resort reached -----", sample)
+                #del sampleDict[sampleName]
+                sample.result = "Invalid"
+        #print("below is the dictionary of all samples:")
+        #print(sampleDict["PLMO20-000129"])
+        #print(sampleDict)
+        checkIncomingHl7(sampleDict, f)
+        writeDataToExcel(f)  
+        #addSampleDictToExcel(sampleDict, f, True) 
         
-        if sample.RP and not isFloatValue(sample.RP, 40.0):
-            #INVALID Case is to be handled by pathologists separately and hence just continuing
-            #sample.result = "QNS"
-            continue
-        if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None), not isFloatValue(sample.nCoV_N3, None)]):
-            sample.result = "Not Detected"
-        
-        if sample.result is None:
-            print("------unable to identify result for the sample-----", sample)
-            del sampleDict[sampleName]
-    
-    #print("below is the dictionary of all samples:")
-    #print(sampleDict["PLMO20-000129"])
-    #print(sampleDict)
-    checkIncomingHl7(sampleDict)
-    
-    writeDataToExcel()
+    #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
