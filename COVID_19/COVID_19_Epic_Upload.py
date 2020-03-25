@@ -217,7 +217,7 @@ def writeDataToExcel(excelName):
         xldf.to_excel(COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1], index=False)
     except:
         print("unable to save status excel, please close it")
-    print("--------done writeToExcel method and writing done to", COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1])
+    print("done writeToExcel method and writing done to -->", COVID_19_TEST_SAMPLE_LOG + excelName.split("/")[-1])
 
 def checkIncomingHl7(sampleDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
@@ -293,18 +293,18 @@ def checkIncomingHl7(sampleDict, excelFile):
                         givenSample =  sampleDict.get(messageId)
                     else:
                         givenSample = sampleDict.get(plm[0])
-                    print("processing hl7 input file: ", hl7_file_name)                   
+                    #print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
                     h = newHl7.update_obx_seg_containing_gene( givenSample )
                     
-                    out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(messageId)
+                    out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
                     if h:
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
-                        print("---> Out file available at :",out_file_path, "<---")
+                        print("Out file available at :",out_file_path)
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
                             addRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
@@ -368,7 +368,7 @@ if __name__ == "__main__":
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
-            if sampleGroupName + "_RESULTED.xlsx" not in excel_files:
+            if sampleGroupName + "_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
                 fileNames.append(sampleGroupName)
     
     for f in fileNames:
@@ -386,9 +386,9 @@ if __name__ == "__main__":
         for index, row in results_df.iterrows():
             results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
         
-        print(results_df.head())
-        toProcess.append(f + "_UPDATED_CONTAINER_ID.xlsx")
-        results_df.to_excel(f + "_UPDATED_CONTAINER_ID.xlsx", index=False)
+        #print(results_df.head())
+        toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
+        results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
         
 
 
