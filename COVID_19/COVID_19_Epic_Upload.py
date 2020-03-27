@@ -221,7 +221,7 @@ def writeDataToExcel(excelName):
     sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
     sampleMapDf["UPLOADED_TO_EPIC"] = "No"
     for index, row in sampleMapDf.iterrows():
-        if row["Internal_Sample_ID"] in xldf["QUANTSTUDIO_SPECIMEN_ID"]:
+        if xldf['QUANTSTUDIO_SPECIMEN_ID'].str.contains(str(row["Internal_Sample_ID"])).any() :
             sampleMapDf.at[index, "UPLOADED_TO_EPIC"] = "Yes"
     
     try:
