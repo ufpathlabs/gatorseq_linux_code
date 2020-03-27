@@ -214,11 +214,21 @@ def writeDataToExcel(excelName):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
-    RESULT_LOG=COVID_19_TEST_SAMPLE_LOG + "/" + \
+    RESULT_LOG = COVID_19_TEST_SAMPLE_LOG + "/" + \
         excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
+    SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
 
+    sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
+    sampleMapDf["UPLOADED_TO_EPIC"] = "No"
+    for index, row in sampleMapDf.iterrows():
+        if row["Internal_Sample_ID"] in xldf["QUANTSTUDIO_SPECIMEN_ID"]:
+            sampleMapDf.at[index, "UPLOADED_TO_EPIC"] = "Yes"
+    
     try:
-        xldf.to_excel(RESULT_LOG , index=False)
+        # xldf.to_excel(RESULT_LOG , index=False)
+        with pd.ExcelWriter(RESULT_LOG) as writer:
+            xldf.to_excel(writer, index=False, sheet_name='Sheet 1')
+            sampleMapDf.to_excel(writer, index=False, sheet_name='Sheet 2')
         print("done writeToExcel method and writing done to -->", RESULT_LOG )
     except:
         print("unable to save status excel, please close it")
