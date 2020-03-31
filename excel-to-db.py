@@ -36,7 +36,8 @@ def replace_env(strname):
 
 GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-
+if CODE_ENV == "ProdEnv":
+    TABLE_NAME = replace_env(config_dict['TABLE_NAME_PROD'])
 CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 config_token_dict=dict()
 with open(CONFIG_TOKENS_FILE, 'r') as stream:

@@ -34,7 +34,8 @@ def replace_env(strname):
 
 GATOR_SEQ_SAMPLE_INPUT_FILE = replace_env(config_dict['GATOR_SEQ_SAMPLE_INPUT_FILE'])
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-
+if CODE_ENV == "ProdEnv":
+    TABLE_NAME = replace_env(config_dict['TABLE_NAME_PROD'])
 
 file_to_lock = GATOR_SEQ_SAMPLE_INPUT_FILE + '.lock'
 lock = FileLock(file_to_lock)

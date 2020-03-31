@@ -216,10 +216,9 @@ if __name__ == "__main__":
     #     sys.exit()
 
     df = pd.read_sql_query('select * from '+ TABLE_NAME +' where status =  "DONE" and PLMO_Number != "" and (QCI_Upload_Message = "" or QCI_Re_Run = "yes");', create_connection())
-
+    conn = create_connection()
     statusChanged = False
     accessionIdMap = populateStatusMap()
-
 
     for index, row in df.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
@@ -227,7 +226,8 @@ if __name__ == "__main__":
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
             vcfFileName = accessionId + ".vcf"
             if row['QCI_Re_Run'].lower() != "yes" and accessionIdMap.get(accessionId) is not None:
-               # print(accessionId, " is already uploaded and hence not uploading again")
+                print(accessionId, " is already uploaded and hence not uploading again")
+                updateStatus(row['SAMPLE_DIR_PATH'], "Successfully Uploaded", conn)
                 continue
             
             if row['QCI_Re_Run'].lower() == "yes":
@@ -259,7 +259,6 @@ if __name__ == "__main__":
             else:
                 print("COULD NOT find vcf file: ",  vcfFolder + vcfFileName)
     
-    conn = create_connection()
 
     while len(PROCESSING_STATUS_URLS) > 0:
         time.sleep(30)
@@ -271,7 +270,8 @@ if __name__ == "__main__":
                 if status == "DONE":
                     updateStatus(SAMPLE_DIR_PATH, "Successfully Uploaded", conn)
                 else:
-                    updateStatus(SAMPLE_DIR_PATH, "Error while Uploading: " + str(response.get("errors")), conn)
+                    print(str(response.get("errors")))
+                    updateStatus(SAMPLE_DIR_PATH, "Error while Uploading: " + str(response.get("errors"))[:200], conn)
             else:
                 print("retrying as status is not yet done or failed and url: ", url, " is ", status)
 
