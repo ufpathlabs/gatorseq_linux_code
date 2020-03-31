@@ -55,7 +55,8 @@ GSBW_VERSION = replace_env(config_dict['GSBW_VERSION'])
 NEXTFLOW_GIT_REPO = replace_env(config_dict['NEXTFLOW_GIT_REPO'])
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-
+if CODE_ENV == "ProdEnv":
+    TABLE_NAME = replace_env(config_dict['TABLE_NAME_PROD'])
 
 #LINUX_HPC_ANALYSIS_FOLDER="/Users/path-svc-mol/Documents/mnt/HPC/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"
 #HPC_ANALYSIS_FOLDER="/ufrc/chamala/path-svc-mol/GatorSeq/GatorSeq_V1_1/GatorSeq_Analysis"

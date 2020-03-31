@@ -51,7 +51,7 @@ if CODE_ENV=='DevEnv':
     MIRTH_GATORSEQ += '/TEST'
 else:
     MIRTH_GATORSEQ += '/PROD'
-
+    TABLE_NAME = replace_env(config_dict['TABLE_NAME_PROD'])
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
         sys.exit("ERROR: Does not have access to following folder: " + GATOR_SEQ_SAMPLE_INPUT_FILE + "\n") 

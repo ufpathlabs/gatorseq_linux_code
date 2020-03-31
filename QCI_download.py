@@ -44,7 +44,8 @@ CONFIG_TOKENS_FILE = script_path + "/" + config_dict['CONFIG_TOKENS_FILE']
 GATOR_SEQ_VERSION = config_dict['GATOR_SEQ_VERSION']
 
 TABLE_NAME = replace_env(config_dict['TABLE_NAME'])
-
+if CODE_ENV == "ProdEnv":
+    TABLE_NAME = replace_env(config_dict['TABLE_NAME_PROD'])
 
 def check_folders_exist():
     if not os.path.isfile(GATOR_SEQ_SAMPLE_INPUT_FILE):
