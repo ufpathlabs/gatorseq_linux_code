@@ -200,13 +200,35 @@ def create_connection():
         print(traceback.format_exc())
     return conn
 SQL_CONNECTION = create_connection()
+
+
+def updateRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
+    cur = SQL_CONNECTION.cursor()
+
+    updateSql = "UPDATE "+ COVID_19_EPIC_UPLOAD_TABLE +" set PLMO_Number= %s, MRN = %s, PATIENT_NAME = %s, PATIENT_SEX = %s, PATIENT_AGE = %s, ORDERING_DEPARTMENT = %s, EPIC_UPLOAD_TIMESTAMP = %s WHERE CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
+    #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.name, excelFileName))
+    SQL_CONNECTION.commit()
+    cur.close()
+
+
 # arguments are <class Sample> sample, str PLMO
 def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
-    updateSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (sample.completeSampleName, sample.name, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    SQL_CONNECTION.commit()
+
+    findsql = "SELECT * from " + COVID_19_EPIC_UPLOAD_TABLE + " where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
+    cur.execute(findsql, (sample.name, excelFileName))
+    rows = cur.fetchall()
+    # print(rows)
+    # print("-----------------")
+    if len(rows) > 0:
+        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, 2019nCoV_N1 = %s, 2019nCoV_N2 = %s, 2019nCoV_N3 = %s, RP = %s, RESULT = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
+        cur.execute(updateSql, (sample.completeSampleName, sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result, sample.name, excelFileName))
+        SQL_CONNECTION.commit()
+    else:
+        insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+        SQL_CONNECTION.commit()
     cur.close()
 
 # method to write the entire database table to excel
@@ -214,6 +236,10 @@ def writeDataToExcel(excelName):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
+    cols = xldf.columns.tolist()
+    upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
+    cols.insert(len(cols), upload_col)
+
     RESULT_LOG = COVID_19_TEST_SAMPLE_LOG + "/" + \
         excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
     SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
@@ -321,7 +347,7 @@ def checkIncomingHl7(sampleDict, excelFile):
                         print("Out file available at :",out_file_path)
                         move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            addRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
+                            updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -355,21 +381,12 @@ def isFloatValue(value, maxThreshold):
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
-def addSampleDictToExcel(sampleDict, excelName, writeFlag):
-    #print(status_df.head())
-    #print(sampleDict)
-    status_df = pd.DataFrame(columns=['SAMPLE_NAME', 'PLMO', 'MRN', 'TIMESTAMP', 'N1', 'N2', 'RP', 'RESULT'])
+def addSampleDictToDatabase(sampleDict, excelName):
     for key in sampleDict.keys():
-        curSample = sampleDict[key]
-        if curSample.completeSampleName in status_df["SAMPLE_NAME"]:
-            continue
-        else:
-            #addRowInDatabase(curSample, "", "")
-            status_df.loc[len(status_df)] = [curSample.completeSampleName, "", "", "", curSample.nCoV_N1, curSample.nCoV_N2, curSample.RP, curSample.result]
-    #print(len(status_df))
-    if writeFlag:
-        status_df.to_excel(COVID_19_TEST_SAMPLE_LOG + "_" + excelName.split("/")[-1], index=False)
-        print("-> status file written successfully <-")
+        sample = sampleDict[key]
+        addRowInDatabase(sample, "", "", "", "", "", "", excelName)
+    
+    print("-> all samples added to database <-")
 
 
 if __name__ == "__main__":
@@ -460,6 +477,7 @@ if __name__ == "__main__":
         #print("below is the dictionary of all samples:")
         #print(sampleDict["PLMO20-000129"])
         #print(sampleDict)
+        addSampleDictToDatabase(sampleDict, f)
         checkIncomingHl7(sampleDict, f)
         writeDataToExcel(f)  
         #addSampleDictToExcel(sampleDict, f, True) 
