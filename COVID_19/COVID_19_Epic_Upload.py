@@ -227,7 +227,7 @@ def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFile
         SQL_CONNECTION.commit()
     else:
         insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
         SQL_CONNECTION.commit()
     cur.close()
 
@@ -239,7 +239,7 @@ def writeDataToExcel(excelName):
     cols = xldf.columns.tolist()
     upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
     cols.insert(len(cols), upload_col)
-
+    xldf = xldf.reindex(columns= cols)
     RESULT_LOG = COVID_19_TEST_SAMPLE_LOG + "/" + \
         excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
     SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
@@ -254,7 +254,7 @@ def writeDataToExcel(excelName):
         # xldf.to_excel(RESULT_LOG , index=False)
         with pd.ExcelWriter(RESULT_LOG) as writer:
             xldf.to_excel(writer, index=False, sheet_name='Sheet 1')
-            sampleMapDf.to_excel(writer, index=False, sheet_name='Sheet 2')
+            #sampleMapDf.to_excel(writer, index=False, sheet_name='Sheet 2')
         print("done writeToExcel method and writing done to -->", RESULT_LOG )
     except:
         print("unable to save status excel, please close it")
