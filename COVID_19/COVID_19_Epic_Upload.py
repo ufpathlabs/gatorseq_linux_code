@@ -236,6 +236,7 @@ def writeDataToExcel(excelName):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
+    xldf = xldf.drop("2019nCoV_N3", 1)
     cols = xldf.columns.tolist()
     upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
     cols.insert(len(cols), upload_col)
