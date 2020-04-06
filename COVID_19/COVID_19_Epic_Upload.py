@@ -419,7 +419,7 @@ if __name__ == "__main__":
             if sampleToContainer.get(row["Sample Name"]):
                 results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
             else:
-                results_df.at[index, "CONTAINER_ID"] = "N/A"
+                results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
         
         #print(results_df.head())
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
