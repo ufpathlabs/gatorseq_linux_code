@@ -186,7 +186,6 @@ def createSample(conn, baseMountDir):
     cur.close()
     for row in rows:
         sampleName = row[0]
-        caseId = ("api_" + sampleName)[:12]
         headers = {
             "Authorization": "ApiKey " + TRUSIGHT_API_KEY,
             "X-ILMN-Domain": "ufl-tss",
@@ -202,7 +201,7 @@ def createSample(conn, baseMountDir):
             })
 
         data = {
-            "displayId": caseId,
+            "displayId": ("api_" + sampleName)[:12],
             "testDefinitionId": "1cb2c841-9a25-4cb3-8b55-c3ea0d639086",
             "subjects": [{
                 "isAffected": "AFFECTED",
@@ -219,7 +218,8 @@ def createSample(conn, baseMountDir):
         response = requests.post(TRUSIGHT_NEW_CASE_URL, headers=headers, params=data)
         #ToDO: add success logic
         if response.json() is not None:
-            
+            caseId = response.json()["id"]
+            print("porcessing with caseId:", caseId )
             updateRowWithStatus(sampleName, "SUBMITTED", conn)
             processCase(caseId, sampleName, connection)
             print("added a sample successfully")
@@ -240,7 +240,6 @@ def processCase(caseId, sampleName, conn):
     response = requests.post(TRUSIGHT_NEW_CASE_URL+"/"+caseId+"/process", headers=headers, params=data)
     #ToDO: add success logic
     if response.json() is not None:
-        
         updateRowWithStatus(sampleName, "DONE", conn)
         print("processes a sample successfully")
     else:
