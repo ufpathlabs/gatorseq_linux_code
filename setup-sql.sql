@@ -56,3 +56,12 @@ RUNNING_DURATION varchar(255)
 
 );
 
+CREATE TABLE trusight_sample_run
+(
+SAMPLE_NAME varchar(255) NOT NULL,
+
+GENDER varchar(255) DEFAULT 'UNKNOWN',
+STATUS varchar(255)
+
+);
+
