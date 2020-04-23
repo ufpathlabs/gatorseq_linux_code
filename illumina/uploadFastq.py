@@ -13,7 +13,7 @@ import yaml
 import mysql.connector
 import json
 import requests
-from illumina.truSight import runBashCommand
+from truSight import runBashCommand
 
 
 
