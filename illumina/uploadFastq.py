@@ -13,6 +13,7 @@ import yaml
 import mysql.connector
 import json
 import requests
+from illumina.truSight import runBashCommand
 
 
 
@@ -86,19 +87,6 @@ def create_connection():
     return conn
 
 
-def getJSONFromBashCommand(cmd):
-    process = subprocess.Popen(cmd.split(), 
-                           stdout=subprocess.PIPE)
-                        #    universal_newlines=True)
-    jsonBin, errors = process.communicate()
-    print(jsonBin)
-    print(errors) 
-    if not errors and len(jsonBin):
-        return json.loads(jsonBin)
-    else:
-        print("error while executing the command-----------> ", cmd)
-        return None
-
 def updateRowWithStatus(sampleName, status, conn):
     cur = conn.cursor()
     updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s;"
@@ -152,7 +140,7 @@ def uploadFastQ(conn, baseMountDir):
     for row in rows:
         sampleName = row[0]
         cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + sampleName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
-        statusJson = getJSONFromBashCommand(cmd)
+        statusJson = runBashCommand(cmd)
         if statusJson:
             updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
         else:

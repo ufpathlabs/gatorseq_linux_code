@@ -134,29 +134,17 @@ def read_excel_and_upsert(conn):
     return xldf
     
     
-def getJSONFromBashCommand(cmd):
+def runBashCommand(cmd):
     process = subprocess.Popen(cmd.split(), 
                            stdout=subprocess.PIPE)
                         #    universal_newlines=True)
-    jsonBin, errors = process.communicate()
-    print(jsonBin)
+    responseBin, errors = process.communicate()
+    print(responseBin)
     print(errors) 
-    if not errors and len(jsonBin):
-        return json.loads(jsonBin)
+    if not errors and len(responseBin):
+        return responseBin
     else:
         print("error while executing the command-----------> ", cmd)
-        return None
-
-def findStatus(appSessionId):
-    bashCommand = """/home/path-svc-mol/Illumina_Binary/bin/bs \
-        --config UFMOL_ENTERPRISE \
-        appsession get \
-        --name=""" + appSessionId + """ \
-        --format=json"""
-    statusJson = getJSONFromBashCommand(bashCommand)
-    if statusJson:
-        return statusJson["ExecutionStatus"]
-    else:
         return None
 
 def updateRowWithStatus(sampleName, status, conn):
@@ -248,12 +236,12 @@ def processCase(caseId, sampleName, conn):
 
 # mounts the basespace folder in the 'basDir' folder
 def mountBaseSpace(basDir):
-    statusJson = getJSONFromBashCommand("basemount --unmount " + script_path + "/" + basDir)
-    if statusJson:
+    bashResponse = runBashCommand("basemount --unmount " + script_path + "/" + basDir)
+    if bashResponse:
         bashCommand = """basemount \
             --config UFMOL_ENTERPRISE """ + basDir
-        statusJson = getJSONFromBashCommand(bashCommand)
-        return True if statusJson else False
+        bashResponse = runBashCommand(bashCommand)
+        return True if bashResponse else False
     else:
         return False
 
@@ -267,7 +255,6 @@ def checkFastqExists(conn, baseMountDir):
     cur.close()
     for row in rows:
         sampleName = row[0]
-        # getSampleIdResponseJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  biosample get --name=" + sampleName + " --format=json")
         if os.path.isdir(baseMountDir + "/Projects/WGS/Samples/"+sampleName+"/Files"):
             updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", conn)
         else:
