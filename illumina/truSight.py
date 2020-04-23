@@ -114,20 +114,20 @@ def read_excel_and_upsert(conn):
             sql = '''
             UPDATE '''+TRUSIGHT_TABLE_NAME+'''
             SET SAMPLE_NAME = %s,
-                PROJECT_NAME = %s
+                GENDER = %s
                 
             WHERE SAMPLE_NAME = %s;''' 
             #print(sql)
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'], row['SAMPLE_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['SAMPLE_NAME'] ))
             conn.commit()
             cur2.close()
         else:
-            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, PROJECT_NAME) values(%s,%s); '''
+            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS) values(%s,%s, ""); '''
             
             cur2 = conn.cursor()
             #print(sql)
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['PROJECT_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'] ))
             conn.commit()
             cur2.close()
     return xldf
@@ -261,16 +261,16 @@ def mountBaseSpace(basDir):
 # returns list of samplenames which have status as "RUN" and FastQ files in basemount
 def checkFastqExists(conn, baseMountDir):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS is null;")
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = '';")
     rows = cur.fetchall()
     cur.close()
     for row in rows:
         sampleName = row[0]
         # getSampleIdResponseJson = getJSONFromBashCommand("/home/path-svc-mol/Illumina_Binary/bin/bs --config UFMOL_ENTERPRISE  biosample get --name=" + sampleName + " --format=json")
-        if os.path.isdir(baseMountDir + "/Projects/WGS/Samples/NQ-20-02_BC712507_Z8-5x/Files"):
+        if os.path.isdir(baseMountDir + "/Projects/WGS/Samples/"+sampleName+"/Files"):
             updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", conn)
-        # else:
-        #     updateRowWithStatus(sampleName, "Awaiting_Upload", conn)
+        else:
+            updateRowWithStatus(sampleName, "FASTQ_NOT_FOUND", conn)
         
 
 if __name__ == "__main__":
