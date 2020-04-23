@@ -39,7 +39,7 @@ def replace_env(strname):
     strname=strname.replace("USER_NAME",USER_NAME).replace("CODE_ENV",CODE_ENV)
     return strname
 
-TRUSIGHT_APP_SUBMISSION_INPUT_FILE = replace_env(config_dict['ILLUMINA_BASESPACE_APP_SUBMISSION_INPUT_FILE'])
+TRUSIGHT_APP_SUBMISSION_INPUT_FILE = replace_env(config_dict['TRUSIGHT_APP_SUBMISSION_INPUT_FILE'])
 TRUSIGHT_TABLE_NAME = replace_env(config_dict['TRUSIGHT_TABLE_NAME'])
 
 TRUSIGHT_NEW_CASE_URL = "https://ufl-tss.trusight.illumina.com/crs/api/v1/cases"
@@ -101,6 +101,7 @@ def create_connection():
 # read the excel for all rows and add any new samples to database or update the rows in database.
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE)
+    print(xldf_full)
     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     xldf = xldf.replace(np.nan, '', regex=True)
     for index, row in xldf.iterrows():
