@@ -195,6 +195,7 @@ def createSample(conn, baseMountDir):
             "subjects": [{
                 "isAffected": "AFFECTED",
                 "relationshipToProband": "PROBAND",
+                "previousTestHistory": "",
                 "reportTypes": ["10443391-216f-4ccc-9513-35d2777fb17f"],
                 "gender": "Male",
                 "samples": [
