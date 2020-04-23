@@ -252,7 +252,7 @@ def mountBaseSpace(basDir):
 # returns list of samplenames which have status as "RUN" and FastQ files in basemount
 def checkFastqExists(conn, baseMountDir):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = '';")
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'RUN';")
     rows = cur.fetchall()
     cur.close()
     for row in rows:
