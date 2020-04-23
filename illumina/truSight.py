@@ -59,7 +59,7 @@ with open(CONFIG_TOKENS_FILE, 'r') as stream:
         sys.exit()
 
 MYSQL_PASSWAORD = config_token_dict['DEV_MYSQL_PASSWORD']
-TRUSIGHT_API_KEY = config_token_dict['DEV_MYSQL_PASSWORD']
+TRUSIGHT_API_KEY = config_token_dict['TRUSIGHT_API_KEY']
 
 if CODE_ENV == "ProdEnv":
     MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
@@ -101,7 +101,6 @@ def create_connection():
 # read the excel for all rows and add any new samples to database or update the rows in database.
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE)
-    print(xldf_full)
     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     xldf = xldf.replace(np.nan, '', regex=True)
     for index, row in xldf.iterrows():
@@ -139,8 +138,8 @@ def runBashCommand(cmd):
                            stdout=subprocess.PIPE)
                         #    universal_newlines=True)
     responseBin, errors = process.communicate()
-    print(responseBin)
-    print(errors) 
+    #print(responseBin)
+    #print(errors) 
     if not errors and len(responseBin):
         return responseBin
     else:
@@ -175,28 +174,31 @@ def createSample(conn, baseMountDir):
     cur.close()
     for row in rows:
         sampleName = row[0]
+        gender = row[1]
         headers = {
-            "Authorization": "ApiKey " + TRUSIGHT_API_KEY,
+            "x-auth-token": "ApiKey " + TRUSIGHT_API_KEY,
             "X-ILMN-Domain": "ufl-tss",
             "X-ILMN-Workgroup": "51b925ca-56ed-37c9-89d7-85b83a1f7e55",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         }
         fastq_list = os.listdir(baseMountDir + "/Projects/WGS/Samples/"+ sampleName +"/Files")
         print("fastq files list : ", fastq_list)
         fastqs = []
         for f in fastq_list:
             fastqs.append({
-                "fastqLink": sampleName + "/" + f
+                "fastqLink": sampleName + "/" + f,
+                "userProvidedDirectory": sampleName
             })
 
         data = {
-            "displayId": ("api_" + sampleName)[:12],
+            "displayId": ("auto_" + sampleName)[:12],
             "testDefinitionId": "1cb2c841-9a25-4cb3-8b55-c3ea0d639086",
             "subjects": [{
                 "isAffected": "AFFECTED",
                 "relationshipToProband": "PROBAND",
                 "reportTypes": ["10443391-216f-4ccc-9513-35d2777fb17f"],
-                "gender": "Male",
+                "gender": gender,
                 "samples": [
                     {
                         "externalSampleId": sampleName,
@@ -204,21 +206,21 @@ def createSample(conn, baseMountDir):
                     }]
             }]
         }
-        response = requests.post(TRUSIGHT_NEW_CASE_URL, headers=headers, params=data)
-        #ToDO: add success logic
-        if response.json() is not None:
+        response = requests.post(TRUSIGHT_NEW_CASE_URL, headers=headers, data=json.dumps(data))
+        
+  #ToDO: add success logic
+        if response.status_code in [200, 201]:
             caseId = response.json()["id"]
-            print("porcessing with caseId:", caseId )
             updateRowWithStatus(sampleName, "SUBMITTED", conn)
             processCase(caseId, sampleName, connection)
-            print("added a sample successfully")
         else:
             updateRowWithStatus(sampleName, "ERROR_WHILE CREATING_CASE", conn)
-    
+            print("error while creating case:", response.json())
 
 def processCase(caseId, sampleName, conn):
+    print("going to process casewith (caseId, sampleName):", caseId, sampleName)
     headers = {
-            "Authorization": "ApiKey " + TRUSIGHT_API_KEY,
+            "X-Auth-Token": "ApiKey " + TRUSIGHT_API_KEY,
             "X-ILMN-Domain": "ufl-tss",
             "X-ILMN-Workgroup": "51b925ca-56ed-37c9-89d7-85b83a1f7e55",
             "Content-Type": "application/json"
@@ -226,12 +228,11 @@ def processCase(caseId, sampleName, conn):
     data = {
         
     }
-    response = requests.post(TRUSIGHT_NEW_CASE_URL+"/"+caseId+"/process", headers=headers, params=data)
-    #ToDO: add success logic
-    if response.json() is not None:
+    response = requests.post(TRUSIGHT_NEW_CASE_URL+"/"+caseId+"/process", headers=headers, data=data)
+    if response.status_code in [200,201]:
         updateRowWithStatus(sampleName, "DONE", conn)
-        print("processes a sample successfully")
     else:
+        print(response.json())
         updateRowWithStatus(sampleName, "ERROR_WHILE_PROCESSING_CASE", conn)
 
 # mounts the basespace folder in the 'basDir' folder
@@ -277,8 +278,6 @@ if __name__ == "__main__":
         
 
         populateStatusInExcel(connection, df)
-
+    #processCase("40e0e508-0052-4c59-bd5e-6d6749337f8e", "NQ-20-02_BC712507_Z8-5x", connection)
     connection.close()
-
-
 
