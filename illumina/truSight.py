@@ -123,11 +123,11 @@ def read_excel_and_upsert(conn):
             conn.commit()
             cur2.close()
         else:
-            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS) values(%s,%s, ""); '''
+            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS) values(%s,%s, %s); '''
             
             cur2 = conn.cursor()
             #print(sql)
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'] ))
             conn.commit()
             cur2.close()
     return xldf
