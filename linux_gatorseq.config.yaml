@@ -64,7 +64,7 @@ COVID_19_TEST_SAMPLE_LOG: '/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/
 COVID_19_EPIC_UPLOAD_TABLE_PROD: 'COVID_19_EPIC_UPLOAD_PROD'
 
 #TRUSIGHT
-TRUSIGHT_APP_SUBMISSION_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/Illumina_Basespace_App_Submission/Trusight_App_Submission_V2.xlsx'
-TRUSIGHT_TABLE_NAME: 'trusight_sample_run_2'
+TRUSIGHT_APP_SUBMISSION_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/Illumina_Basespace_App_Submission/Trusight_App_Submission_V1.xlsx'
+TRUSIGHT_TABLE_NAME: 'trusight_sample_run'
 TRUSIGHT_TABLE_NAME_PROD: 'trusight_sample_run_prod'
 TRUSIGHT_CLI: '/home/s.majety/UFL_TruSight_Software_Suite_Beta/wgs-cli-1.19.0-beta.471.jar'

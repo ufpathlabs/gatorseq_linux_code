@@ -107,7 +107,9 @@ def read_excel_and_upsert(conn):
         # print(row['SAMPLE_DIR_PATH'], row['STATUS'], row['TIME_STAMP'], row['MESSAGE'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method'])
         # update_task(conn, (row['SAMPLE_DIR_PATH'], row['STATUS'], row['PLMO_Number'], row['Test_Product_Profile'], row['Test_Product_Code'], row['Diagnosis'], row['Primary_Tumor_Site'], row['Pre_Filter'], row['Report_Template'], row['QCIType'], row['Treatments_Policy'], row['Reporting_Method']))
         cur = conn.cursor()
-        cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = '" + row['SAMPLE_NAME'] + "'")
+        selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+
+        cur.execute(selectSql, (row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
         rows = cur.fetchall()
         cur.close()
         if len(rows) > 0:
@@ -116,15 +118,14 @@ def read_excel_and_upsert(conn):
             SET SAMPLE_NAME = %s,
                 GENDER = %s
                 
-            WHERE SAMPLE_NAME = %s;''' 
+            WHERE SAMPLE_NAME = %s and DIRECTORY_NAME = %s ;''' 
             #print(sql)
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['SAMPLE_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
             conn.commit()
             cur2.close()
         else:
-            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME) values(%s,%s, %s, %s); '''
-            
+            sql = "INSERT into "+TRUSIGHT_TABLE_NAME+"(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME) values(%s,%s, %s, %s); "
             cur2 = conn.cursor()
             #print(sql)
             cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'], row['DIRECTORY_NAME'] ))
@@ -172,7 +173,8 @@ def updateRowWithMessage(sampleName, message, conn):
 def populateStatusInExcel(conn, df):
     for index, row in df.iterrows():
         cur = conn.cursor()
-        cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = '" + row['SAMPLE_NAME'] + "'")
+        selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+        cur.execute(selectSql, (row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
         rows = cur.fetchall()
         if len(rows) > 0:
             row = rows[0]
