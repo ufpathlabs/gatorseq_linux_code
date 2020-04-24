@@ -14,6 +14,9 @@ import mysql.connector
 import json
 import requests
 from truSight import runBashCommand
+from truSight import updateRowWithStatusAndMessage
+from truSight import updateRowWithStatus
+import time
 
 
 
@@ -86,52 +89,6 @@ def create_connection():
  
     return conn
 
-
-def updateRowWithStatus(sampleName, status, conn):
-    cur = conn.cursor()
-    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s;"
-    cur.execute(updateSql, (status, sampleName))
-    conn.commit()
-    cur.close()
-
-
-
-# create a sample using REST API of trusight 
-# use upload command of trusight to upload the sample
-def createSampleAndUpload(conn, baseMountDir):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'FASTQ_UPLOADED';")
-    rows = cur.fetchall()
-    cur.close()
-    for row in rows:
-        sampleName = row[0]
-        headers = {
-            "Authorization": "ApiKey " + TRUSIGHT_API_KEY,
-            "X-ILMN-Domain": "ufl-tss",
-            "X-ILMN-Workgroup": "51b925ca-56ed-37c9-89d7-85b83a1f7e55",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "displayID": "api_created_case_" + sampleName,
-            "testDefinitionId": "1cb2c841-9a25-4cb3-8b55-c3ea0d639086",
-            "subjects": [
-                {
-                "gender": "Male",
-                "samples": [
-                    {
-                    "externalSampleId": sampleName
-                    }
-                ]
-                }
-            ]
-        }
-        response = requests.post(TRUSIGHT_NEW_CASE_URL, headers=headers, params=data)
-        #ToDO: add success logic
-        if response.json() is not None:
-            updateRowWithStatus(sampleName, "UPLOAD_PENDING", conn)
-            print("added a sample successfully")
-        return response.json()["status"]
-
 def uploadFastQ(conn, baseMountDir):
     cur = conn.cursor()
     cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
@@ -139,10 +96,16 @@ def uploadFastQ(conn, baseMountDir):
     cur.close()
     for row in rows:
         sampleName = row[0]
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + sampleName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
+        directoryName = row[4]
+        startTime = time.time()
+        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
+        print("running the following command: ", cmd)
         statusJson = runBashCommand(cmd)
+        endTime = time.time()
+        timeForExecution = round((endTime - startTime)/60)
         if statusJson:
-            updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
+            # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
+            updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", conn)
         else:
             print("status is None")
             # updateRowWithStatus(sampleName, "ERROR_UPLOADING", conn)

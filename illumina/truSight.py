@@ -123,11 +123,11 @@ def read_excel_and_upsert(conn):
             conn.commit()
             cur2.close()
         else:
-            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS) values(%s,%s, %s); '''
+            sql = ''' INSERT into '''+TRUSIGHT_TABLE_NAME+'''(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME) values(%s,%s, %s, %s); '''
             
             cur2 = conn.cursor()
             #print(sql)
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'], row['DIRECTORY_NAME'] ))
             conn.commit()
             cur2.close()
     return xldf
@@ -150,6 +150,20 @@ def updateRowWithStatus(sampleName, status, conn):
     cur = conn.cursor()
     updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s;"
     cur.execute(updateSql, (status, sampleName))
+    conn.commit()
+    cur.close()
+
+def updateRowWithStatusAndMessage(sampleName, status, message, conn):
+    cur = conn.cursor()
+    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s, MESSAGE = %s, where SAMPLE_NAME = %s;"
+    cur.execute(updateSql, (status, message, sampleName))
+    conn.commit()
+    cur.close()
+
+def updateRowWithMessage(sampleName, message, conn):
+    cur = conn.cursor()
+    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set MESSAGE = %s, where SAMPLE_NAME = %s;"
+    cur.execute(updateSql, (message, sampleName))
     conn.commit()
     cur.close()
 

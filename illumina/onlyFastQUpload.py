@@ -18,6 +18,8 @@ from truSight import read_excel_and_upsert
 from truSight import checkFastqExists
 from truSight import mountBaseSpace
 from truSight import populateStatusInExcel
+from uploadFastq import uploadFastQ
+
 
 
 
@@ -91,65 +93,7 @@ def create_connection():
     return conn
 
 
-def updateRowWithStatus(sampleName, status, conn):
-    cur = conn.cursor()
-    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s;"
-    cur.execute(updateSql, (status, sampleName))
-    conn.commit()
-    cur.close()
 
-
-
-# create a sample using REST API of trusight 
-# use upload command of trusight to upload the sample
-def createSampleAndUpload(conn, baseMountDir):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'FASTQ_UPLOADED';")
-    rows = cur.fetchall()
-    cur.close()
-    for row in rows:
-        sampleName = row[0]
-        headers = {
-            "Authorization": "ApiKey " + TRUSIGHT_API_KEY,
-            "X-ILMN-Domain": "ufl-tss",
-            "X-ILMN-Workgroup": "51b925ca-56ed-37c9-89d7-85b83a1f7e55",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "displayID": "api_created_case_" + sampleName,
-            "testDefinitionId": "1cb2c841-9a25-4cb3-8b55-c3ea0d639086",
-            "subjects": [
-                {
-                "gender": "Male",
-                "samples": [
-                    {
-                    "externalSampleId": sampleName
-                    }
-                ]
-                }
-            ]
-        }
-        response = requests.post(TRUSIGHT_NEW_CASE_URL, headers=headers, params=data)
-        #ToDO: add success logic
-        if response.json() is not None:
-            updateRowWithStatus(sampleName, "UPLOAD_PENDING", conn)
-            print("added a sample successfully")
-        return response.json()["status"]
-
-def uploadFastQ(conn, baseMountDir):
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
-    rows = cur.fetchall()
-    cur.close()
-    for row in rows:
-        sampleName = row[0]
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + sampleName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
-        statusJson = runBashCommand(cmd)
-        if statusJson:
-            updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
-        else:
-            print("status is None")
-            # updateRowWithStatus(sampleName, "ERROR_UPLOADING", conn)
 
 if __name__ == "__main__":
     connection = create_connection()
@@ -160,7 +104,7 @@ if __name__ == "__main__":
 
         checkFastqExists(connection, baseMountDir)
 
-        uploadFastQ(connection, baseMountDir)
+        #uploadFastQ(connection, baseMountDir)
 
         populateStatusInExcel(connection, df)
 
