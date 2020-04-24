@@ -20,7 +20,7 @@ from truSight import mountBaseSpace
 from truSight import populateStatusInExcel
 from truSight import updateRowWithStatusAndMessage
 import time
-
+import multiprocessing as mp
 
 
 
@@ -94,27 +94,39 @@ def create_connection():
  
     return conn
 
+def processCode(sampleName, directoryName, conn):
+    startTime = time.time()
+    cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
+    print("running the following command: ", cmd)
+    statusJson = runBashCommand(cmd)
+    endTime = time.time()
+    timeForExecution = round((endTime - startTime)/60)
+    if statusJson:
+        # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
+        updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", directoryName, conn)
+    else:
+        print("status is None")
+        updateRowWithStatusAndMessage(sampleName, "ERROR_UPLOADING", "Error uploading the file to trusight", directoryName, conn)
+    return sampleName
+    
 
 def uploadFastQ(conn, baseMountDir):
     cur = conn.cursor()
     cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
     rows = cur.fetchall()
     cur.close()
-    for row in rows:
-        sampleName = row[0]
-        directoryName = row[4]
-        startTime = time.time()
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
-        print("running the following command: ", cmd)
-        statusJson = runBashCommand(cmd)
-        endTime = time.time()
-        timeForExecution = round((endTime - startTime)/60)
-        if statusJson:
-            # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
-            updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", directoryName, conn)
-        else:
-            print("status is None")
-            updateRowWithStatusAndMessage(sampleName, "ERROR_UPLOADING", "Error uploading the file to trusight", directoryName, conn)
+    rows = rows[:35]
+    pool = mp.Pool(processes=len(rows))
+
+    results = [pool.apply(processCode, args=(row[0], row[4],)) for row in rows]
+    
+    print(results)
+    # pool.apply(processCode, args=())
+    # for row in rows:
+    #     sampleName = row[0]
+    #     directoryName = row[4]
+        
+        
 
 
 if __name__ == "__main__":
