@@ -228,13 +228,13 @@ def createSample(conn, baseMountDir):
   #ToDO: add success logic
         if response.status_code in [200, 201]:
             caseId = response.json()["id"]
-            updateRowWithStatus(sampleName, "SUBMITTED", conn)
-            processCase(caseId, sampleName, connection)
+            updateRowWithStatus(sampleName, "SUBMITTED", row[4], conn)
+            processCase(caseId, sampleName, row[4], connection)
         else:
-            updateRowWithStatus(sampleName, "ERROR_WHILE CREATING_CASE", conn)
+            updateRowWithStatusAndMessage(sampleName, "ERROR_WHILE CREATING_CASE", "error while creating case:", str(response.json()), row[4], conn)
             print("error while creating case:", response.json())
 
-def processCase(caseId, sampleName, conn):
+def processCase(caseId, sampleName, dirName, conn):
     print("going to process casewith (caseId, sampleName):", caseId, sampleName)
     headers = {
             "X-Auth-Token": "ApiKey " + TRUSIGHT_API_KEY,
@@ -247,10 +247,10 @@ def processCase(caseId, sampleName, conn):
     }
     response = requests.post(TRUSIGHT_NEW_CASE_URL+"/"+caseId+"/process", headers=headers, data=data)
     if response.status_code in [200,201]:
-        updateRowWithStatus(sampleName, "DONE", conn)
+        updateRowWithStatus(sampleName, "DONE", dirName, conn)
     else:
         print(response.json())
-        updateRowWithStatus(sampleName, "ERROR_WHILE_PROCESSING_CASE", conn)
+        updateRowWithStatus(sampleName, "ERROR_WHILE_PROCESSING_CASE", "error while processing case:", str(response.json()), dirName, conn)
 
 # mounts the basespace folder in the 'basDir' folder
 def mountBaseSpace(basDir):
@@ -274,9 +274,9 @@ def checkFastqExists(conn, baseMountDir):
     for row in rows:
         sampleName = row[0]
         if os.path.isdir(baseMountDir + "/Projects/WGS/Samples/"+sampleName+"/Files"):
-            updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", conn)
+            updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", row[4], conn)
         else:
-            updateRowWithStatus(sampleName, "FASTQ_NOT_FOUND", conn)
+            updateRowWithStatus(sampleName, "FASTQ_NOT_FOUND", row[4], conn)
         
 
 if __name__ == "__main__":
