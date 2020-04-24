@@ -18,7 +18,9 @@ from truSight import read_excel_and_upsert
 from truSight import checkFastqExists
 from truSight import mountBaseSpace
 from truSight import populateStatusInExcel
-from uploadFastq import uploadFastQ
+from truSight import updateRowWithStatusAndMessage
+import time
+
 
 
 
@@ -93,6 +95,26 @@ def create_connection():
     return conn
 
 
+def uploadFastQ(conn, baseMountDir):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
+    rows = cur.fetchall()
+    cur.close()
+    for row in rows:
+        sampleName = row[0]
+        directoryName = row[4]
+        startTime = time.time()
+        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
+        print("running the following command: ", cmd)
+        statusJson = runBashCommand(cmd)
+        endTime = time.time()
+        timeForExecution = round((endTime - startTime)/60)
+        if statusJson:
+            # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
+            updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", conn)
+        else:
+            print("status is None")
+            # updateRowWithStatus(sampleName, "ERROR_UPLOADING", conn)
 
 
 if __name__ == "__main__":
