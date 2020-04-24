@@ -122,11 +122,11 @@ if __name__ == "__main__":
     baseMountDir = "BaseMount"
     df = read_excel_and_upsert(connection)
 
-    if mountBaseSpace(baseMountDir):
+    if  mountBaseSpace(baseMountDir):
 
         checkFastqExists(connection, baseMountDir)
 
-        #uploadFastQ(connection, baseMountDir)
+        uploadFastQ(connection, baseMountDir)
 
         populateStatusInExcel(connection, df)
 

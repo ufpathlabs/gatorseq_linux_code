@@ -179,6 +179,7 @@ def populateStatusInExcel(conn, df):
         if len(rows) > 0:
             row = rows[0]
             df.at[index, "STATUS"] = row[2]
+            df.at[index, "MESSAGE"] = row[3]
     df.to_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE, index=False)
 
 # create a sample using REST API of trusight 
