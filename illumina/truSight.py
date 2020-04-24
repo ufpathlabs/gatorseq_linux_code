@@ -147,24 +147,24 @@ def runBashCommand(cmd):
         print("error while executing the command-----------> ", cmd)
         return None
 
-def updateRowWithStatus(sampleName, status, conn):
+def updateRowWithStatus(sampleName, status, directory, conn):
     cur = conn.cursor()
-    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s;"
-    cur.execute(updateSql, (status, sampleName))
+    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+    cur.execute(updateSql, (status, sampleName, directory))
     conn.commit()
     cur.close()
 
-def updateRowWithStatusAndMessage(sampleName, status, message, conn):
+def updateRowWithStatusAndMessage(sampleName, status, message, directory, conn):
     cur = conn.cursor()
-    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s, MESSAGE = %s, where SAMPLE_NAME = %s;"
-    cur.execute(updateSql, (status, message, sampleName))
+    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set STATUS = %s, MESSAGE = %s where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+    cur.execute(updateSql, (status, message, sampleName, directory))
     conn.commit()
     cur.close()
 
-def updateRowWithMessage(sampleName, message, conn):
+def updateRowWithMessage(sampleName, message, directory, conn):
     cur = conn.cursor()
-    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set MESSAGE = %s, where SAMPLE_NAME = %s;"
-    cur.execute(updateSql, (message, sampleName))
+    updateSql = "update "+ TRUSIGHT_TABLE_NAME +" set MESSAGE = %s, where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+    cur.execute(updateSql, (message, sampleName, directory))
     conn.commit()
     cur.close()
 

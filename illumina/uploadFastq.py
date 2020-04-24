@@ -105,10 +105,10 @@ def uploadFastQ(conn, baseMountDir):
         timeForExecution = round((endTime - startTime)/60)
         if statusJson:
             # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
-            updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", conn)
+            updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", directoryName, conn)
         else:
             print("status is None")
-            # updateRowWithStatus(sampleName, "ERROR_UPLOADING", conn)
+            updateRowWithStatusAndMessage(sampleName, "ERROR_UPLOADING", "Error uploading the file to trusight", directoryName, conn)
 
 if __name__ == "__main__":
     connection = create_connection()
