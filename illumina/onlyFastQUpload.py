@@ -115,13 +115,19 @@ def uploadFastQ(conn, baseMountDir):
     cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
     rows = cur.fetchall()
     cur.close()
-    rows = rows[:5]
-    pool = mp.Pool(processes=len(rows))
 
-    results = [pool.apply_async(processCode, args=(row[0], row[4],conn,)) for row in rows]
-    
-    output = [p.get() for p in results]
-    print(output)
+    while len(rows) > 0:
+        cur = rows[:5]
+        pool = mp.Pool(processes=len(cur))
+
+        results = [pool.apply_async(processCode, args=(row[0], row[4],conn,)) for row in cur]
+        
+        output = [p.get() for p in results]
+        print("output for current set of cur:", output)
+        populateStatusInExcel(connection, df)
+        
+        if len(cur) == 5:
+            rows = rows[5:]
     # pool.apply(processCode, args=())
     # for row in rows:
     #     sampleName = row[0]
