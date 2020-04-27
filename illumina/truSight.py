@@ -13,6 +13,8 @@ import yaml
 import mysql.connector
 import json
 import requests
+import io
+import time
 
 
 
@@ -136,14 +138,22 @@ def read_excel_and_upsert(conn):
     
 def runBashCommand(cmd, index):
     if index:
-        log_file = "test"+str(index)+".log"
-        with open(log_file, 'wb') as f: 
-            process = subprocess.Popen(cmd.split(), 
-                                stdout=subprocess.PIPE)
-                                #    universal_newlines=True)
-            for line in iter(process.stdout.readline, b''):  # replace '' with b'' for Python 3
-                sys.stdout.write(line)
-                f.write(line)
+        # log_file = "test"+str(index)+".log"
+        # with open(log_file, 'wb') as f: 
+        #     process = subprocess.Popen(cmd.split(), 
+        #                         stdout=subprocess.PIPE)
+        #                         #    universal_newlines=True)
+        #     for line in iter(process.stdout.readline, b''):  # replace '' with b'' for Python 3
+        #         sys.stdout.write(line)
+        #         f.write(line)
+        filename = "test"+str(index)+".log"
+        with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
+            process = subprocess.Popen(cmd.split(), stdout=writer)
+            while process.poll() is None:
+                sys.stdout.write(reader.read())
+                time.sleep(0.5)
+            # Read the remaining
+            sys.stdout.write(reader.read())
     else:
          process = subprocess.Popen(cmd.split(), 
                             stdout=subprocess.PIPE)
