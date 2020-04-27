@@ -100,7 +100,7 @@ def uploadFastQ(conn, baseMountDir):
         startTime = time.time()
         cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
         print("running the following command: ", cmd)
-        statusJson = runBashCommand(cmd)
+        statusJson = runBashCommand(cmd, False)
         endTime = time.time()
         timeForExecution = round((endTime - startTime)/60)
         if statusJson:

@@ -94,11 +94,11 @@ def create_connection():
  
     return conn
 
-def processCode(sampleName, directoryName, conn):
+def processCode(sampleName, directoryName, index, conn):
     startTime = time.time()
     cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
     print("running the following command: ", cmd)
-    statusJson = runBashCommand(cmd)
+    statusJson = runBashCommand(cmd, index)
     endTime = time.time()
     timeForExecution = round((endTime - startTime)/60)
     if statusJson:
@@ -120,7 +120,7 @@ def uploadFastQ(conn, baseMountDir):
         cur = rows[:5]
         pool = mp.Pool(processes=len(cur))
 
-        results = [pool.apply_async(processCode, args=(row[0], row[4],conn,)) for row in cur]
+        results = [pool.apply_async(processCode, args=(row[0], row[4], i, conn,)) for i, row in enumerate(cur)]
         
         output = [p.get() for p in results]
         print("output for current set of cur:", output)

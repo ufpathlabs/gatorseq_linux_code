@@ -134,10 +134,21 @@ def read_excel_and_upsert(conn):
     return xldf
     
     
-def runBashCommand(cmd):
-    process = subprocess.Popen(cmd.split(), 
-                           stdout=subprocess.PIPE)
-                        #    universal_newlines=True)
+def runBashCommand(cmd, index):
+    if index:
+        log_file = "test"+str(index)+".log"
+        with open(log_file, 'wb') as f: 
+            process = subprocess.Popen(cmd.split(), 
+                                stdout=subprocess.PIPE)
+                                #    universal_newlines=True)
+            for line in iter(process.stdout.readline, b''):  # replace '' with b'' for Python 3
+                sys.stdout.write(line)
+                f.write(line)
+    else:
+         process = subprocess.Popen(cmd.split(), 
+                            stdout=subprocess.PIPE)
+                            #    universal_newlines=True)
+
     responseBin, errors = process.communicate()
     #print(responseBin)
     #print(errors) 
@@ -255,11 +266,11 @@ def processCase(caseId, sampleName, dirName, conn):
 
 # mounts the basespace folder in the 'basDir' folder
 def mountBaseSpace(basDir):
-    bashResponse = runBashCommand("basemount --unmount " + script_path + "/" + basDir)
+    bashResponse = runBashCommand("basemount --unmount " + script_path + "/" + basDir, False)
     if bashResponse:
         bashCommand = """basemount \
             --config UFMOL_ENTERPRISE """ + basDir
-        bashResponse = runBashCommand(bashCommand)
+        bashResponse = runBashCommand(bashCommand, False)
         return True if bashResponse else False
     else:
         return False
