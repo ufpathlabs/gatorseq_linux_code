@@ -240,7 +240,7 @@ if __name__ == "__main__":
         listing = glob.glob(linux_hpc_sample_path)
         directories=[d for d in listing if os.path.isdir(d)]
         if len(directories) == 0:
-            populate_message_and_status(row, "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path, "RUN", conn)
+            populate_message_and_status(row, "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path, "RE-RUN", conn)
             # xldf.at[index, "STATUS"] = "RUN"
             # xldf.at[index, "MESSAGE"] = "WARNING: Directory is not yet uploaded to HPC:" + linux_hpc_sample_path
             # save_workbook(xldf)
