@@ -98,36 +98,43 @@ def processCode(sampleName, directoryName, index, conn):
     startTime = time.time()
     cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
     print("running the following command: ", cmd)
+    #updateRowWithStatusAndMessage(sampleName, "STARTED_UPLOAD", "uopload started at " + time.ctime(), directoryName, conn)
+    print('update DB that I am starting:', sampleName)
     statusJson = runBashCommand(cmd, index)
     endTime = time.time()
+    #updateRowWithStatusAndMessage(sampleName, "STARTED_UPLOAD", "uopload started at " + time.ctime(), conn)
     timeForExecution = round((endTime - startTime)/60)
+    print("---------------------------------", sampleName) 
+    print("-----status received from bash command", statusJson)
+    new_conn = create_connection()
     if statusJson:
         # updateRowWithStatus(sampleName, "FASTQ_UPLOADED", conn)
-        updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", directoryName, conn)
+        updateRowWithStatusAndMessage(sampleName, "FASTQ_UPLOADED", "file uploaded in: " + str(timeForExecution) + " minutes", directoryName, new_conn)
     else:
         print("status is None")
-        updateRowWithStatusAndMessage(sampleName, "ERROR_UPLOADING", "Error uploading the file to trusight", directoryName, conn)
+        updateRowWithStatusAndMessage(sampleName, "ERROR_UPLOADING", "Error uploading the file to trusight", directoryName, new_conn)
+    new_conn.close()
     return sampleName
     
 
 def uploadFastQ(conn, baseMountDir):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'UPLOAD_FASTQ_PENDING';")
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where  STATUS = 'UPLOAD_FASTQ_PENDING';")
     rows = cur.fetchall()
     cur.close()
 
     while len(rows) > 0:
-        cur = rows[:5]
+        cur = rows[:3]
         pool = mp.Pool(processes=len(cur))
 
-        results = [pool.apply_async(processCode, args=(row[0], row[4], i, conn,)) for i, row in enumerate(cur)]
+        results = [pool.apply_async(processCode, args=(row[0], row[4], i+1, conn,)) for i, row in enumerate(cur)]
         
         output = [p.get() for p in results]
         print("output for current set of cur:", output)
         populateStatusInExcel(connection, df)
         
-        if len(cur) == 5:
-            rows = rows[5:]
+        #if len(cur) == 5:
+        rows = rows[len(cur):]
     # pool.apply(processCode, args=())
     # for row in rows:
     #     sampleName = row[0]

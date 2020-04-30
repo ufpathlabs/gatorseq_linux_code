@@ -150,23 +150,23 @@ def runBashCommand(cmd, index):
         with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
             process = subprocess.Popen(cmd.split(), stdout=writer)
             while process.poll() is None:
-                sys.stdout.write(reader.read())
                 time.sleep(0.5)
-            # Read the remaining
-            sys.stdout.write(reader.read())
+        print(process.returncode)
+        if  process.returncode == 0:# and len(responseBin):
+            return True
+        else:
+            print("error while executing the command-----------> ", cmd)
+            return None
     else:
          process = subprocess.Popen(cmd.split(), 
                             stdout=subprocess.PIPE)
                             #    universal_newlines=True)
-
-    responseBin, errors = process.communicate()
-    #print(responseBin)
-    #print(errors) 
-    if not errors and len(responseBin):
-        return responseBin
-    else:
-        print("error while executing the command-----------> ", cmd)
-        return None
+         responseBin, errors = process.communicate()
+         if not errors and len(responseBin):# process.returncode == 0:# and len(responseBin):
+            return True
+         else:
+            print("error while executing the command-----------> ", cmd)
+            return None
 
 def updateRowWithStatus(sampleName, status, directory, conn):
     cur = conn.cursor()
