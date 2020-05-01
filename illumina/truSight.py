@@ -13,6 +13,8 @@ import yaml
 import mysql.connector
 import json
 import requests
+import io
+import time
 
 
 
@@ -134,18 +136,37 @@ def read_excel_and_upsert(conn):
     return xldf
     
     
-def runBashCommand(cmd):
-    process = subprocess.Popen(cmd.split(), 
-                           stdout=subprocess.PIPE)
-                        #    universal_newlines=True)
-    responseBin, errors = process.communicate()
-    #print(responseBin)
-    #print(errors) 
-    if not errors and len(responseBin):
-        return responseBin
+def runBashCommand(cmd, index):
+    if index:
+        # log_file = "test"+str(index)+".log"
+        # with open(log_file, 'wb') as f: 
+        #     process = subprocess.Popen(cmd.split(), 
+        #                         stdout=subprocess.PIPE)
+        #                         #    universal_newlines=True)
+        #     for line in iter(process.stdout.readline, b''):  # replace '' with b'' for Python 3
+        #         sys.stdout.write(line)
+        #         f.write(line)
+        filename = "test"+str(index)+".log"
+        with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
+            process = subprocess.Popen(cmd.split(), stdout=writer)
+            while process.poll() is None:
+                time.sleep(0.5)
+        print(process.returncode)
+        if  process.returncode == 0:# and len(responseBin):
+            return True
+        else:
+            print("error while executing the command-----------> ", cmd)
+            return None
     else:
-        print("error while executing the command-----------> ", cmd)
-        return None
+         process = subprocess.Popen(cmd.split(), 
+                            stdout=subprocess.PIPE)
+                            #    universal_newlines=True)
+         responseBin, errors = process.communicate()
+         if not errors and len(responseBin):# process.returncode == 0:# and len(responseBin):
+            return True
+         else:
+            print("error while executing the command-----------> ", cmd)
+            return None
 
 def updateRowWithStatus(sampleName, status, directory, conn):
     cur = conn.cursor()
@@ -255,11 +276,11 @@ def processCase(caseId, sampleName, dirName, conn):
 
 # mounts the basespace folder in the 'basDir' folder
 def mountBaseSpace(basDir):
-    bashResponse = runBashCommand("basemount --unmount " + script_path + "/" + basDir)
+    bashResponse = runBashCommand("basemount --unmount " + script_path + "/" + basDir, False)
     if bashResponse:
         bashCommand = """basemount \
             --config UFMOL_ENTERPRISE """ + basDir
-        bashResponse = runBashCommand(bashCommand)
+        bashResponse = runBashCommand(bashCommand, False)
         return True if bashResponse else False
     else:
         return False
