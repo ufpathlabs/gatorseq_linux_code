@@ -207,6 +207,7 @@ def updateRowWithMessage(sampleName, message, directory, conn):
 
             
 def populateStatusInExcel(conn, df):
+    conn = create_connection()
     for index, row in df.iterrows():
         cur = conn.cursor()
         selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
@@ -217,6 +218,7 @@ def populateStatusInExcel(conn, df):
             df.at[index, "STATUS"] = row[2]
             df.at[index, "MESSAGE"] = row[3]
     df.to_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE, index=False)
+    conn.close()
 
 # create a sample using REST API of trusight 
 # use upload command of trusight to upload the sample
