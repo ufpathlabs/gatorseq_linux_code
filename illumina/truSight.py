@@ -146,16 +146,31 @@ def runBashCommand(cmd, index):
         #     for line in iter(process.stdout.readline, b''):  # replace '' with b'' for Python 3
         #         sys.stdout.write(line)
         #         f.write(line)
-        filename = "test"+str(index)+".log"
-        with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
-            process = subprocess.Popen(cmd.split(), stdout=writer)
-            while process.poll() is None:
-                time.sleep(0.5)
-        print(process.returncode)
-        if  process.returncode == 0:# and len(responseBin):
-            return True
-        else:
-            print("error while executing the command-----------> ", cmd)
+        # filename = "test"+str(index)+".log"
+        # with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
+        #     process = subprocess.Popen(cmd.split(), stdout=writer)
+        #     while process.poll() is None:
+        #         time.sleep(0.5)
+        # print(process.returncode)
+        # if  process.returncode == 0:# and len(responseBin):
+        #     return True
+        # else:
+        #     print("error while executing the command-----------> ", cmd)
+        #     return None
+        try:
+            filename = "test"+str(index)+".log"
+            with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
+                process = subprocess.Popen(cmd.split(), stdout=writer)
+                terminate_code = process.wait(90)
+                print(terminate_code)
+            if  terminate_code == 0:# and len(responseBin):
+                return True
+            else:
+                print("error while executing the command-----------> ", cmd)
+                return None           
+        except subprocess.TimeoutExpired:
+            process.kill()
+            print("Time out expired while executing the command-----------> ", cmd)
             return None
     else:
          process = subprocess.Popen(cmd.split(), 
