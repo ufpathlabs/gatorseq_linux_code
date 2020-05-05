@@ -16,7 +16,7 @@ with open(CONFIG_FILE, 'r') as stream:
         print(exc)
         sys.exit()
 
-LINUX_HPC_FASTQ_FOLDER = (config_dict['LINUX_HPC_FASTQ_FOLDER'])
+LINUX_HPC_FASTQ_FOLDER = (config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 
 # get list of all folders in basemount/gator_seq samples
 # for each sample, checks if fastq are in the LINUX_HPC_FASTQ_FOLDER, if they are not present download them.
@@ -30,7 +30,7 @@ def downloadFiles(baseMountDir):
     print("eligibleSamples:", eligibleSamples)
     for sample in eligibleSamples:
         if "_" in sample:
-            sampleFolderName = sample.split("_")[0] + "-basemount/" + sample + "-basemount/"
+            sampleFolderName = sample.split("_")[0] + "-000000/" + sample + "-000000/"
             print("sampleFolderName:", sampleFolderName)
 
             # if os.path.isdir(LINUX_HPC_FASTQ_FOLDER + "/" + sampleFolderName):
@@ -46,13 +46,13 @@ def downloadFiles(baseMountDir):
             for fastqFile in os.listdir(baseMountBase + sample + "/Files/"):
                 if not os.path.isfile( LINUX_HPC_FASTQ_FOLDER + "/" + sampleFolderName + "/" + fastqFile ):
                     try:
+                        print("copying:", baseMountBase + sample + "/Files/" + fastqFile, " to ", LINUX_HPC_FASTQ_FOLDER + "/" + sampleFolderName + "/" + fastqFile)
                         shutil.copyfile(baseMountBase + sample + "/Files/" + fastqFile, LINUX_HPC_FASTQ_FOLDER + "/" + sampleFolderName + "/" + fastqFile)
                     except:
                         print("copy file error")
                         os.remove(LINUX_HPC_FASTQ_FOLDER + "/" + sampleFolderName +  "/" + fastqFile)
         else:
             print("file structure not clear.. please check")    
-        break       
                     
 if __name__ == "__main__":
     baseMountDir = "BaseMount"

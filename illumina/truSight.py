@@ -161,7 +161,7 @@ def runBashCommand(cmd, index):
             filename = "test"+str(index)+".log"
             with io.open(filename, 'wb') as writer, io.open(filename, 'rb', 1) as reader:
                 process = subprocess.Popen(cmd.split(), stdout=writer)
-                terminate_code = process.wait(90)
+                terminate_code = process.wait(18000)
                 print(terminate_code)
             if  terminate_code == 0:# and len(responseBin):
                 return True
@@ -207,6 +207,7 @@ def updateRowWithMessage(sampleName, message, directory, conn):
 
             
 def populateStatusInExcel(conn, df):
+    conn = create_connection()
     for index, row in df.iterrows():
         cur = conn.cursor()
         selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
@@ -217,7 +218,7 @@ def populateStatusInExcel(conn, df):
             df.at[index, "STATUS"] = row[2]
             df.at[index, "MESSAGE"] = row[3]
     df.to_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE, index=False)
-
+    conn.close()
 # create a sample using REST API of trusight 
 # use upload command of trusight to upload the sample
 def createSample(conn, baseMountDir):
