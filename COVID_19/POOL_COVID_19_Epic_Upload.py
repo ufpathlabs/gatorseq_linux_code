@@ -230,7 +230,7 @@ def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDe
     cur.close()
 
 # method to write the entire database table to excel
-def writeDataToExcel(excelName):
+def writeDataToExcel(excelName, containerToResult):
     xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
@@ -423,21 +423,21 @@ if __name__ == "__main__":
         for i, row in df.iterrows():
             sampleToResult[row["Container_ID"]] = pool_results[row["Pooled_ID"]]
 
-        print(sampleToResult)
-
+        containerToResult = {}
         for containerId in sampleToResult:
-            if sampleToResult[containerId] != "Negative":
-                del sampleToResult[containerId]
+            if sampleToResult[containerId] == "Negative":
+                containerToResult[containerId.replace("\\", "")  ] = "Not Detected"
         
-        #all containers in sampleToResult have result = negative
-        
+        print(containerToResult)
+
         #add all samples to database
-        addSampleDictToDatabase(sampleToResult, f)
+        addSampleDictToDatabase(containerToResult, f)
 
         #logic to add the corresponding hl7 file to RESULTS folder
-        checkIncomingHl7(sampleToResult, f)
+        checkIncomingHl7(containerToResult, f)
 
-
+        print(f)
+        writeDataToExcel(f, containerToResult)
 
 
         
