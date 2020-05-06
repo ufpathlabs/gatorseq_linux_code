@@ -140,7 +140,7 @@ class hl7update:
                 elif(len(obx_segment)>=19):
                     obx_segment[19] = obx_segment[14]
    
-    def update_obx_seg_containing_gene(self, sample):
+    def update_obx_seg_containing_gene(self, result):
         updates = 0
         temp_obx = self.h[:]
         l = len(self.h)
@@ -149,7 +149,7 @@ class hl7update:
         new_obx_index = 1
         for obxSegment in self.h['OBX']:
             if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
-                obxSegment[5][0] = sample.result
+                obxSegment[5][0] = result
                 obxSegment[1] = new_obx_index
                 new_obx_index +=1 
                 temp_obx.append(obxSegment) 
@@ -200,32 +200,32 @@ def create_connection():
 SQL_CONNECTION = create_connection()
 
 
-def updateRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
+def updateRowInDatabase(containerId, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
 
     updateSql = "UPDATE "+ COVID_19_EPIC_UPLOAD_TABLE +" set PLMO_Number= %s, MRN = %s, PATIENT_NAME = %s, PATIENT_SEX = %s, PATIENT_AGE = %s, ORDERING_DEPARTMENT = %s, EPIC_UPLOAD_TIMESTAMP = %s WHERE CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
     #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
-    cur.execute(updateSql, (PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), sample.name, excelFileName))
+    cur.execute(updateSql, (PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), containerId, excelFileName))
     SQL_CONNECTION.commit()
     cur.close()
 
 
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
+def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
 
     findsql = "SELECT * from " + COVID_19_EPIC_UPLOAD_TABLE + " where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
-    cur.execute(findsql, (sample.name, excelFileName))
+    cur.execute(findsql, (containerId, excelFileName))
     rows = cur.fetchall()
     # print(rows)
     # print("-----------------")
     if len(rows) > 0:
-        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, 2019nCoV_N1 = %s, 2019nCoV_N2 = %s, 2019nCoV_N3 = %s, RP = %s, RESULT = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
-        cur.execute(updateSql, (sample.completeSampleName, sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result, sample.name, excelFileName))
+        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, RESULT = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
+        cur.execute(updateSql, ("pooled", result, containerId, excelFileName))
         SQL_CONNECTION.commit()
     else:
         insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+        cur.execute(insertSql, ("pooled", containerId, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", "", "", "", "", result))
         SQL_CONNECTION.commit()
     cur.close()
 
@@ -341,16 +341,16 @@ def checkIncomingHl7(sampleDict, excelFile):
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
-                    h = newHl7.update_obx_seg_containing_gene( givenSample )
+                    h = newHl7.update_obx_seg_containing_gene( givenSample.result )
                     
-                    out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
+                    out_file_path = UPLOAD_PATH + '/hl7-pooled-COVID_19-{}-output.txt'.format(messageId)
                     if h:
                         with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                             f.write(str(h))
                         print("Out file available at :",out_file_path)
-                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'POOLED_COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
                         if plm:
-                            updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
+                            updateRowInDatabase(messageId, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -384,10 +384,10 @@ def isFloatValue(value, maxThreshold):
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
-def addSampleDictToDatabase(sampleDict, excelName):
-    for key in sampleDict.keys():
-        sample = sampleDict[key]
-        addRowInDatabase(sample, "", "", "", "", "", "", excelName)
+def addSampleDictToDatabase(sampleResult, excelName):
+    for containerId in sampleResult.keys():
+        result = sampleResult[containerId]
+        addRowInDatabase(containerId, result, "", "", "", "", "", "", excelName)
     
     print("-> all samples added to database <-")
 
@@ -400,93 +400,46 @@ if __name__ == "__main__":
     fileNames = []
     toProcess = []
     for f in excel_files:
-        if "_SAMPLE_MAP" in f:
-            sampleGroupName = f[:f.index("_SAMPLE_MAP")]
-            if sampleGroupName + "_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
+        if "_SAMPLE_POOL" in f:
+            sampleGroupName = f[:f.index("_SAMPLE_POOL")]
+            if sampleGroupName + "_FINAL.xlsx" not in excel_files:
                 fileNames.append(sampleGroupName)
     
     for f in fileNames:
-        sampleResult = f + "_SAMPLE_RESULTS.xlsx"
-        sampleMap = f + "_SAMPLE_MAP.xlsx"
-        sampleToContainer = {}
+        sampleResult = f + "_SAMPLE_POOL_RESULTS.xlsx"
+        sampleMap = f + "_SAMPLE_POOL.xlsx"
+        sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
+            sampleToPool[row["Container_ID"]] = row["Pooled_ID"]
         
-        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
-        results_df["CONTAINER_ID"] = None
+        results_df = pd.read_excel(sampleResult)#, skiprows=range(0,35))
+        pool_results = {}
+        for i, row in results_df.iterrows():
+            pool_results[row["Pooled_ID"]] = row["Result"]
         
+        #contains results corresponding to each containerId
+        sampleToResult = {}
+        for i, row in df.iterrows():
+            sampleToResult[row["Container_ID"]] = pool_results[row["Pooled_ID"]]
+
+        print(sampleToResult)
+
+        for containerId in sampleToResult:
+            if sampleToResult[containerId] != "Negative":
+                del sampleToResult[containerId]
         
-        for index, row in results_df.iterrows():
-            if sampleToContainer.get(row["Sample Name"]):
-                results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
-            else:
-                results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
+        #all containers in sampleToResult have result = negative
         
-        #print(results_df.head())
-        toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
-        results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
-        
+        #add all samples to database
+        addSampleDictToDatabase(sampleToResult, f)
+
+        #logic to add the corresponding hl7 file to RESULTS folder
+        checkIncomingHl7(sampleToResult, f)
 
 
-    for f in toProcess:
-        sampleDict = {}
-        plmoDict = {}
-        eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
-        xldf = pd.read_excel(eachExcel)
-        #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        # generate sample dictionary in below format:
-        # {<sample name>: <Class Sample>}
-        #print(xldf.head())  
-        for index, row in xldf.iterrows():
-            sampleName = str(row["CONTAINER_ID"])
-            if 'PLMO' in sampleName:
-                plm = re.findall(r"PLMO\d+-\d+" , sampleName)
-                if len(plm):
-                    sampleName = plm[0]
 
-            sampleName = sampleName.replace("\\", "")            
 
-            targetName = row["Target Name"]
-            value = row["CT"]
-            
-            #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
-            if sampleDict.get(sampleName) is None:
-                sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
-            if targetName == "RP":# and not math.isnan(value):
-                setattr(sampleDict[sampleName], "%s" % targetName, value)
-            else:# not math.isnan(value):
-                #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-                setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
-
-        for sampleName in sampleDict.keys():
-            sample = sampleDict[sampleName]
-
-            if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
-                sample.result = "Detected"
-                continue
-            elif any([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]):
-                sample.result = "Indeterminate"
-                continue
-            
-            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40 and type(sample.nCoV_N2) == "float" and sample.nCoV_N2 > 40  ):
-                #INVALID Case is to be handled by pathologists separately and hence just continuing
-                sample.result = "Invalid"
-                continue
-            if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
-                sample.result = "Not Detected"
-            
-            if sample.result is None:
-                print("------ Last resort reached -----", sample)
-                #del sampleDict[sampleName]
-                sample.result = "Invalid"
-        #print("below is the dictionary of all samples:")
-        #print(sampleDict["PLMO20-000129"])
-        #print(sampleDict)
-        addSampleDictToDatabase(sampleDict, f)
-        checkIncomingHl7(sampleDict, f)
-        writeDataToExcel(f)  
-        #addSampleDictToExcel(sampleDict, f, True) 
         
     #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
