@@ -333,15 +333,15 @@ def checkIncomingHl7(sampleDict, excelFile):
                 if messageId in sampleDict or plm[0] in sampleDict:
                    # print("--------found----------")
                     if sampleDict.get(messageId) is not None:
-                        givenSample =  sampleDict.get(messageId)
+                        givenSampleResult =  sampleDict.get(messageId)
                     else:
-                        givenSample = sampleDict.get(plm[0])
+                        givenSampleResult = sampleDict.get(plm[0])
                     #print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
-                    h = newHl7.update_obx_seg_containing_gene( givenSample.result )
+                    h = newHl7.update_obx_seg_containing_gene( givenSampleResult )
                     
                     out_file_path = UPLOAD_PATH + '/hl7-pooled-COVID_19-{}-output.txt'.format(messageId)
                     if h:
