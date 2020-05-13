@@ -118,19 +118,20 @@ def read_excel_and_upsert(conn):
             sql = '''
             UPDATE '''+TRUSIGHT_TABLE_NAME+'''
             SET SAMPLE_NAME = %s,
-                GENDER = %s
-                
+                GENDER = %s,
+                FILE_PATH = %s
+
             WHERE SAMPLE_NAME = %s and DIRECTORY_NAME = %s ;''' 
             #print(sql)
             cur2 = conn.cursor()
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['FILE_PATH'], row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
             conn.commit()
             cur2.close()
         else:
-            sql = "INSERT into "+TRUSIGHT_TABLE_NAME+"(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME) values(%s,%s, %s, %s); "
+            sql = "INSERT into "+TRUSIGHT_TABLE_NAME+"(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME, FILE_PATH) values(%s,%s, %s, %s, %s); "
             cur2 = conn.cursor()
             #print(sql)
-            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'], row['DIRECTORY_NAME'] ))
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'], row['DIRECTORY_NAME'], row['FILE_PATH'] ))
             conn.commit()
             cur2.close()
     return xldf
