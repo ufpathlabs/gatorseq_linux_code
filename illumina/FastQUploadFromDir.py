@@ -14,7 +14,6 @@ import mysql.connector
 import json
 import requests
 from truSight import runBashCommand
-from truSight import read_excel_and_upsert
 from truSight import mountBaseSpace
 from truSight import updateRowWithStatus
 from truSight import populateStatusInExcel
@@ -96,10 +95,7 @@ def create_connection():
 
 def processCode(sampleName, directoryName, filep, index, conn):
     startTime = time.time()
-    if not filep or filep == "Basemount":
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
-    else:
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  filep + "/" + sampleName + "/"
+    cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  filep + "/" + sampleName + "/"
     print("running the following command: ", cmd)
     #updateRowWithStatusAndMessage(sampleName, "STARTED_UPLOAD", "uopload started at " + time.ctime(), directoryName, conn)
     print('update DB that I am starting:', sampleName)
@@ -120,9 +116,9 @@ def processCode(sampleName, directoryName, filep, index, conn):
     return sampleName
     
 
-def uploadFastQ(conn, baseMountDir):
+def uploadFastQ(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where  STATUS = 'UPLOAD_FASTQ_PENDING';")
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where  STATUS = 'UPLOAD_FASTQ_PENDING' and FILE_PATH is not null;")
     rows = cur.fetchall()
     cur.close()
 
@@ -141,40 +137,71 @@ def uploadFastQ(conn, baseMountDir):
 # gets all sample names from DB with no status
 # checks in basemount dir if fastq files exists
 # returns list of samplenames which have status as "RUN" and FastQ files in basemount
-def checkFastqExists(conn, baseMountDir):
+def checkFastqExists(conn):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'RUN';")
+    cur.execute("SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where STATUS = 'RUN' and FILE_PATH is not null;")
     rows = cur.fetchall()
     cur.close()
     for row in rows:
         sampleName = row[0]
         filepath = row[5]
-        if not filepath or filepath == "Basemount":
-            if os.path.isdir(baseMountDir + "/Projects/WGS/Samples/"+sampleName+"/Files"):
-                updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", row[4], conn)
-            else:
-                notFound = True
+        if os.path.isdir(filepath + "/" + sampleName + "/"):
+            updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", row[4], conn)
         else:
-            if os.path.isdir(filepath + "/" + sampleName + "/"):
-                updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", row[4], conn)
-            else:
-                notFound = True
-        if notFound:
             updateRowWithStatus(sampleName, "FASTQ_NOT_FOUND", row[4], conn)        
 
+def read_excel_and_upsert(conn):
+    xldf_full = pd.read_excel(TRUSIGHT_APP_SUBMISSION_INPUT_FILE)
+    xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+    xldf = xldf.replace(np.nan, '', regex=True)
+    for index, row in xldf.iterrows():
+        cur = conn.cursor()
+        selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
+
+        cur.execute(selectSql, (row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
+        rows = cur.fetchall()
+        cur.close()
+        if len(rows) > 0:
+            sql = '''
+            UPDATE '''+TRUSIGHT_TABLE_NAME+'''
+            SET SAMPLE_NAME = %s,
+                GENDER = %s,
+                FILE_PATH = %s
+
+            WHERE SAMPLE_NAME = %s and DIRECTORY_NAME = %s ;''' 
+            #print(sql)
+            cur2 = conn.cursor()
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['FILE_PATH'], row['SAMPLE_NAME'], row['DIRECTORY_NAME'] ))
+            conn.commit()
+            cur2.close()
+        else:
+            sql = "INSERT into "+TRUSIGHT_TABLE_NAME+"(SAMPLE_NAME, GENDER, STATUS, DIRECTORY_NAME, FILE_PATH) values(%s,%s, %s, %s, %s); "
+            cur2 = conn.cursor()
+            #print(sql)
+            cur2.execute(sql, (row['SAMPLE_NAME'], row['GENDER'], row['STATUS'], row['DIRECTORY_NAME'], row['FILE_PATH'] ))
+            conn.commit()
+            cur2.close()
+    return xldf
 
 if __name__ == "__main__":
     connection = create_connection()
-    baseMountDir = "BaseMount"
+    #baseMountDir = "BaseMount"
     print("Reading the excel and upsert")
     df = read_excel_and_upsert(connection)
     print("reading excel completed")
-    if  mountBaseSpace(baseMountDir):
+    print("checking for fastq exists")
+    checkFastqExists(connection)
+    print("uploading fastq starts")
+    uploadFastQ(connection)
+    print("starting to populate status to excel")
+    populateStatusInExcel(connection, df)   
+
+    '''if  mountBaseSpace(baseMountDir):
         print("checking for fastq exists")
         checkFastqExists(connection, baseMountDir)
         print("uploading fastq starts")
         uploadFastQ(connection, baseMountDir)
         print("starting to populate status to excel")
-        populateStatusInExcel(connection, df)
+        populateStatusInExcel(connection, df)'''
 
     connection.close()
