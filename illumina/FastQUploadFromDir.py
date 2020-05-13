@@ -99,7 +99,7 @@ def processCode(sampleName, directoryName, filep, index, conn):
     if not filep or filep == "Basemount":
         cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  baseMountDir + "/Projects/WGS/Samples/" + sampleName + "/Files/"
     else:
-        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  filep + sampleName
+        cmd = "java -jar "+ TRUSIGHT_CLI + " stage --stageDirectory=" + directoryName + "/ --localDirectory=" +  filep + "/" + sampleName + "/"
     print("running the following command: ", cmd)
     #updateRowWithStatusAndMessage(sampleName, "STARTED_UPLOAD", "uopload started at " + time.ctime(), directoryName, conn)
     print('update DB that I am starting:', sampleName)
@@ -155,7 +155,7 @@ def checkFastqExists(conn, baseMountDir):
             else:
                 notFound = True
         else:
-            if os.path.isdir(filepath + sampleName):
+            if os.path.isdir(filepath + "/" + sampleName + "/"):
                 updateRowWithStatus(sampleName, "UPLOAD_FASTQ_PENDING", row[4], conn)
             else:
                 notFound = True
@@ -166,14 +166,15 @@ def checkFastqExists(conn, baseMountDir):
 if __name__ == "__main__":
     connection = create_connection()
     baseMountDir = "BaseMount"
+    print("Reading the excel and upsert")
     df = read_excel_and_upsert(connection)
-
+    print("reading excel completed")
     if  mountBaseSpace(baseMountDir):
-
+        print("checking for fastq exists")
         checkFastqExists(connection, baseMountDir)
-
+        print("uploading fastq starts")
         uploadFastQ(connection, baseMountDir)
-
+        print("starting to populate status to excel")
         populateStatusInExcel(connection, df)
 
     connection.close()
