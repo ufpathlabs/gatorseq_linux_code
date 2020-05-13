@@ -230,28 +230,37 @@ def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDe
     cur.close()
 
 # method to write the entire database table to excel
-def writeDataToExcel(excelName, containerToResult):
-    xldf = pd.read_sql_query('select * from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
-    xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
-    xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
-    xldf = xldf.drop("2019nCoV_N3", 1)
-    xldf = xldf.drop("2019nCoV_N2", 1)
-    xldf = xldf.drop("2019nCoV_N1", 1)
-    xldf = xldf.drop("RP", 1)
-
-    cols = xldf.columns.tolist()
+def writeDataToExcel(excelName, containerToResult, sampleToPool):
+    xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    dbdict = xldf.set_index('CONTAINER_ID')['EPIC_UPLOAD_TIMESTAMP'].to_dict()
+    writeToList = []
+    for key, value in containerToResult.iterrows():    
+        tempdict = {}
+        tempdict['CONTAINER_ID'] = key
+        tempdict['POOL_ID'] = sampleToPool[key]
+        tempdict['RESULT'] = value        
+        if dbdict[key] is not None:
+            tempdict['EPIC_UPLOADED'] = "YES"
+        else:
+            tempdict['EPIC_UPLOADED'] = "NO"
+        writeToList.append(tempdict)
+    xldf = pd.DataFrame(writeToList)
+    
+    '''cols = xldf.columns.tolist()
     upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
     cols.insert(len(cols), upload_col)
-    xldf = xldf.reindex(columns= cols)
-    RESULT_LOG = COVID_19_TEST_INPUT_FOLDER + "/" + \
-        excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
-    SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
+    xldf = xldf.reindex(columns= cols)'''
+    #RESULT_LOG = COVID_19_TEST_INPUT_FOLDER + "/" + \
+        #excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
 
-    sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
+    RESULT_LOG = COVID_19_TEST_INPUT_FOLDER + "/" + excelName + "_FINAL.xlsx"
+    #SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
+
+    '''sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
     sampleMapDf["UPLOADED_TO_EPIC"] = "No"
     for index, row in sampleMapDf.iterrows():
         if xldf['QUANTSTUDIO_SPECIMEN_ID'].str.contains(str(row["Internal_Sample_ID"])).any() :
-            sampleMapDf.at[index, "UPLOADED_TO_EPIC"] = "Yes"
+            sampleMapDf.at[index, "UPLOADED_TO_EPIC"] = "Yes"'''
     
     try:
         # xldf.to_excel(RESULT_LOG , index=False)
@@ -437,7 +446,7 @@ if __name__ == "__main__":
         checkIncomingHl7(containerToResult, f)
 
         print(f)
-        writeDataToExcel(f, containerToResult)
+        writeDataToExcel(f, containerToResult, sampleToPool)
 
 
         
