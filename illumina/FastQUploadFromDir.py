@@ -47,7 +47,7 @@ def replace_env(strname):
     strname=strname.replace("USER_NAME",USER_NAME).replace("CODE_ENV",CODE_ENV)
     return strname
 
-TRUSIGHT_APP_SUBMISSION_INPUT_FILE = replace_env(config_dict['ILLUMINA_BASESPACE_APP_SUBMISSION_INPUT_FILE'])
+TRUSIGHT_APP_SUBMISSION_INPUT_FILE = replace_env(config_dict['TRUSIGHT_APP_SUBMISSION_INPUT_FILE'])
 TRUSIGHT_TABLE_NAME = replace_env(config_dict['TRUSIGHT_TABLE_NAME'])
 TRUSIGHT_CLI = replace_env(config_dict['TRUSIGHT_CLI'])
 
@@ -123,6 +123,7 @@ def uploadFastQ(conn):
     cur.close()
 
     while len(rows) > 0:
+        print("uploading fastq first 3")
         cur = rows[:3]
         pool = mp.Pool(processes=len(cur))
 
@@ -155,6 +156,8 @@ def read_excel_and_upsert(conn):
     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     xldf = xldf.replace(np.nan, '', regex=True)
     for index, row in xldf.iterrows():
+        print("row === ")
+        print(row)
         cur = conn.cursor()
         selectSql = "SELECT * FROM "+TRUSIGHT_TABLE_NAME+" where SAMPLE_NAME = %s and DIRECTORY_NAME = %s;"
 
