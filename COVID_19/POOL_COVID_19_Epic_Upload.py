@@ -140,7 +140,7 @@ class hl7update:
                 elif(len(obx_segment)>=19):
                     obx_segment[19] = obx_segment[14]
    
-    def update_obx_seg_containing_gene(self, result):
+    def update_obx_seg_containing_gene(self, result, runid):
         updates = 0
         temp_obx = self.h[:]
         l = len(self.h)
@@ -151,7 +151,11 @@ class hl7update:
             if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = result
                 obxSegment[1] = new_obx_index
-                obxSegment[18][0] = "UFHPL Panther1"
+                if runid.startswith('003109'):
+                    machineId = "UFHPL Panther1"
+                elif runid.startswith('003253'):
+                    machineId = "UFHPL Panther2"
+                obxSegment[18][0] = machineId
                 new_obx_index +=1 
                 temp_obx.append(obxSegment) 
             
@@ -253,6 +257,9 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
         writeToList.append(tempdict)
 
     xldf = pd.DataFrame(writeToList)
+    columnsTitles = ['CONTAINER_ID', 'POOL_ID', 'VALID_FLAG', 'RESULT', 'EPIC_UPLOADED', 'TIMESTAMP']
+    xldf = xldf.reindex(columns=columnsTitles)
+    xldf.sort_values('RESULT',ascending=False,inplace=True)  
     RESULT_LOG = excelName + "_FINAL.xlsx"
     
     try:
@@ -262,7 +269,7 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
     except:
         print("unable to save status excel, please close it")
 
-def checkIncomingHl7(sampleDict, excelFile):
+def checkIncomingHl7(sampleDict, sampleResultDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
@@ -341,7 +348,7 @@ def checkIncomingHl7(sampleDict, excelFile):
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
-                    h = newHl7.update_obx_seg_containing_gene( givenSampleResult )
+                    h = newHl7.update_obx_seg_containing_gene( givenSampleResult, sampleResultDict[messageId][0] )
                     
                     out_file_path = UPLOAD_PATH + '/hl7-pooled-COVID_19-{}-output.txt'.format(messageId)
                     if h:
@@ -413,7 +420,7 @@ if __name__ == "__main__":
         for i, row in df.iterrows():
             #Pooled Sample Barcode  Source Sample Barcode
             #sampleToPool[row["Container_ID"].replace("\\", "")] = row["Pooled_ID"]
-            sampleToPool[row["Source Sample Barcode"]] = row["Pooled Sample Barcode"]
+            sampleToPool[str(row["Source Sample Barcode"])] = str(row["Pooled Sample Barcode"])
         
         results_df = pd.read_csv(sampleResult, sep='\t') #pd.read_excel(sampleResult)#, skiprows=range(0,35))
         pool_results = {}
@@ -425,7 +432,7 @@ if __name__ == "__main__":
         #contains results corresponding to each containerId
         sampleToResult = {}
         for i, row in df.iterrows():
-            sampleToResult[row["Source Sample Barcode"]] = pool_results[row["Pooled Sample Barcode"]]
+            sampleToResult[str(row["Source Sample Barcode"])] = pool_results[row["Pooled Sample Barcode"]]
 
         containerToResult = {}
         for containerId in sampleToResult:
@@ -440,7 +447,7 @@ if __name__ == "__main__":
         addSampleDictToDatabase(containerToResult, f)
 
         #logic to add the corresponding hl7 file to RESULTS folder
-        checkIncomingHl7(containerToResult, f)
+        checkIncomingHl7(containerToResult, sampleToResult, f)
 
         print(f)
         writeDataToExcel(f, sampleToResult, sampleToPool)
