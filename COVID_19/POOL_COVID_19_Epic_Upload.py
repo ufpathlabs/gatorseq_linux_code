@@ -151,6 +151,7 @@ class hl7update:
             if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = result
                 obxSegment[1] = new_obx_index
+                obxSegment[18][0] = "UFHPL Panther1"
                 new_obx_index +=1 
                 temp_obx.append(obxSegment) 
             
@@ -239,12 +240,16 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
     for key, value in sampleToResult.items():    
         tempdict = {}
         tempdict['CONTAINER_ID'] = key
-        tempdict['POOL_ID'] = sampleToPool[key]
-        tempdict['RESULT'] = value        
-        if key not in dbdict.keys() or dbdict[key] is None:
+        tempdict['POOL_ID'] = sampleToPool[key]      
+        tempdict['VALID_FLAG'] = sampleToResult[key][1]
+        tempdict['RESULT'] = sampleToResult[key][2]
+        
+        if key not in dbdict.keys() or dbdict[key] is None or dbdict[key] == "":
             tempdict['EPIC_UPLOADED'] = "NO"
+            tempdict['TIMESTAMP'] = ""
         else:
             tempdict['EPIC_UPLOADED'] = "YES"
+            tempdict['TIMESTAMP'] =   dbdict[key]
         writeToList.append(tempdict)
 
     xldf = pd.DataFrame(writeToList)
@@ -272,7 +277,7 @@ def checkIncomingHl7(sampleDict, excelFile):
             continue
         arr = hl7file.split("\n\n") #split by blank lines
         #Iterate all HL7 messages in file
-        c=0
+        #c=0
         for hl7msg in arr: 
             if hl7msg: #check if message not empty
                 msg_unix_fmt = hl7msg.replace("\n","\r")
@@ -393,7 +398,7 @@ if __name__ == "__main__":
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
 
     fileNames = []
-    toProcess = []
+    #toProcess = []
     for f in excel_files:
         if "_SAMPLE_POOL" in f:
             sampleGroupName = f[:f.index("_SAMPLE_POOL")]
@@ -401,27 +406,31 @@ if __name__ == "__main__":
                 fileNames.append(sampleGroupName)
     
     for f in fileNames:
-        sampleResult = f + "_SAMPLE_POOL_RESULTS.xlsx"
+        sampleResult = f + "_SAMPLE_POOL_RESULTS.lis"
         sampleMap = f + "_SAMPLE_POOL.xlsx"
         sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            sampleToPool[row["Container_ID"].replace("\\", "")] = row["Pooled_ID"]
+            #Pooled Sample Barcode  Source Sample Barcode
+            #sampleToPool[row["Container_ID"].replace("\\", "")] = row["Pooled_ID"]
+            sampleToPool[row["Source Sample Barcode"]] = row["Pooled Sample Barcode"]
         
-        results_df = pd.read_excel(sampleResult)#, skiprows=range(0,35))
+        results_df = pd.read_csv(sampleResult, sep='\t') #pd.read_excel(sampleResult)#, skiprows=range(0,35))
         pool_results = {}
         for i, row in results_df.iterrows():
-            pool_results[row["Pooled_ID"]] = row["Result"]
+            #Specimen Barcode, Run ID, Interpretation 2, Interpretation 3
+            #pool_results[row["Pooled_ID"]] = row["Result"]
+            pool_results[row["Specimen Barcode"]] = [row["Run ID"],row["Interpretation 2"],row["Interpretation 3"]]
         
         #contains results corresponding to each containerId
         sampleToResult = {}
         for i, row in df.iterrows():
-            sampleToResult[row["Container_ID"].replace("\\", "")] = pool_results[row["Pooled_ID"]]
+            sampleToResult[row["Source Sample Barcode"]] = pool_results[row["Pooled Sample Barcode"]]
 
         containerToResult = {}
         for containerId in sampleToResult:
-            if sampleToResult[containerId] == "Negative":
-                containerToResult[containerId.replace("\\", "")  ] = "Not Detected"
+            if sampleToResult[containerId][1].lower() == "valid" and sampleToResult[containerId][2].lower() == "negative":
+                containerToResult[containerId] = "Not Detected"
         
         #print("container to result")
         #print(containerToResult)
