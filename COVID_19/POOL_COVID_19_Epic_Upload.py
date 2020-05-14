@@ -234,8 +234,8 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
     xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     dbdict = xldf.set_index('CONTAINER_ID')['EPIC_UPLOAD_TIMESTAMP'].to_dict()
     writeToList = []
-    print("sample to result === {}".format(sampleToResult))
-    print("dbdict === {}".format(dbdict))
+    #print("sample to result === {}".format(sampleToResult))
+    #print("dbdict === {}".format(dbdict))
     for key, value in sampleToResult.items():    
         tempdict = {}
         tempdict['CONTAINER_ID'] = key
@@ -246,31 +246,13 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
         else:
             tempdict['EPIC_UPLOADED'] = "YES"
         writeToList.append(tempdict)
+
     xldf = pd.DataFrame(writeToList)
-    
-    '''cols = xldf.columns.tolist()
-    upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
-    cols.insert(len(cols), upload_col)
-    xldf = xldf.reindex(columns= cols)'''
-    #RESULT_LOG = COVID_19_TEST_INPUT_FOLDER + "/" + \
-        #excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
-    print("excel name === {}".format(excelName))
     RESULT_LOG = excelName + "_FINAL.xlsx"
-    #SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
-    print("result log file === {}".format(RESULT_LOG))
-    '''sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
-    sampleMapDf["UPLOADED_TO_EPIC"] = "No"
-    for index, row in sampleMapDf.iterrows():
-        if xldf['QUANTSTUDIO_SPECIMEN_ID'].str.contains(str(row["Internal_Sample_ID"])).any() :
-            sampleMapDf.at[index, "UPLOADED_TO_EPIC"] = "Yes"'''
     
     try:
-        # xldf.to_excel(RESULT_LOG , index=False)
-        print("xldf df === {}".format(xldf))
         with pd.ExcelWriter(RESULT_LOG) as writer:
-            print("inside the with ")
             xldf.to_excel(writer, index=False, sheet_name='Sheet 1')
-            #sampleMapDf.to_excel(writer, index=False, sheet_name='Sheet 2')
         print("done writeToExcel method and writing done to -->", RESULT_LOG )
     except:
         print("unable to save status excel, please close it")
@@ -440,9 +422,10 @@ if __name__ == "__main__":
         for containerId in sampleToResult:
             if sampleToResult[containerId] == "Negative":
                 containerToResult[containerId.replace("\\", "")  ] = "Not Detected"
-        print("container to result")
-        print(containerToResult)
-        print("sample to pool === {}".format(sampleToPool))
+        
+        #print("container to result")
+        #print(containerToResult)
+        #print("sample to pool === {}".format(sampleToPool))
 
         #add all samples to database
         addSampleDictToDatabase(containerToResult, f)
@@ -453,7 +436,4 @@ if __name__ == "__main__":
         print(f)
         writeDataToExcel(f, sampleToResult, sampleToPool)
 
-
-        
-    #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
