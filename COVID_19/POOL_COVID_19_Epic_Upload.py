@@ -151,11 +151,13 @@ class hl7update:
             if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = result
                 obxSegment[1] = new_obx_index
+                machineId = ""
                 if runid.startswith('003109'):
                     machineId = "UFHPL Panther1"
                 elif runid.startswith('003253'):
                     machineId = "UFHPL Panther2"
-                obxSegment[18][0] = machineId
+                if len(machineId) > 0:
+                    obxSegment[18][0] = machineId
                 new_obx_index +=1 
                 temp_obx.append(obxSegment) 
             
@@ -338,12 +340,10 @@ def checkIncomingHl7(sampleDict, sampleResultDict, excelFile):
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict or plm[0] in sampleDict:
-                   # print("--------found----------")
                     if sampleDict.get(messageId) is not None:
                         givenSampleResult =  sampleDict.get(messageId)
                     else:
-                        givenSampleResult = sampleDict.get(plm[0])
-                    #print("processing hl7 input file: ", hl7_file_name)                   
+                        givenSampleResult = sampleDict.get(plm[0])                  
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
@@ -432,7 +432,7 @@ if __name__ == "__main__":
         #contains results corresponding to each containerId
         sampleToResult = {}
         for i, row in df.iterrows():
-            sampleToResult[str(row["Source Sample Barcode"])] = pool_results[row["Pooled Sample Barcode"]]
+            sampleToResult[str(row["Source Sample Barcode"])] = pool_results[str(row["Pooled Sample Barcode"])]
 
         containerToResult = {}
         for containerId in sampleToResult:
