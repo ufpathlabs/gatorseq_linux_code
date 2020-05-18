@@ -238,10 +238,13 @@ def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDe
 
 # method to write the entire database table to excel
 def writeDataToExcel(excelName, sampleToResult, sampleToPool):
-    xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
-    dbdict = xldf.set_index('CONTAINER_ID')['EPIC_UPLOAD_TIMESTAMP'].to_dict()
+    xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP, PLMO_NUMBER, PATIENT_NAME, PATIENT_SEX, PATIENT_AGE from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    dbdict = {}
+    for i, row in xldf.iterrows():
+        dbdict[row['CONTAINER_ID']] = [row['EPIC_UPLOAD_TIMESTAMP'], row['PLMO_NUMBER'], row['PATIENT_NAME'], row['PATIENT_SEX'], row['PATIENT_AGE']]
+    
+    #dbdict = xldf.set_index('CONTAINER_ID')['EPIC_UPLOAD_TIMESTAMP'].to_dict()
     writeToList = []
-    #print("sample to result === {}".format(sampleToResult))
     #print("dbdict === {}".format(dbdict))
     for key, value in sampleToResult.items():    
         tempdict = {}
@@ -255,11 +258,15 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
             tempdict['TIMESTAMP'] = ""
         else:
             tempdict['EPIC_UPLOADED'] = "YES"
-            tempdict['TIMESTAMP'] =   dbdict[key]
+            tempdict['TIMESTAMP'] = dbdict[key][0]
+            tempdict['PLMO_NUMBER'] = dbdict[key][1]
+            tempdict['PATIENT_NAME'] = dbdict[key][2]
+            tempdict['PATIENT_SEX'] = dbdict[key][3]
+            tempdict['PATIENT_AGE'] = dbdict[key][4]         
         writeToList.append(tempdict)
 
     xldf = pd.DataFrame(writeToList)
-    columnsTitles = ['CONTAINER_ID', 'POOL_ID', 'VALID_FLAG', 'RESULT', 'EPIC_UPLOADED', 'TIMESTAMP']
+    columnsTitles = ['VALID_FLAG', 'POOL_ID',  'RESULT', 'CONTAINER_ID', 'EPIC_UPLOADED', 'TIMESTAMP', 'PLMO_NUMBER', 'PATIENT_NAME', 'PATIENT_SEX', 'PATIENT_AGE']
     xldf = xldf.reindex(columns=columnsTitles)
     xldf.sort_values('RESULT',ascending=False,inplace=True)  
     RESULT_LOG = excelName + "_FINAL.xlsx"
@@ -405,7 +412,6 @@ if __name__ == "__main__":
     excel_files = [os.path.join(COVID_19_TEST_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
 
     fileNames = []
-    #toProcess = []
     for f in excel_files:
         if "_SAMPLE_POOL" in f:
             sampleGroupName = f[:f.index("_SAMPLE_POOL")]
@@ -418,31 +424,28 @@ if __name__ == "__main__":
         sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            #Pooled Sample Barcode  Source Sample Barcode
-            #sampleToPool[row["Container_ID"].replace("\\", "")] = row["Pooled_ID"]
-            sampleToPool[str(row["Source Sample Barcode"])] = str(row["Pooled Sample Barcode"])
+            sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
         
-        results_df = pd.read_csv(sampleResult, sep='\t') #pd.read_excel(sampleResult)#, skiprows=range(0,35))
+        #print("sample to pool = {}".format(sampleToPool))
+        results_df = pd.read_csv(sampleResult, sep='\t')
         pool_results = {}
         for i, row in results_df.iterrows():
-            #Specimen Barcode, Run ID, Interpretation 2, Interpretation 3
-            #pool_results[row["Pooled_ID"]] = row["Result"]
             pool_results[row["Specimen Barcode"]] = [row["Run ID"],row["Interpretation 2"],row["Interpretation 3"]]
         
+        #print("poolresults = {}".format(pool_results))
         #contains results corresponding to each containerId
         sampleToResult = {}
         for i, row in df.iterrows():
-            sampleToResult[str(row["Source Sample Barcode"])] = pool_results[str(row["Pooled Sample Barcode"])]
+            if str(row["Pooled Sample Barcode"]).split(".")[0] in pool_results.keys():
+                sampleToResult[str(row["Source Sample Barcode"]).split(".")[0]] = pool_results[str(row["Pooled Sample Barcode"]).split(".")[0]]
 
         containerToResult = {}
         for containerId in sampleToResult:
             if sampleToResult[containerId][1].lower() == "valid" and sampleToResult[containerId][2].lower() == "negative":
                 containerToResult[containerId] = "Not Detected"
         
-        #print("container to result")
-        #print(containerToResult)
-        #print("sample to pool === {}".format(sampleToPool))
-
+        #print("sampleToResult=== {}".format(sampleToResult))        
+        #print("container to result === {}".format(containerToResult))
         #add all samples to database
         addSampleDictToDatabase(containerToResult, f)
 
