@@ -420,7 +420,7 @@ if __name__ == "__main__":
     
     for f in fileNames:
         sampleResult = f + "_SAMPLE_POOL_RESULTS.lis"
-        sampleMap = f + "_SAMPLE_POOL.xlsx"
+        sampleMap = f + "_SAMPLE_POOL_MAP.xlsx"
         sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
