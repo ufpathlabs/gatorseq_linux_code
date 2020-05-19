@@ -268,7 +268,7 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
     xldf = pd.DataFrame(writeToList)
     columnsTitles = ['VALID_FLAG', 'POOL_ID',  'RESULT', 'CONTAINER_ID', 'EPIC_UPLOADED', 'TIMESTAMP', 'PLMO_NUMBER', 'PATIENT_NAME', 'PATIENT_SEX', 'PATIENT_AGE']
     xldf = xldf.reindex(columns=columnsTitles)
-    xldf.sort_values('RESULT',ascending=False,inplace=True)  
+    xldf.sort_values(['RESULT','POOL_ID'], ascending=[False,True], inplace=True)
     RESULT_LOG = excelName + "_FINAL.xlsx"
     
     try:
