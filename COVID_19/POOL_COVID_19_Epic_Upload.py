@@ -23,7 +23,7 @@ print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 parent_path = os.path.abspath(os.path.join(script_path, '..'))
-
+comments_file_path = parent_path + "/COVID_19/POOL_Methodology_Comment.txt"
 CONFIG_FILE = parent_path +"/linux_gatorseq.config.yaml"
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
@@ -332,7 +332,7 @@ def checkIncomingHl7(sampleDict, sampleResultDict, excelFile):
                     print("---------could not find PATIENT_SEX in hl7 file: ", hl7_file_name) 
 
                 ptAge = -1
-                try:
+                try:	
                     ptAge = 2020 - int(h['PID'][0][7][0][:4]) 
                 except:
                     print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name) 
@@ -355,6 +355,7 @@ def checkIncomingHl7(sampleDict, sampleResultDict, excelFile):
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
+                    newHl7.update_comments(open(comments_file_path, mode="r",  encoding='utf-8').read())
                     h = newHl7.update_obx_seg_containing_gene( givenSampleResult, sampleResultDict[messageId][0] )
                     
                     out_file_path = UPLOAD_PATH + '/hl7-pooled-COVID_19-{}-output.txt'.format(messageId)
