@@ -413,8 +413,8 @@ if __name__ == "__main__":
 
     fileNames = []
     for f in excel_files:
-        if "_SAMPLE_POOL" in f:
-            sampleGroupName = f[:f.index("_SAMPLE_POOL")]
+        if "_SAMPLE_POOL_MAP" in f:
+            sampleGroupName = f[:f.index("_SAMPLE_POOL_MAP")]
             if sampleGroupName + "_FINAL.xlsx" not in excel_files:
                 fileNames.append(sampleGroupName)
     
