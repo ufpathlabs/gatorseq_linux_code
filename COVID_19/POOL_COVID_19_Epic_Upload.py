@@ -25,6 +25,7 @@ script_path = os.path.dirname(os.path.abspath( __file__ ))
 parent_path = os.path.abspath(os.path.join(script_path, '..'))
 comments_file_path = parent_path + "/COVID_19/POOL_Methodology_Comment_SingleLine.txt"
 CONFIG_FILE = parent_path +"/linux_gatorseq.config.yaml"
+RLU_NOMINAL_SCORE = 400
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
     try:
@@ -218,7 +219,7 @@ def updateRowInDatabase(containerId, PLMO, MRN, ptName, ptSex, ptAge, ordDept, e
 
 
 # arguments are <class Sample> sample, str PLMO
-def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
+def addRowInDatabase(containerId, result, RLUScore, RLUFlag, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
     cur = SQL_CONNECTION.cursor()
 
     findsql = "SELECT * from " + COVID_19_EPIC_UPLOAD_TABLE + " where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
@@ -227,21 +228,21 @@ def addRowInDatabase(containerId, result, PLMO, MRN, ptName, ptSex, ptAge, ordDe
     # print(rows)
     # print("-----------------")
     if len(rows) > 0:
-        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, RESULT = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
-        cur.execute(updateSql, ("pooled", result, containerId, excelFileName))
+        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, RESULT = %s, RLU_SCORE = %s, RLU_FLAG = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
+        cur.execute(updateSql, ("pooled", result, RLUScore, RLUFlag, containerId, excelFileName))
         SQL_CONNECTION.commit()
     else:
-        insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        cur.execute(insertSql, ("pooled", containerId, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", "", "", "", "", result))
+        insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+        cur.execute(insertSql, ("pooled", containerId, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", "", "", "", "", result, RLUScore, RLUFlag))
         SQL_CONNECTION.commit()
     cur.close()
 
 # method to write the entire database table to excel
 def writeDataToExcel(excelName, sampleToResult, sampleToPool):
-    xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP, PLMO_NUMBER, PATIENT_NAME, PATIENT_SEX, PATIENT_AGE from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    xldf = pd.read_sql_query('select CONTAINER_ID, EPIC_UPLOAD_TIMESTAMP, PLMO_NUMBER, PATIENT_NAME, PATIENT_SEX, PATIENT_AGE, RLU_SCORE, RLU_FLAG from '+ COVID_19_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
     dbdict = {}
     for i, row in xldf.iterrows():
-        dbdict[row['CONTAINER_ID']] = [row['EPIC_UPLOAD_TIMESTAMP'], row['PLMO_NUMBER'], row['PATIENT_NAME'], row['PATIENT_SEX'], row['PATIENT_AGE']]
+        dbdict[row['CONTAINER_ID']] = [row['EPIC_UPLOAD_TIMESTAMP'], row['PLMO_NUMBER'], row['PATIENT_NAME'], row['PATIENT_SEX'], row['PATIENT_AGE'], row['RLU_SCORE'], row['RLU_FLAG']]
     
     #dbdict = xldf.set_index('CONTAINER_ID')['EPIC_UPLOAD_TIMESTAMP'].to_dict()
     writeToList = []
@@ -252,8 +253,9 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
         tempdict['POOL_ID'] = sampleToPool[key]      
         tempdict['VALID_FLAG'] = sampleToResult[key][1]
         tempdict['RESULT'] = sampleToResult[key][2]
-        
-        if key not in dbdict.keys() or dbdict[key] is None or dbdict[key] == "":
+        tempdict['RLU_SCORE'] = sampleToResult[key][3]
+        tempdict['RLU_FLAG'] = sampleToResult[key][4]         
+        if key not in dbdict.keys() or dbdict[key][0] is None or dbdict[key][0] == "":
             tempdict['EPIC_UPLOADED'] = "NO"
             tempdict['TIMESTAMP'] = ""
         else:
@@ -262,11 +264,12 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
             tempdict['PLMO_NUMBER'] = dbdict[key][1]
             tempdict['PATIENT_NAME'] = dbdict[key][2]
             tempdict['PATIENT_SEX'] = dbdict[key][3]
-            tempdict['PATIENT_AGE'] = dbdict[key][4]         
+            tempdict['PATIENT_AGE'] = dbdict[key][4]
+       
         writeToList.append(tempdict)
 
     xldf = pd.DataFrame(writeToList)
-    columnsTitles = ['VALID_FLAG', 'POOL_ID',  'RESULT', 'CONTAINER_ID', 'EPIC_UPLOADED', 'TIMESTAMP', 'PLMO_NUMBER', 'PATIENT_NAME', 'PATIENT_SEX', 'PATIENT_AGE']
+    columnsTitles = ['VALID_FLAG','POOL_ID','RLU_FLAG','RLU_SCORE','RESULT','CONTAINER_ID','EPIC_UPLOADED','TIMESTAMP','PLMO_NUMBER','PATIENT_NAME','PATIENT_SEX','PATIENT_AGE']
     xldf = xldf.reindex(columns=columnsTitles)
     xldf.sort_values(['RESULT','POOL_ID'], ascending=[False,True], inplace=True)
     RESULT_LOG = excelName + "_FINAL.xlsx"
@@ -399,10 +402,11 @@ def isFloatValue(value, maxThreshold):
             print("-----------ERROR: unable to identify the value-------------->", value)
             return False
     
-def addSampleDictToDatabase(sampleResult, excelName):
+def addSampleDictToDatabase(sampleResult, resultData, excelName):
     for containerId in sampleResult.keys():
         result = sampleResult[containerId]
-        addRowInDatabase(containerId, result, "", "", "", "", "", "", excelName)
+        
+        addRowInDatabase(containerId, result, resultData[containerId][3], resultData[containerId][4], "", "", "", "", "", "", excelName)
     
     print("-> all samples added to database <-")
 
@@ -425,13 +429,20 @@ if __name__ == "__main__":
         sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
+            if not pd.isna(row["Source Sample Barcode"]):
+                sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
         
         #print("sample to pool = {}".format(sampleToPool))
         results_df = pd.read_csv(sampleResult, sep='\t')
         pool_results = {}
+        #print("results_df = {}".format(results_df))
         for i, row in results_df.iterrows():
-            pool_results[row["Specimen Barcode"]] = [row["Run ID"],row["Interpretation 2"],row["Interpretation 3"]]
+            if row["Specimen Barcode"] in sampleToPool.values():
+                if int(row["Interpretation 1"]) < RLU_NOMINAL_SCORE:
+                    flag = "NORMAL"
+                else:
+                    flag = "HIGH"
+                pool_results[row["Specimen Barcode"]] = [row["Run ID"], row["Interpretation 2"], row["Interpretation 3"], row["Interpretation 1"], flag]
         
         #print("poolresults = {}".format(pool_results))
         #contains results corresponding to each containerId
@@ -442,13 +453,13 @@ if __name__ == "__main__":
 
         containerToResult = {}
         for containerId in sampleToResult:
-            if sampleToResult[containerId][1].lower() == "valid" and sampleToResult[containerId][2].lower() == "negative":
+            if sampleToResult[containerId][1].lower() == "valid" and sampleToResult[containerId][2].lower() == "negative" and int(sampleToResult[containerId][3]) < RLU_NOMINAL_SCORE:
                 containerToResult[containerId] = "Not Detected"
         
         #print("sampleToResult=== {}".format(sampleToResult))        
         #print("container to result === {}".format(containerToResult))
         #add all samples to database
-        addSampleDictToDatabase(containerToResult, f)
+        addSampleDictToDatabase(containerToResult, sampleToResult, f)
 
         #logic to add the corresponding hl7 file to RESULTS folder
         checkIncomingHl7(containerToResult, sampleToResult, f)
