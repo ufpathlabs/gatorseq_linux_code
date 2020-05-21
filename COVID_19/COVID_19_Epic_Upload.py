@@ -226,8 +226,8 @@ def addRowInDatabase(sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFile
         cur.execute(updateSql, (sample.completeSampleName, sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result, sample.name, excelFileName))
         SQL_CONNECTION.commit()
     else:
-        insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+        insertSql = "INSERT INTO "+ COVID_19_EPIC_UPLOAD_TABLE +" VALUES(%s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+        cur.execute(insertSql, (sample.completeSampleName, sample.name, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName, "", sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result, "", ""))
         SQL_CONNECTION.commit()
     cur.close()
 
@@ -237,6 +237,9 @@ def writeDataToExcel(excelName):
     xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
     xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
     xldf = xldf.drop("2019nCoV_N3", 1)
+    xldf = xldf.drop("RLU_SCORE", 1)    
+    xldf = xldf.drop("RLU_FLAG", 1)
+
     cols = xldf.columns.tolist()
     upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
     cols.insert(len(cols), upload_col)
