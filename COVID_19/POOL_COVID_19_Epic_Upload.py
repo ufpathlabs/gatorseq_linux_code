@@ -228,7 +228,7 @@ def addRowInDatabase(containerId, result, RLUScore, RLUFlag, PLMO, MRN, ptName, 
     # print(rows)
     # print("-----------------")
     if len(rows) > 0:
-        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, RESULT = %s, RLUScore = %s, RLUFlag = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
+        updateSql = "UPDATE " + COVID_19_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, RESULT = %s, RLU_SCORE = %s, RLU_FLAG = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
         cur.execute(updateSql, ("pooled", result, RLUScore, RLUFlag, containerId, excelFileName))
         SQL_CONNECTION.commit()
     else:
@@ -253,9 +253,9 @@ def writeDataToExcel(excelName, sampleToResult, sampleToPool):
         tempdict['POOL_ID'] = sampleToPool[key]      
         tempdict['VALID_FLAG'] = sampleToResult[key][1]
         tempdict['RESULT'] = sampleToResult[key][2]
-        tempdict['RLU_SCORE'] = dbdict[key][5]
-        tempdict['RLU_FLAG'] = dbdict[key][6]         
-        if key not in dbdict.keys() or dbdict[key] is None or dbdict[key] == "":
+        tempdict['RLU_SCORE'] = sampleToResult[key][3]
+        tempdict['RLU_FLAG'] = sampleToResult[key][4]         
+        if key not in dbdict.keys() or dbdict[key][0] is None or dbdict[key][0] == "":
             tempdict['EPIC_UPLOADED'] = "NO"
             tempdict['TIMESTAMP'] = ""
         else:
@@ -429,17 +429,20 @@ if __name__ == "__main__":
         sampleToPool = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
+            if not pd.isna(row["Source Sample Barcode"]):
+                sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
         
         #print("sample to pool = {}".format(sampleToPool))
         results_df = pd.read_csv(sampleResult, sep='\t')
         pool_results = {}
+        #print("results_df = {}".format(results_df))
         for i, row in results_df.iterrows():
-            if int(row["Interpretation 1"]) < RLU_NOMINAL_SCORE:
-                flag = "NORMAL"
-            else:
-                flag = "HIGH"
-            pool_results[row["Specimen Barcode"]] = [row["Run ID"], row["Interpretation 2"], row["Interpretation 3"], row["Interpretation 1"], flag]
+            if row["Specimen Barcode"] in sampleToPool.values():
+                if int(row["Interpretation 1"]) < RLU_NOMINAL_SCORE:
+                    flag = "NORMAL"
+                else:
+                    flag = "HIGH"
+                pool_results[row["Specimen Barcode"]] = [row["Run ID"], row["Interpretation 2"], row["Interpretation 3"], row["Interpretation 1"], flag]
         
         #print("poolresults = {}".format(pool_results))
         #contains results corresponding to each containerId
