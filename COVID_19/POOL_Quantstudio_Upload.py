@@ -1,0 +1,502 @@
+import requests 
+from requests.exceptions import HTTPError 
+import time 
+import ast
+import sys
+import yaml
+import numpy
+import pandas as pd
+import hl7
+import os
+import datetime
+from shutil import copyfile
+from shutil import move
+import csv
+import traceback
+import mysql.connector
+from filelock import FileLock
+from pathlib import Path
+import os.path
+import re
+import math
+print("Run start time: ", str(datetime.datetime.now()) + "\n")
+
+script_path = os.path.dirname(os.path.abspath( __file__ ))
+parent_path = os.path.abspath(os.path.join(script_path, '..'))
+
+CONFIG_FILE = parent_path +"/linux_gatorseq.config.yaml"
+config_dict=dict()
+with open(CONFIG_FILE, 'r') as stream:
+    try:
+        config_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+CODE_ENV=script_path.split('/')[-3]
+USER_NAME=os.environ['USER']
+
+#result dictionary that stores the container results
+containerResult = {}
+
+def replace_env(strname):
+    strname=strname.replace("USER_NAME",USER_NAME).replace("CODE_ENV",CODE_ENV)
+    return strname
+
+POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE = replace_env(config_dict['POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE'])
+POOL_QUANTSTUDIO_INPUT_FOLDER = replace_env(config_dict['POOL_QUANTSTUDIO_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
+POOL_QUANTSTUDIO_SAMPLE_LOG = replace_env(config_dict['POOL_QUANTSTUDIO_SAMPLE_LOG'])
+CONFIG_TOKENS_FILE = parent_path  + "/" + config_dict['CONFIG_TOKENS_FILE']
+MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
+if CODE_ENV=='ProdEnv':
+    MIRTH_GATORSEQ += '/PROD'
+    POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE = replace_env(config_dict['POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE_PROD'])
+    POOL_QUANTSTUDIO_INPUT_FOLDER = replace_env(config_dict['POOL_QUANTSTUDIO_INPUT_FOLDER_PROD']) 
+else:
+    MIRTH_GATORSEQ += '/TEST'
+
+
+
+config_token_dict=dict()
+with open(CONFIG_TOKENS_FILE, 'r') as stream:
+    try:
+        config_token_dict=yaml.load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        sys.exit()
+
+if CODE_ENV == "ProdEnv":
+    MYSQL_HOST = config_dict['PROD_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['PROD_MYSQL_USERNAME']
+    MYSQL_PASSWORD = config_token_dict['PROD_MYSQL_PASSWORD']
+    MYSQL_DATABASE = config_dict['PROD_MYSQL_DATABASE']
+
+if CODE_ENV == "DevEnv":
+    MYSQL_HOST = config_dict['DEV_MYSQL_HOST']
+    MYSQL_USERNAME = config_dict['DEV_MYSQL_USERNAME']
+    MYSQL_PASSWORD = config_token_dict['DEV_MYSQL_PASSWORD']
+    MYSQL_DATABASE = config_dict['DEV_MYSQL_DATABASE']
+
+
+def check_folders_exist():
+    if not os.path.isdir(MIRTH_GATORSEQ):
+        sys.exit("ERROR: Does not have access to following folder: " + MIRTH_GATORSEQ + "\n") 
+
+    if not os.path.isdir(POOL_QUANTSTUDIO_INPUT_FOLDER):
+        sys.exit("ERROR: Does not have access to following folder: " + POOL_QUANTSTUDIO_INPUT_FOLDER + "\n") 
+
+
+check_folders_exist()
+def format_for_unity(x):
+    if(x<10):
+        return "0"+str(x)
+    else:
+        return str(x)
+
+def get_current_formatted_date():
+    currentDT = datetime.datetime.now()
+    if currentDT:
+        data = format_for_unity(currentDT.year) +format_for_unity(currentDT.month) +format_for_unity(currentDT.month)+format_for_unity(currentDT.hour)+format_for_unity(currentDT.minute)+format_for_unity(currentDT.second)
+        
+        return data
+    return str(currentDT)
+
+def get_ticks(dt):
+    return (dt - datetime.datetime(1, 1, 1)).total_seconds() * 10000000
+
+class hl7update:
+    
+    def __init__(self, h):
+        self.h = h
+
+    def update_msh_segment(self):
+        if self.h and self.h['MSH']:
+            for msh_segment in self.h['MSH']:
+                if msh_segment:
+                    msh_segment[7] = get_current_formatted_date()
+                    msh_segment[8] = ''
+                    msh_segment[9][0][0] = 'ORU'
+                    msh_segment[9][0][1] = 'R01'
+                    msh_segment[10] = get_ticks(datetime.datetime.now())
+
+    def update_orc_segment(self):
+        if self.h and self.h['ORC']:
+            for orc_segment in self.h['ORC']:
+                orc_segment[1] = 'RE'
+
+    def update_obr_segment(self):
+        if self.h and self.h['OBR']:
+            for obr_segment in self.h['OBR']:
+                obr_segment[22] = get_current_formatted_date()
+                obr_segment[25] = 'P'
+                obr_segment[27] = '^^^^^R^^'
+
+    def update_obx_segment(self):
+        if self.h and self.h['OBX']:
+            for obx_segment in self.h['OBX']:
+                obx_segment[2] = 'ST'
+                obx_segment[11] = 'P'
+                obx_segment[14] = get_current_formatted_date()
+                if(len(obx_segment)==19):
+                    obx_segment.append(obx_segment[14])
+                elif(len(obx_segment)>=19):
+                    obx_segment[19] = obx_segment[14]
+   
+    def update_obx_seg_containing_gene(self, sample):
+        updates = 0
+        temp_obx = self.h[:]
+        l = len(self.h)
+        for i in range(l):
+            del temp_obx[l-i-1]
+        new_obx_index = 1
+        for obxSegment in self.h['OBX']:
+            if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
+                obxSegment[5][0] = sample.result_Container
+                obxSegment[1] = new_obx_index
+                new_obx_index +=1 
+                temp_obx.append(obxSegment) 
+            
+        h_t = self.h[:]
+        l = len(self.h)
+        for i in range(l):
+            del h_t[l-i-1]
+        for i in range(len(self.h)):
+            if(self.h[i][0][0]!="OBX"):
+                h_t.append(self.h[i])
+        h_t.extend(temp_obx)
+        return h_t
+
+    def get_first_obx_index(self):
+        idx = 0
+        for seg in self.h:
+            if seg[0][0] == 'OBX':
+                return idx
+            idx += 1
+        return -1
+    # Assuming insertion is just above first OBX segment
+    def update_comments(self, comments):
+        comments_arr = comments.split("\n")
+        obx_idx = self.get_first_obx_index()
+        if (obx_idx == -1):
+            print("OBX segment not found, so appending it")
+            obx_idx = len(self.h) - 1 
+        i=1
+        for comment in comments_arr:
+            self.h.append('NTE|{}|L|{}'.format(i,comment))
+            obx_idx += 1
+            i += 1
+
+
+def create_connection():
+    conn = None
+    try:
+        conn = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USERNAME,
+            passwd=MYSQL_PASSWORD,
+            database=MYSQL_DATABASE
+        )
+    except:
+        print(traceback.format_exc())
+    return conn
+SQL_CONNECTION = create_connection()
+
+
+def updateRowInDatabase(cont_id, sample, PLMO, MRN, ptName, ptSex, ptAge, ordDept, excelFileName):
+    cur = SQL_CONNECTION.cursor()
+
+    updateSql = "UPDATE "+ POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE +" set PLMO_Number= %s, MRN = %s, PATIENT_NAME = %s, PATIENT_SEX = %s, PATIENT_AGE = %s, ORDERING_DEPARTMENT = %s, EPIC_UPLOAD_TIMESTAMP = %s WHERE CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
+    #print(sample.completeSampleName, type(sample.name), "!!!!!!",(sample.name, PLMO, get_current_formatted_date(), sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result))
+    cur.execute(updateSql, (PLMO[0], MRN, ptName, ptSex, ptAge, ordDept, str(datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")), cont_id, excelFileName))
+    SQL_CONNECTION.commit()
+    cur.close()
+
+
+# arguments are <class Sample> sample, str PLMO
+def addRowInDatabase(containerid, sample, excelFileName):
+    cur = SQL_CONNECTION.cursor()
+
+    findsql = "SELECT * from " + POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE + " where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;"
+    cur.execute(findsql, (containerid, excelFileName))
+    rows = cur.fetchall()
+    # print(rows)
+    # print("-----------------")
+    if len(rows) > 0:
+        updateSql = "UPDATE " + POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE + " set QUANTSTUDIO_SPECIMEN_ID = %s, POOL_ID = %s, POOL_RESULT = %s, 2019nCoV_N1 = %s, 2019nCoV_N2 = %s, 2019nCoV_N3 = %s, RP = %s, RESULT = %s where CONTAINER_ID = %s and SOURCE_EXCEL_FILE = %s;" 
+        cur.execute(updateSql, (sample.completeSampleName, sample.name, sample.result, sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result_Container, containerid, excelFileName))
+        SQL_CONNECTION.commit()
+    else:
+        insertSql = "INSERT INTO "+ POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE +" (QUANTSTUDIO_SPECIMEN_ID, POOL_ID, POOL_RESULT, CONTAINER_ID, SOURCE_EXCEL_FILE, 2019nCoV_N1, 2019nCoV_N2, 2019nCoV_N3, RP, RESULT) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+        cur.execute(insertSql, (sample.completeSampleName, sample.name, sample.result, containerid, excelFileName, sample.nCoV_N1, sample.nCoV_N2, sample.nCoV_N3, sample.RP, sample.result_Container))
+        SQL_CONNECTION.commit()
+    cur.close()
+
+# method to write the entire database table to excel
+def writeDataToExcel(excelName):
+    xldf = pd.read_sql_query('select * from '+ POOL_QUANTSTUDIO_EPIC_UPLOAD_TABLE +' where SOURCE_EXCEL_FILE = "'+ excelName +'" ;', SQL_CONNECTION)
+    xldf = xldf.drop("SOURCE_EXCEL_FILE", 1)
+    xldf = xldf.drop("ORDERING_DEPARTMENT", 1)
+    xldf = xldf.drop("2019nCoV_N3", 1)
+
+    cols = xldf.columns.tolist()
+    upload_col = cols.pop(cols.index("EPIC_UPLOAD_TIMESTAMP"))
+    cols.insert(len(cols), upload_col)
+    xldf = xldf.reindex(columns= cols)
+    RESULT_LOG = POOL_QUANTSTUDIO_SAMPLE_LOG + "/" + \
+        excelName.split("/")[-1].replace("_POOL_SAMPLE_RESULTS_UPDATED_ID","_POOL_SAMPLE_EPIC_UPLOAD_LOG")
+    try:
+        with pd.ExcelWriter(RESULT_LOG) as writer:
+            xldf.to_excel(writer, index=False, sheet_name='Sheet 1')
+        print("done writeToExcel method and writing done to -->", RESULT_LOG )
+    except:
+        print("unable to save status excel, please close it")
+
+def checkIncomingHl7(sampleDict, excelFile):
+    UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
+    ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
+    ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
+    allhl7filenames = []
+    for (dirpath, dirnames, filenames) in os.walk(ORDERS_DIR):
+        allhl7filenames.extend(filenames)
+        break
+    for hl7_file_name in allhl7filenames:
+        try:
+            hl7file = open(ORDERS_DIR + hl7_file_name, mode="r").read()
+        except:
+            continue
+        arr = hl7file.split("\n\n") #split by blank lines
+        #Iterate all HL7 messages in file
+        c=0
+        for hl7msg in arr: 
+            if hl7msg: #check if message not empty
+                msg_unix_fmt = hl7msg.replace("\n","\r")
+                h = hl7.parse(msg_unix_fmt)
+                newHl7 = hl7update(h)
+                #Read message id from HL7 message
+                try:
+                    messageId = str(h['OBR'][0][3]).replace("^", "")
+                except:
+                    continue
+                if (not messageId):
+                    continue
+                plm = None
+                try:
+                    plm = h['ORC'][0][2]
+                except:
+                    print("---------could not find PLMO in hl7 file: ", hl7_file_name)
+                    continue
+                
+                mrn = ""
+                try:
+                    mrn = h['PID'][0][3][0][0]
+                except:
+                    print("---------could not find MRN in hl7 file: ", hl7_file_name)
+        
+                ptName = ""
+                try:
+                    ptName = h['PID'][0][5][0]
+                except:
+                    print("---------could not find PATIENT_NAME in hl7 file: ", hl7_file_name) 
+
+                ptSex = ""
+                try:
+                    ptSex = h['PID'][0][8][0]
+                except:
+                    print("---------could not find PATIENT_SEX in hl7 file: ", hl7_file_name) 
+
+                ptAge = -1
+                try:
+                    ptAge = 2020 - int(h['PID'][0][7][0][:4]) 
+                except:
+                    print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name) 
+
+                ordDept = ""
+                try:
+                    ordDept = h['OBR'][0][15][0]
+                except:
+                    print("---------could not find Ordering_DEPT in hl7 file: ", hl7_file_name) 
+
+
+                # search for messageId in the sampleDict
+                #if messageId == "100047187": #100047166  100047187
+                if messageId in sampleDict or plm[0] in sampleDict:
+                   # print("--------found----------")
+                    if sampleDict.get(messageId) is not None:
+                        givenSample =  sampleDict.get(messageId)
+                        cont_id = messageId
+                    else:
+                        givenSample = sampleDict.get(plm[0])
+                        cont_id = plm[0]
+                    #print("processing hl7 input file: ", hl7_file_name)                   
+                    newHl7.update_msh_segment()
+                    newHl7.update_orc_segment()
+                    newHl7.update_obr_segment()
+                    newHl7.update_obx_segment()
+                    h = newHl7.update_obx_seg_containing_gene( givenSample )
+                    
+                    out_file_path = UPLOAD_PATH + '/hl7-POOL_QUANTSTUDIO_COVID_19-{}-output.txt'.format(messageId)
+                    if h:
+                        with open(out_file_path, 'w' ,  encoding='utf-8') as f:
+                            f.write(str(h))
+                        print("Out file available at :",out_file_path)
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'POOL_QUANTSTUDIO_COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                        if plm:
+                            updateRowInDatabase(cont_id, givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
+                    
+
+class Sample:
+    def __init__(self, sample_name, completeSampleName):
+        self.name = str(sample_name)
+        self.nCoV_N1 = None
+        self.nCoV_N2 = None
+        self.nCoV_N3 = None
+        self.RP = None
+        self.result = None
+        self.result_Container = None
+        self.completeSampleName = completeSampleName
+
+    def __str__(self):
+        return str( self.completeSampleName) + ": " + str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " & " + str(self.result_Container)
+
+    def __repr__(self):
+        return str( self.completeSampleName) + ": " + str(self.nCoV_N1) + " & " + str(self.nCoV_N2) + " & "  + str(self.nCoV_N3) + " & " + str(self.RP) + " & " + str(self.result) + " & " + str(self.result_Container) + " | "
+
+def isFloatValue(value, maxThreshold):
+    try:
+        val = float(value)
+        #ToDo: check RP condition, if RP > 35 then is it considered to be Undetermined
+        if maxThreshold and val > maxThreshold:
+            return False
+        return True
+
+    except:
+        if value == "Undetermined":
+            return False
+        else:
+            print("-----------ERROR: unable to identify the value-------------->", value)
+            return False
+    
+def addSampleDictToDatabase(containerRes, excelName):
+    for container in containerRes.keys():
+        sample = containerRes[container]
+        addRowInDatabase(container, sample, excelName)
+    print("-> all samples added to database <-")
+
+def checkIfPoolMapped(pool_name, sample, containerPool):
+    if pool_name not in containerPool.values():
+        containerResult[pool_name + "_No_ID"] = sample
+
+if __name__ == "__main__":
+    os.chdir(POOL_QUANTSTUDIO_INPUT_FOLDER)
+    _files = filter(os.path.isfile, os.listdir(POOL_QUANTSTUDIO_INPUT_FOLDER))
+    excel_files = [os.path.join(POOL_QUANTSTUDIO_INPUT_FOLDER, f) for f in _files if "$" not in f] # add path to each file
+
+    fileNames = []
+    toProcess = {}
+    for f in excel_files:
+        if "_POOL_SAMPLE_MAP" in f:
+            sampleGroupName = f[:f.index("_POOL_SAMPLE_MAP")]
+            if sampleGroupName + "_POOL_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
+                fileNames.append(sampleGroupName)
+    
+    for f in fileNames:
+        sampleResult = f + "_POOL_SAMPLE_RESULTS.xlsx"
+        samplePoolMap = f + "_POOL_SAMPLE_MAP.xlsx"
+        containerPoolMap = f + "_CONTAINER_POOL_MAP.xlsx"
+        containerToPool = {}
+        sampleToPool = {}  
+
+        container_df = pd.read_excel(containerPoolMap)
+        for i, row in df.iterrows():
+            containerToPool[row["Source Sample Barcode"]] = row["Pooled Sample Barcode"]
+
+        df = pd.read_excel(samplePoolMap)
+        for i, row in df.iterrows():
+            sampleToPool[row["Internal_Sample_ID"]] = row["Container_ID"]
+        
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
+        results_df["POOL_ID"] = None
+        
+        for index, row in results_df.iterrows():
+            if sampleToPool.get(row["Sample Name"]):
+                results_df.at[index, "POOL_ID"] = sampleToPool[row["Sample Name"]]
+            else:
+                results_df.at[index, "POOL_ID"] = str(row["Sample Name"]) + " <No poolId>"
+        
+        toProcess[f + "_POOL_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = containerToPool
+        results_df.to_excel(f + "_POOL_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
+        
+    for f in toProcess.keys():
+        sampleDict = {}
+        plmoDict = {}
+        container_Pool = toProcess[f]
+        not_detected_ids = {}
+        eachExcel = os.path.join(POOL_QUANTSTUDIO_INPUT_FOLDER, f)
+        xldf = pd.read_excel(eachExcel)
+        # generate sample dictionary in below format:
+        # {<sample name>: <Class Sample>}
+        for index, row in xldf.iterrows():
+            sampleName = str(row["POOL_ID"])
+            if 'PLMO' in sampleName:
+                plm = re.findall(r"PLMO\d+-\d+" , sampleName)
+                if len(plm):
+                    sampleName = plm[0]
+
+            sampleName = sampleName.replace("\\", "")            
+            targetName = row["Target Name"]
+            value = row["CT"]
+            #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
+            if sampleDict.get(sampleName) is None:
+                sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
+            if targetName == "RP":
+                setattr(sampleDict[sampleName], "%s" % targetName, value)
+            else:
+                setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
+
+        for sampleName in sampleDict.keys():
+            sample = sampleDict[sampleName]
+            if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):
+                sample.result = "Detected"
+                checkIfPoolMapped(sampleName, sample, container_Pool)
+                continue
+            elif any([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40), not isFloatValue(sample.nCoV_N2, 40)]):
+                sample.result = "Indeterminate"
+                checkIfPoolMapped(sampleName, sample, container_Pool)
+                continue
+            
+            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40 and type(sample.nCoV_N2) == "float" and sample.nCoV_N2 > 40  ):
+                #INVALID Case is to be handled by pathologists separately and hence just continuing
+                sample.result = "Invalid"
+                checkIfPoolMapped(sampleName, sample, container_Pool)
+                continue
+            if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
+                sample.result = "Not Detected"
+                sample.result_Container = "Not Detected"
+            
+            if sample.result is None:
+                print("------ Last resort reached -----", sample)
+                sample.result = "Invalid"
+
+            checkIfPoolMapped(sampleName, sample, container_Pool)
+        #print("below is the dictionary of all samples:")
+        #print(sampleDict)
+        #noResult_Containers = {}
+        for container in container_Pool:
+            if sampleDict.get(container_Pool[container]) is None:
+                samp = Sample(container_Pool[container], "No_pool_results")
+                samp.result = "Pool Results Not Found"
+                containerResult[container] = samp
+            else:
+                containerResult[container] = sampleDict[container_Pool[container]]
+
+        for container in containerResult:
+            if containerResult[container].result == "Not Detected":
+                not_detected_ids[container] = containerResult[container]
+
+        addSampleDictToDatabase(containerResult, f)
+
+        checkIncomingHl7(not_detected_ids, f)
+
+        writeDataToExcel(f)
+
+    SQL_CONNECTION.close()
