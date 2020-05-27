@@ -407,21 +407,21 @@ if __name__ == "__main__":
         sampleToPool = {}  
 
         container_df = pd.read_excel(containerPoolMap)
-        for i, row in df.iterrows():
-            containerToPool[row["Source Sample Barcode"]] = row["Pooled Sample Barcode"]
+        for i, row in container_df.iterrows():
+            containerToPool[str(row["Source Sample Barcode"])] = str(row["Pooled Sample Barcode"])
 
         df = pd.read_excel(samplePoolMap)
         for i, row in df.iterrows():
-            sampleToPool[row["Internal_Sample_ID"]] = row["Container_ID"]
+            sampleToPool[str(row["Internal_Sample_ID"])] = str(row["Container_ID"])
         
         results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
         results_df["POOL_ID"] = None
         
         for index, row in results_df.iterrows():
             if sampleToPool.get(row["Sample Name"]):
-                results_df.at[index, "POOL_ID"] = sampleToPool[row["Sample Name"]]
+                results_df.at[index, "POOL_ID"] = sampleToPool[str(row["Sample Name"])]
             else:
-                results_df.at[index, "POOL_ID"] = str(row["Sample Name"]) + " <No poolId>"
+                results_df.at[index, "POOL_ID"] = str(row["Sample Name"]) + ":No_PoolID"
         
         toProcess[f + "_POOL_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = containerToPool
         results_df.to_excel(f + "_POOL_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
@@ -478,9 +478,7 @@ if __name__ == "__main__":
                 sample.result = "Invalid"
 
             checkIfPoolMapped(sampleName, sample, container_Pool)
-        #print("below is the dictionary of all samples:")
-        #print(sampleDict)
-        #noResult_Containers = {}
+        
         for container in container_Pool:
             if sampleDict.get(container_Pool[container]) is None:
                 samp = Sample(container_Pool[container], "No_pool_results")
@@ -488,15 +486,15 @@ if __name__ == "__main__":
                 containerResult[container] = samp
             else:
                 containerResult[container] = sampleDict[container_Pool[container]]
-
+        
         for container in containerResult:
             if containerResult[container].result == "Not Detected":
                 not_detected_ids[container] = containerResult[container]
-
+        
         addSampleDictToDatabase(containerResult, f)
-
+        print("going to check hl7")
         checkIncomingHl7(not_detected_ids, f)
-
+        print("going to write in excel for f = {}".format(f))
         writeDataToExcel(f)
 
     SQL_CONNECTION.close()
