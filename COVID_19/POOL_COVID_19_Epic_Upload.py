@@ -41,13 +41,13 @@ def replace_env(strname):
     strname=strname.replace("USER_NAME",USER_NAME).replace("CODE_ENV",CODE_ENV)
     return strname
 
-COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['COVID_19_EPIC_UPLOAD_TABLE'])
+COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['POOL_COVID_19_EPIC_UPLOAD_TABLE'])
 COVID_19_TEST_INPUT_FOLDER = replace_env(config_dict['POOL_COVID_19_TEST_INPUT_FOLDER']) #'G:\DRL\Molecular\Assays\PGX\PGX_Beaker_Interface' 
 CONFIG_TOKENS_FILE = parent_path  + "/" + config_dict['CONFIG_TOKENS_FILE']
 MIRTH_GATORSEQ = config_dict['MIRTH_GATORSEQ']
 if CODE_ENV=='ProdEnv':
     MIRTH_GATORSEQ += '/PROD'
-    COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['COVID_19_EPIC_UPLOAD_TABLE_PROD'])
+    COVID_19_EPIC_UPLOAD_TABLE = replace_env(config_dict['POOL_COVID_19_EPIC_UPLOAD_TABLE_PROD'])
 else:
     MIRTH_GATORSEQ += '/TEST'
 
