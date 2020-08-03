@@ -25,7 +25,7 @@ script_path = os.path.dirname(os.path.abspath( __file__ ))
 parent_path = os.path.abspath(os.path.join(script_path, '..'))
 comments_file_path = parent_path + "/COVID_19/POOL_Methodology_Comment_SingleLine.txt"
 CONFIG_FILE = parent_path +"/linux_gatorseq.config.yaml"
-RLU_NOMINAL_SCORE = 350
+RLU_NOMINAL_SCORE = 325
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
     try:
