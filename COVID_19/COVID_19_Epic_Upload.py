@@ -153,6 +153,7 @@ class hl7update:
             if obxSegment[3][0][1][0] == "SARS-COV-2, NAA":
                 obxSegment[5][0] = sample.result
                 obxSegment[1] = new_obx_index
+                obxSegment[18][0] = "Genome"
                 new_obx_index +=1 
                 temp_obx.append(obxSegment) 
             
