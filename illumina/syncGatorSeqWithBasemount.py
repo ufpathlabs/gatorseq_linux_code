@@ -2,6 +2,9 @@ import os
 import yaml
 import sys
 import shutil
+import datetime
+
+print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 parent_path = os.path.abspath(os.path.join(script_path, '..'))
@@ -21,8 +24,9 @@ LINUX_HPC_FASTQ_FOLDER = (config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 # get list of all folders in basemount/gator_seq samples
 # for each sample, checks if fastq are in the LINUX_HPC_FASTQ_FOLDER, if they are not present download them.
 def downloadFiles(baseMountDir):
-    baseMountBase = baseMountDir + "/Projects/Gatorseq_NGS/Samples/"
-    allSamples = os.listdir( baseMountBase )
+    #baseMountBase = baseMountDir + "/Projects/Gatorseq_NGS/Samples/"
+    baseMountBase = baseMountDir + "/Projects/Gatorseq NGS/Samples/"
+    allSamples = os.listdir(baseMountBase)
 
     # ToDo: check with prof, for NQ report
     eligibleSamples = [sample for sample in allSamples if sample[:2] == "NQ" and os.path.isdir(baseMountBase + sample)]
@@ -55,7 +59,10 @@ def downloadFiles(baseMountDir):
             print("file structure not clear.. please check")    
                     
 if __name__ == "__main__":
-    baseMountDir = "BaseMount"
+    #baseMountDir = "BaseMount"
+    baseMountDir = "/home/path-svc-mol/BaseSpace_Mount"
+    #basemount --unmount ~/$baseMountDir
+    #basemount  --config UFMOL_ENTERPRISE  ~/$baseMountDir
 
     downloadFiles(baseMountDir)
 
