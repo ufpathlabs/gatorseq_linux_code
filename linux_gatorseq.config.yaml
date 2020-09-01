@@ -18,31 +18,31 @@ PROD_MYSQL_USERNAME: 'com_path_imm_lab_t'
 PROD_MYSQL_DATABASE: 'com_path_imm_lab_t'
 
 
-SOURCE_HPC_MNT: '/ufrc/chamala/USER_NAME'
-SOURCE_PATHOLOGY_MNT: '/PATH$'
+#SOURCE_HPC_MNT: '/blue/chamala/USER_NAME'
+#SOURCE_PATHOLOGY_MNT: '/PATH$'
 
 LOCAL_PATHOLOGY_MNT: '/ext/path'
-LOCAL_HPC_MNT: '/ext/ufrc'
+LOCAL_HPC_MNT: '/ext/blue'
 
 LINUX_PATHOLOGY_FASTQ_FOLDER: '/ext/path/DRL/Molecular/NGS/NextSeq_Fastq'
 LINUX_ANALYSIS_OUT_FOLDER: '/ext/path/DRL/Molecular/NGS/GenomOncology/NextSeq'
-GATOR_SEQ_SAMPLE_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/8_GS_Fastq_to_Analyze_V1_0.xlsx'
+GATOR_SEQ_SAMPLE_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/9_GS_Fastq_to_Analyze_V1_0.xlsx'
 GATOR_PGX_SAMPLE_INPUT_FOLDER: '/ext/path/DRL/Molecular/Assays/PGX/PGX_Beaker_Interface'
 
-LINUX_HPC_FASTQ_FOLDER: '/ext/ufrc/ufmolpath/share/GatorSeq_Share/GatorSeq_Fastq'
+LINUX_HPC_FASTQ_FOLDER: '/ext/blue/ufmolpath/share/GatorSeq_Share/GatorSeq_Fastq'
 
-HPC_FASTQ_FOLDER: '/ufrc/ufmolpath/share/GatorSeq_Share/GatorSeq_Fastq'
+HPC_FASTQ_FOLDER: '/blue/ufmolpath/share/GatorSeq_Share/GatorSeq_Fastq'
 
-LINUX_HPC_ANALYSIS_FOLDER: '/ext/ufrc/ufmolpath/share/GatorSeq_Share/GatorSeq_Analysis/CODE_ENV'
+LINUX_HPC_ANALYSIS_FOLDER: '/ext/blue/ufmolpath/share/GatorSeq_Share/GatorSeq_Analysis/CODE_ENV'
 HPC_ANALYSIS_FOLDER: '~/GatorSeq_Share/GatorSeq_Analysis/CODE_ENV'
 GATOR_SEQ_HPC_CODE_DIR: 'https://srikarchamala@bitbucket.org/srikarchamala/gatorseq_hpc_code'
 
 
 MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
 
-HPC_NEXTFLOW_PROGRAM: 'module load singularity/3.3.0; ~/GatorSeq_Share/nextflow_versions/nextflow_v_19.07.0/nextflow '
+HPC_NEXTFLOW_PROGRAM: 'module load singularity; ~/GatorSeq_Share/nextflow_versions/nextflow_v_19.07.0/nextflow '
 
-GSBW_VERSION: '4.2'
+GSBW_VERSION: '4.2.1'
 NEXTFLOW_GIT_REPO: 'srikarchamala'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
@@ -64,10 +64,7 @@ COVID_19_TEST_SAMPLE_LOG: '/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/
 COVID_19_EPIC_UPLOAD_TABLE_PROD: 'COVID_19_EPIC_UPLOAD_PROD'
 
 #POOL_COVID-19
-POOL_COVID_19_TEST_INPUT_FOLDER: '/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/CODE_ENV/Pooled'
-
-
-
+POOL_COVID_19_TEST_INPUT_FOLDER: '/ext/path/DRL/Molecular/COVID19/COVID_19_Pooled_Panther/CODE_ENV'
 
 #TRUSIGHT
 TRUSIGHT_APP_SUBMISSION_INPUT_FILE: '/ext/path/DRL/Molecular/NGS/GatorSeq/CODE_ENV/Illumina_Basespace_App_Submission/Trusight_App_Submission_V1.xlsx'
