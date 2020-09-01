@@ -145,7 +145,7 @@ def uploadFastQ(conn, baseMountDir):
 
 if __name__ == "__main__":
     connection = create_connection()
-    baseMountDir = "BaseMount"
+    baseMountDir = "BaseSpace_Mount"
     df = read_excel_and_upsert(connection)
 
     if  mountBaseSpace(baseMountDir):
