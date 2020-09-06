@@ -436,9 +436,9 @@ if __name__ == "__main__":
         
         #print(results_df.head())
         if error:
-            error_data = {'Error' : 'There is probably an error in the input files. Check the HSC and BLANK samples.'}
+            error_data = {'Error' : ['There is probably an error in the input files. Check the HSC and BLANK samples.']}
             error_df = pd.DataFrame(error_data, columns = ['Error'])
-            error_df.to_excel(f + "_ERROR.xlsx", index=False)
+            error_df.to_excel(f + "_ERROR.xlsx", index = False)
             sys.exit(1)
 
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
