@@ -401,6 +401,7 @@ if __name__ == "__main__":
 
     fileNames = []
     toProcess = []
+    hscBlankCheck = {}
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
@@ -413,19 +414,33 @@ if __name__ == "__main__":
         sampleToContainer = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
+            if row["Container_ID"] in ("HSC", "BLANK"):
+                hscBlankCheck[row["Internal_Sample_ID"]] = row["Container_ID"]
+
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
         
         results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
         results_df["CONTAINER_ID"] = None
         
-        
+        error = False
         for index, row in results_df.iterrows():
             if sampleToContainer.get(row["Sample Name"]):
                 results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
+                if row["Sample Name"] in hscBlankCheck.keys():
+                    if (hscBlankCheck[row["Sample Name"]] == "HSC" and ((row["Target Name"] == "RP" and not isFloatValue(row["CT"], 35)) or (row["Target Name"] != "RP" and not isFloatValue(row["CT"], 40)))):
+                        error = True
+                    elif hscBlankCheck[row["Sample Name"]] == "BLANK" and row["CT"] != "Undetermined":
+                        error = True   
             else:
                 results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
         
         #print(results_df.head())
+        if error:
+            error_data = {'Error' : 'There is probably an error in the input files. Check the HSC and BLANK samples.'}
+            error_df = pd.DataFrame(error_data, columns = ['Error'])
+            error_df.to_excel(f + "_ERROR.xlsx", index=False)
+            sys.exit(1)
+
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
         
