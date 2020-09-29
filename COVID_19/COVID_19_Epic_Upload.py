@@ -19,6 +19,10 @@ from pathlib import Path
 import os.path
 import re
 import math
+from matplotlib.backends.backend_pdf import PdfPages
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -393,6 +397,79 @@ def addSampleDictToDatabase(sampleDict, excelName):
     
     print("-> all samples added to database <-")
 
+def createHeatMapDiagram(output):
+    writer = pd.ExcelWriter('Output.xlsx', engine='xlsxwriter')
+
+    runs = {}
+    tables = {}
+    mask = {}
+    d1 = {}
+    d2 = {}
+    pivot = {}
+    runs_list = output['Plate ID'].unique()
+
+    for i in range(len(runs_list)):
+        # Extracting dataframes for two runs
+        runs[i] = output.loc[output['Plate ID']==runs_list[i]]
+
+        # Masking data to duplicate rows for better view in the Output file
+        mask[i] = runs[i]
+        d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' )
+        
+        # REPLACE 'Target Name' WITH 'CONTAINER ID'
+        # ------------------------------------------------------------------------
+        d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
+        # ------------------------------------------------------------------------
+
+        mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
+        
+        pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
+
+        # Export to excel sheet with two worksheets for each run
+        pivot[i].to_excel(writer, sheet_name=runs_list[i])
+
+        # Creating pivot table with extracted letters as rows and columns
+        tables[i] = pd.pivot_table(runs[i], 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
+        # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
+        tables[i] = tables[i].replace('Undetermined',0)
+        tables[i] = tables[i].round(1)
+        hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, cbar_kws={"orientation": "horizontal"})
+        bottom, top = hmap.get_ylim()
+        x = hmap.set_ylim(bottom + 0.5, top - 0.5)
+        hmap.set_ylabel('')    
+        hmap.set_xlabel('')
+        plt.title(runs_list[i])
+        fig = plt.figure()
+        fig = hmap.get_figure()
+        fig.savefig(runs_list[i]+'.png')
+        worksheet = writer.sheets['{}'.format(runs_list[i])]
+        worksheet.insert_image('P5', runs_list[i]+'.png')
+
+    writer.save()    
+
+def createHeatMapTable(df1, df2):
+    # Rename 'Internal_Sample-ID' to 'Sample Name' and merge two sheets based on 'Sample Name'
+    df1 = df1.rename(columns = {'Internal_Sample_ID' : 'Sample Name'})
+    output = pd.merge(df1,df2, on="Sample Name")
+
+    # Cleaning data by considering only 2019nCoV_N1 samples
+    output.drop(output.loc[output['Target Name']!='2019nCoV_N1'].index, inplace=True)
+    
+    # Creating two new columns by splitting Sample Name and deleting the old column
+    output['Well_Name'] = output['Well_Name'].str[0:1] + ' ' + output['Well_Name'].str[1:]
+    new = output["Well_Name"].str.split(" ", n = 1, expand = True) 
+    output["Row"]= new[0] 
+    output["Column"]= new[1] 
+    output.drop(columns =["Well_Name"], inplace = True) 
+
+    # Convert Column to numeric for sorted columns in the output
+    output["Column"] = pd.to_numeric(output["Column"], errors='coerce')
+
+    # Creating columns for better representation in the output
+    output["ID"] = ' '
+    output["Val"] = ' '
+
+    createHeatMapDiagram(output)    
 
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
@@ -444,6 +521,8 @@ if __name__ == "__main__":
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
         
+    #####logic to generate heatmap and table#####
+
 
 
     for f in toProcess:
@@ -478,7 +557,11 @@ if __name__ == "__main__":
 
         for sampleName in sampleDict.keys():
             sample = sampleDict[sampleName]
-
+            '''
+            #if both n1 and n2 are < 40 -> detected
+            #elif if any of them is (>40 or undertermined) AND not all of them are (>40 or undertermined) -> Inderterminate
+            #if RP is (>40 or undertermined) OR both n1 and n2 are float and > 40 -> invalid
+            #if both n1 and n2 are "undetermined" -> not detected
             if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
                 sample.result = "Detected"
                 continue
@@ -492,6 +575,20 @@ if __name__ == "__main__":
                 continue
             if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
                 sample.result = "Not Detected"
+            '''            
+            if all([isFloatValue(sample.nCoV_N1, 40)]): #, isFloatValue(sample.nCoV_N3, None)]):
+                sample.result = "Detected"
+                continue
+            elif any([not isFloatValue(sample.nCoV_N1, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40)]):
+                sample.result = "Indeterminate"
+                continue
+            
+            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40):
+                #INVALID Case is to be handled by pathologists separately and hence just continuing
+                sample.result = "Invalid"
+                continue
+            if all([not isFloatValue(sample.nCoV_N1, None)]):
+                sample.result = "Not Detected"           
             
             if sample.result is None:
                 print("------ Last resort reached -----", sample)
