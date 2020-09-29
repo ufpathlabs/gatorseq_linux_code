@@ -496,7 +496,7 @@ if __name__ == "__main__":
 
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
         
-        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,39))
         results_df["CONTAINER_ID"] = None
         
         error = False
