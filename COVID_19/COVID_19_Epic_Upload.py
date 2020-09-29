@@ -443,7 +443,7 @@ def createHeatMapDiagram(output):
         fig = hmap.get_figure()
         fig.savefig(runs_list[i]+'.png')
         worksheet = writer.sheets['{}'.format(runs_list[i])]
-        worksheet.insert_image('P5', runs_list[i]+'.png')
+        worksheet.insert_image('D20', runs_list[i]+'.png')
 
     writer.save()    
 
@@ -522,7 +522,7 @@ if __name__ == "__main__":
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
         
     #####logic to generate heatmap and table#####
-
+    createHeatMapTable(df, results_df)
 
 
     for f in toProcess:
