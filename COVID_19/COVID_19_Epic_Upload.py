@@ -478,18 +478,18 @@ if __name__ == "__main__":
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
             if sampleGroupName + "_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
                 fileNames.append(sampleGroupName)
-    
+   
     for f in fileNames:
         sampleResult = f + "_SAMPLE_RESULTS.xlsx"
         sampleMap = f + "_SAMPLE_MAP.xlsx"
         sampleToContainer = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
-            if row["Container_ID"] in ("HSC", "BLANK"):
+            if "hsc" in str(row["Container_ID"]).lower() or "blank" in str(row["Container_ID"]).lower():
                 hscBlankCheck[row["Internal_Sample_ID"]] = str(row["Container_ID"])
 
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
-            samplesUpload[str(row["Container_ID"])] = row["Upload"]
+            samplesUpload[str(row["Container_ID"])] = str(row["Upload"])
         
         results_df = pd.read_excel(sampleResult, skiprows=range(0,39))
         results_df["CONTAINER_ID"] = None
@@ -499,9 +499,9 @@ if __name__ == "__main__":
             if sampleToContainer.get(row["Sample Name"]):
                 results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
                 if row["Sample Name"] in hscBlankCheck.keys():
-                    if (hscBlankCheck[row["Sample Name"]] == "HSC" and ((row["Target Name"] == "RP" and not isFloatValue(row["CT"], 35)) or (row["Target Name"] != "RP" and not isFloatValue(row["CT"], 40)))):
+                    if ("hsc" in hscBlankCheck[row["Sample Name"]].lower() and ((row["Target Name"] == "RP" and not isFloatValue(row["CT"], 35)) or (row["Target Name"] != "RP" and not isFloatValue(row["CT"], 40)))):
                         error = True
-                    elif hscBlankCheck[row["Sample Name"]] == "BLANK" and row["CT"] != "Undetermined":
+                    elif "blank" in hscBlankCheck[row["Sample Name"]].lower() and row["CT"] != "Undetermined":
                         error = True   
             else:
                 results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
@@ -528,7 +528,7 @@ if __name__ == "__main__":
         #print(xldf.head())  
         for index, row in xldf.iterrows():
             sampleName = str(row["CONTAINER_ID"])
-            if sampleName in samplesUpload.keys() and samplesUpload[sampleName] is not None and samplesUpload[sampleName].lower() == "yes":
+            if sampleName in samplesUpload.keys() and samplesUpload[sampleName].lower() == "yes":
                 if 'PLMO' in sampleName:
                     plm = re.findall(r"PLMO\d+-\d+" , sampleName)
                     if len(plm):
@@ -590,10 +590,11 @@ if __name__ == "__main__":
         #print("below is the dictionary of all samples:")
         #print(sampleDict["PLMO20-000129"])
         #print(sampleDict)
-        addSampleDictToDatabase(sampleDict, f)
-        checkIncomingHl7(sampleDict, f)
-        writeDataToExcel(f)  
-        #addSampleDictToExcel(sampleDict, f, True) 
+        if sampleDict:
+            addSampleDictToDatabase(sampleDict, f)
+            checkIncomingHl7(sampleDict, f)
+            writeDataToExcel(f)  
+            #addSampleDictToExcel(sampleDict, f, True) 
         
     #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
