@@ -343,20 +343,20 @@ def checkIncomingHl7(sampleDict, excelFile):
                     else:
                         givenSample = sampleDict.get(plm[0])
                     #print("processing hl7 input file: ", hl7_file_name)                   
-                    newHl7.update_msh_segment()
-                    newHl7.update_orc_segment()
-                    newHl7.update_obr_segment()
-                    newHl7.update_obx_segment()
-                    h = newHl7.update_obx_seg_containing_gene( givenSample )
-                    
-                    out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
-                    if h:
-                        with open(out_file_path, 'w' ,  encoding='utf-8') as f:
-                            f.write(str(h))
-                        print("Out file available at :",out_file_path)
-                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
-                        if plm:
-                            updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
+                        newHl7.update_msh_segment()
+                        newHl7.update_orc_segment()
+                        newHl7.update_obr_segment()
+                        newHl7.update_obx_segment()
+                        h = newHl7.update_obx_seg_containing_gene( givenSample )
+                        
+                        out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
+                        if h:
+                            with open(out_file_path, 'w' ,  encoding='utf-8') as f:
+                                f.write(str(h))
+                            print("Out file available at :",out_file_path)
+                            move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                            if plm:
+                                updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -397,9 +397,8 @@ def addSampleDictToDatabase(sampleDict, excelName):
     
     print("-> all samples added to database <-")
 
-def createHeatMapDiagram(output):
-    writer = pd.ExcelWriter('Output.xlsx', engine='xlsxwriter')
-
+def createHeatMapDiagram(output, filename):
+    writer = pd.ExcelWriter(filename + "_QC.xlsx", engine='xlsxwriter')
     runs = {}
     tables = {}
     mask = {}
@@ -414,15 +413,9 @@ def createHeatMapDiagram(output):
 
         # Masking data to duplicate rows for better view in the Output file
         mask[i] = runs[i]
-        d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' )
-        
-        # REPLACE 'Target Name' WITH 'CONTAINER ID'
-        # ------------------------------------------------------------------------
+        d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
         d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
-        # ------------------------------------------------------------------------
-
         mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
-        
         pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
 
         # Export to excel sheet with two worksheets for each run
@@ -441,13 +434,13 @@ def createHeatMapDiagram(output):
         plt.title(runs_list[i])
         fig = plt.figure()
         fig = hmap.get_figure()
-        fig.savefig(runs_list[i]+'.png')
+        fig.savefig(filename + "_QC_" + runs_list[i]+'.png')
         worksheet = writer.sheets['{}'.format(runs_list[i])]
-        worksheet.insert_image('D20', runs_list[i]+'.png')
+        worksheet.insert_image('D20', filename + "_QC_" + runs_list[i]+'.png')
 
     writer.save()    
 
-def createHeatMapTable(df1, df2):
+def createHeatMapTable(df1, df2, filename):
     # Rename 'Internal_Sample-ID' to 'Sample Name' and merge two sheets based on 'Sample Name'
     df1 = df1.rename(columns = {'Internal_Sample_ID' : 'Sample Name'})
     output = pd.merge(df1,df2, on="Sample Name")
@@ -469,7 +462,7 @@ def createHeatMapTable(df1, df2):
     output["ID"] = ' '
     output["Val"] = ' '
 
-    createHeatMapDiagram(output)    
+    createHeatMapDiagram(output, filename)    
 
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
@@ -511,19 +504,16 @@ if __name__ == "__main__":
             else:
                 results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
         
-        #print(results_df.head())
         if error:
             error_data = {'Error' : ['There is probably an error in the input files. Check the HSC and BLANK samples.']}
             error_df = pd.DataFrame(error_data, columns = ['Error'])
             error_df.to_excel(f + "_ERROR.xlsx", index = False)
-            sys.exit(1)
+            continue
 
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
-        
-    #####logic to generate heatmap and table#####
-    createHeatMapTable(df, results_df)
-
+        #####logic to generate heatmap and table#####
+        createHeatMapTable(df, results_df, f)
 
     for f in toProcess:
         sampleDict = {}
