@@ -426,7 +426,7 @@ def createHeatMapDiagram(output, filename):
         # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
         tables[i] = tables[i].replace('Undetermined',0)
         tables[i] = tables[i].round(1)
-        hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, cbar_kws={"orientation": "horizontal"})
+        hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
         bottom, top = hmap.get_ylim()
         x = hmap.set_ylim(bottom + 0.5, top - 0.5)
         hmap.set_ylabel('')    
@@ -471,8 +471,7 @@ if __name__ == "__main__":
 
     fileNames = []
     toProcess = []
-    hscBlankCheck = {}
-    samplesUpload = {}
+    toUploadSamples = {}
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
@@ -483,6 +482,8 @@ if __name__ == "__main__":
         sampleResult = f + "_SAMPLE_RESULTS.xlsx"
         sampleMap = f + "_SAMPLE_MAP.xlsx"
         sampleToContainer = {}
+        hscBlankCheck = {}
+        samplesUpload = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             if "hsc" in str(row["Container_ID"]).lower() or "blank" in str(row["Container_ID"]).lower():
@@ -516,12 +517,14 @@ if __name__ == "__main__":
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
         #####logic to generate heatmap and table#####
         createHeatMapTable(df, results_df, f)
+        toUploadSamples[f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = samplesUpload
 
     for f in toProcess:
         sampleDict = {}
         plmoDict = {}
         eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
         xldf = pd.read_excel(eachExcel)
+        samplesUpload = toUploadSamples[f]
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
