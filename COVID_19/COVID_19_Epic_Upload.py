@@ -343,20 +343,20 @@ def checkIncomingHl7(sampleDict, excelFile):
                     else:
                         givenSample = sampleDict.get(plm[0])
                     #print("processing hl7 input file: ", hl7_file_name)                   
-                        newHl7.update_msh_segment()
-                        newHl7.update_orc_segment()
-                        newHl7.update_obr_segment()
-                        newHl7.update_obx_segment()
-                        h = newHl7.update_obx_seg_containing_gene( givenSample )
-                        
-                        out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
-                        if h:
-                            with open(out_file_path, 'w' ,  encoding='utf-8') as f:
-                                f.write(str(h))
-                            print("Out file available at :",out_file_path)
-                            move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
-                            if plm:
-                                updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
+                    newHl7.update_msh_segment()
+                    newHl7.update_orc_segment()
+                    newHl7.update_obr_segment()
+                    newHl7.update_obx_segment()
+                    h = newHl7.update_obx_seg_containing_gene( givenSample )
+                    
+                    out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
+                    if h:
+                        with open(out_file_path, 'w' ,  encoding='utf-8') as f:
+                            f.write(str(h))
+                        print("Out file available at :",out_file_path)
+                        move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'COVID_19_processed_' + get_current_formatted_date() + "-" + hl7_file_name) 
+                        if plm:
+                            updateRowInDatabase(givenSample, plm, str(mrn), str(ptName), str(ptSex), str(ptAge), str(ordDept), excelFile )
                     
 
 class Sample:
@@ -472,6 +472,7 @@ if __name__ == "__main__":
     fileNames = []
     toProcess = []
     hscBlankCheck = {}
+    samplesUpload = {}
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
@@ -485,9 +486,10 @@ if __name__ == "__main__":
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             if row["Container_ID"] in ("HSC", "BLANK"):
-                hscBlankCheck[row["Internal_Sample_ID"]] = row["Container_ID"]
+                hscBlankCheck[row["Internal_Sample_ID"]] = str(row["Container_ID"])
 
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
+            samplesUpload[str(row["Container_ID"])] = row["Upload"]
         
         results_df = pd.read_excel(sampleResult, skiprows=range(0,39))
         results_df["CONTAINER_ID"] = None
@@ -526,24 +528,25 @@ if __name__ == "__main__":
         #print(xldf.head())  
         for index, row in xldf.iterrows():
             sampleName = str(row["CONTAINER_ID"])
-            if 'PLMO' in sampleName:
-                plm = re.findall(r"PLMO\d+-\d+" , sampleName)
-                if len(plm):
-                    sampleName = plm[0]
+            if sampleName in samplesUpload.keys() and samplesUpload[sampleName] is not None and samplesUpload[sampleName].lower() == "yes":
+                if 'PLMO' in sampleName:
+                    plm = re.findall(r"PLMO\d+-\d+" , sampleName)
+                    if len(plm):
+                        sampleName = plm[0]
 
-            sampleName = sampleName.replace("\\", "")            
+                sampleName = sampleName.replace("\\", "")            
 
-            targetName = row["Target Name"]
-            value = row["CT"]
-            
-            #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
-            if sampleDict.get(sampleName) is None:
-                sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
-            if targetName == "RP":# and not math.isnan(value):
-                setattr(sampleDict[sampleName], "%s" % targetName, value)
-            else:# not math.isnan(value):
-                #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-                setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
+                targetName = row["Target Name"]
+                value = row["CT"]
+                
+                #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
+                if sampleDict.get(sampleName) is None:
+                    sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
+                if targetName == "RP":# and not math.isnan(value):
+                    setattr(sampleDict[sampleName], "%s" % targetName, value)
+                else:# not math.isnan(value):
+                    #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
+                    setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
         for sampleName in sampleDict.keys():
             sample = sampleDict[sampleName]
