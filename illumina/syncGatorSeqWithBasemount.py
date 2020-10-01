@@ -24,8 +24,8 @@ LINUX_HPC_FASTQ_FOLDER = (config_dict['LINUX_PATHOLOGY_FASTQ_FOLDER'])
 # get list of all folders in basemount/gator_seq samples
 # for each sample, checks if fastq are in the LINUX_HPC_FASTQ_FOLDER, if they are not present download them.
 def downloadFiles(baseMountDir):
-    #baseMountBase = baseMountDir + "/Projects/Gatorseq_NGS/Samples/"
-    baseMountBase = baseMountDir + "/Projects/Gatorseq NGS/Samples/"
+    baseMountBase = baseMountDir + "/Projects/Gatorseq_NGS/Samples/"
+    #baseMountBase = baseMountDir + "/Projects/Gatorseq NGS/Samples/"
     allSamples = os.listdir(baseMountBase)
 
     # ToDo: check with prof, for NQ report
