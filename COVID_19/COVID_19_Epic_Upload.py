@@ -19,6 +19,10 @@ from pathlib import Path
 import os.path
 import re
 import math
+from matplotlib.backends.backend_pdf import PdfPages
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
@@ -393,6 +397,72 @@ def addSampleDictToDatabase(sampleDict, excelName):
     
     print("-> all samples added to database <-")
 
+def createHeatMapDiagram(output, filename):
+    writer = pd.ExcelWriter(filename + "_QC.xlsx", engine='xlsxwriter')
+    runs = {}
+    tables = {}
+    mask = {}
+    d1 = {}
+    d2 = {}
+    pivot = {}
+    runs_list = output['Plate ID'].unique()
+
+    for i in range(len(runs_list)):
+        # Extracting dataframes for two runs
+        runs[i] = output.loc[output['Plate ID']==runs_list[i]]
+
+        # Masking data to duplicate rows for better view in the Output file
+        mask[i] = runs[i]
+        d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
+        d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
+        mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
+        pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
+
+        # Export to excel sheet with two worksheets for each run
+        pivot[i].to_excel(writer, sheet_name=runs_list[i])
+
+        # Creating pivot table with extracted letters as rows and columns
+        tables[i] = pd.pivot_table(runs[i], 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
+        # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
+        tables[i] = tables[i].replace('Undetermined',0)
+        tables[i] = tables[i].round(1)
+        hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
+        bottom, top = hmap.get_ylim()
+        x = hmap.set_ylim(bottom + 0.5, top - 0.5)
+        hmap.set_ylabel('')    
+        hmap.set_xlabel('')
+        plt.title(runs_list[i])
+        fig = plt.figure()
+        fig = hmap.get_figure()
+        fig.savefig(filename + "_QC_" + runs_list[i]+'.png')
+        worksheet = writer.sheets['{}'.format(runs_list[i])]
+        worksheet.insert_image('D20', filename + "_QC_" + runs_list[i]+'.png')
+
+    writer.save()    
+
+def createHeatMapTable(df1, df2, filename):
+    # Rename 'Internal_Sample-ID' to 'Sample Name' and merge two sheets based on 'Sample Name'
+    df1 = df1.rename(columns = {'Internal_Sample_ID' : 'Sample Name'})
+    output = pd.merge(df1,df2, on="Sample Name")
+
+    # Cleaning data by considering only 2019nCoV_N1 samples
+    output.drop(output.loc[output['Target Name']!='2019nCoV_N1'].index, inplace=True)
+    
+    # Creating two new columns by splitting Sample Name and deleting the old column
+    output['Well_Name'] = output['Well_Name'].str[0:1] + ' ' + output['Well_Name'].str[1:]
+    new = output["Well_Name"].str.split(" ", n = 1, expand = True) 
+    output["Row"]= new[0] 
+    output["Column"]= new[1] 
+    output.drop(columns =["Well_Name"], inplace = True) 
+
+    # Convert Column to numeric for sorted columns in the output
+    output["Column"] = pd.to_numeric(output["Column"], errors='coerce')
+
+    # Creating columns for better representation in the output
+    output["ID"] = ' '
+    output["Val"] = ' '
+
+    createHeatMapDiagram(output, filename)    
 
 if __name__ == "__main__":
     os.chdir(COVID_19_TEST_INPUT_FOLDER)
@@ -401,69 +471,93 @@ if __name__ == "__main__":
 
     fileNames = []
     toProcess = []
+    toUploadSamples = {}
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
             if sampleGroupName + "_SAMPLE_RESULTS_UPDATED_ID.xlsx" not in excel_files:
                 fileNames.append(sampleGroupName)
-    
+   
     for f in fileNames:
         sampleResult = f + "_SAMPLE_RESULTS.xlsx"
         sampleMap = f + "_SAMPLE_MAP.xlsx"
         sampleToContainer = {}
+        hscBlankCheck = {}
+        samplesUpload = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
+            if "hsc" in str(row["Container_ID"]).lower() or "blank" in str(row["Container_ID"]).lower():
+                hscBlankCheck[row["Internal_Sample_ID"]] = str(row["Container_ID"])
+
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
+            samplesUpload[str(row["Container_ID"])] = str(row["Upload"])
         
-        results_df = pd.read_excel(sampleResult, skiprows=range(0,35))
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,39))
         results_df["CONTAINER_ID"] = None
         
-        
+        error = False
         for index, row in results_df.iterrows():
             if sampleToContainer.get(row["Sample Name"]):
                 results_df.at[index, "CONTAINER_ID"] = sampleToContainer[row["Sample Name"]]
+                if row["Sample Name"] in hscBlankCheck.keys():
+                    if ("hsc" in hscBlankCheck[row["Sample Name"]].lower() and ((row["Target Name"] == "RP" and not isFloatValue(row["CT"], 35)) or (row["Target Name"] != "RP" and not isFloatValue(row["CT"], 40)))):
+                        error = True
+                    elif "blank" in hscBlankCheck[row["Sample Name"]].lower() and row["CT"] != "Undetermined":
+                        error = True   
             else:
                 results_df.at[index, "CONTAINER_ID"] = str(row["Sample Name"]) + " <No containerId>"
         
-        #print(results_df.head())
+        if error:
+            error_data = {'Error' : ['There is probably an error in the input files. Check the HSC and BLANK samples.']}
+            error_df = pd.DataFrame(error_data, columns = ['Error'])
+            error_df.to_excel(f + "_ERROR.xlsx", index = False)
+            continue
+
         toProcess.append(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx")
         results_df.to_excel(f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx", index=False)
-        
-
+        #####logic to generate heatmap and table#####
+        createHeatMapTable(df, results_df, f)
+        toUploadSamples[f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = samplesUpload
 
     for f in toProcess:
         sampleDict = {}
         plmoDict = {}
         eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
         xldf = pd.read_excel(eachExcel)
+        samplesUpload = toUploadSamples[f]
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
         #print(xldf.head())  
         for index, row in xldf.iterrows():
             sampleName = str(row["CONTAINER_ID"])
-            if 'PLMO' in sampleName:
-                plm = re.findall(r"PLMO\d+-\d+" , sampleName)
-                if len(plm):
-                    sampleName = plm[0]
+            if sampleName in samplesUpload.keys() and samplesUpload[sampleName].lower() == "yes":
+                if 'PLMO' in sampleName:
+                    plm = re.findall(r"PLMO\d+-\d+" , sampleName)
+                    if len(plm):
+                        sampleName = plm[0]
 
-            sampleName = sampleName.replace("\\", "")            
+                sampleName = sampleName.replace("\\", "")            
 
-            targetName = row["Target Name"]
-            value = row["CT"]
-            
-            #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
-            if sampleDict.get(sampleName) is None:
-                sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
-            if targetName == "RP":# and not math.isnan(value):
-                setattr(sampleDict[sampleName], "%s" % targetName, value)
-            else:# not math.isnan(value):
-                #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
-                setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
+                targetName = row["Target Name"]
+                value = row["CT"]
+                
+                #ToDo: sampleName = <PLMO of a sample> or <id number of a sample>
+                if sampleDict.get(sampleName) is None:
+                    sampleDict[sampleName] = Sample(sampleName, str(row["Sample Name"]))
+                if targetName == "RP":# and not math.isnan(value):
+                    setattr(sampleDict[sampleName], "%s" % targetName, value)
+                else:# not math.isnan(value):
+                    #ToDO: is there any better of deriving 'nCoV_N1' from '2019nCoV_N1'? (python does not allow variable names to start with number)
+                    setattr(sampleDict[sampleName], "%s" % targetName[4:], value)
 
         for sampleName in sampleDict.keys():
             sample = sampleDict[sampleName]
-
+            '''
+            #if both n1 and n2 are < 40 -> detected
+            #elif if any of them is (>40 or undertermined) AND not all of them are (>40 or undertermined) -> Inderterminate
+            #if RP is (>40 or undertermined) OR both n1 and n2 are float and > 40 -> invalid
+            #if both n1 and n2 are "undetermined" -> not detected
             if all([isFloatValue(sample.nCoV_N1, 40), isFloatValue(sample.nCoV_N2, 40)]):#, isFloatValue(sample.nCoV_N3, None)]):
                 sample.result = "Detected"
                 continue
@@ -477,6 +571,20 @@ if __name__ == "__main__":
                 continue
             if all([not isFloatValue(sample.nCoV_N1, None), not isFloatValue(sample.nCoV_N2, None)]):
                 sample.result = "Not Detected"
+            '''            
+            if all([isFloatValue(sample.nCoV_N1, 40)]): #, isFloatValue(sample.nCoV_N3, None)]):
+                sample.result = "Detected"
+                continue
+            elif any([not isFloatValue(sample.nCoV_N1, 40)]) and not all([not isFloatValue(sample.nCoV_N1, 40)]):
+                sample.result = "Indeterminate"
+                continue
+            
+            if (sample.RP and not isFloatValue(sample.RP, 40.0)) or ( type(sample.nCoV_N1) == "float" and sample.nCoV_N1 > 40):
+                #INVALID Case is to be handled by pathologists separately and hence just continuing
+                sample.result = "Invalid"
+                continue
+            if all([not isFloatValue(sample.nCoV_N1, None)]):
+                sample.result = "Not Detected"           
             
             if sample.result is None:
                 print("------ Last resort reached -----", sample)
@@ -485,10 +593,11 @@ if __name__ == "__main__":
         #print("below is the dictionary of all samples:")
         #print(sampleDict["PLMO20-000129"])
         #print(sampleDict)
-        addSampleDictToDatabase(sampleDict, f)
-        checkIncomingHl7(sampleDict, f)
-        writeDataToExcel(f)  
-        #addSampleDictToExcel(sampleDict, f, True) 
+        if sampleDict:
+            addSampleDictToDatabase(sampleDict, f)
+            checkIncomingHl7(sampleDict, f)
+            writeDataToExcel(f)  
+            #addSampleDictToExcel(sampleDict, f, True) 
         
     #writeDataToExcel("/ext/path/DRL/Molecular/COVID19/COVID_19_QuantStudio/ProdEnv/Results/2020-03-20 203810_QuantStudio_export_UPDATED_CONTAINER_ID.xlsx")
     SQL_CONNECTION.close()
