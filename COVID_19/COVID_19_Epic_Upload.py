@@ -408,35 +408,36 @@ def createHeatMapDiagram(output, filename):
     runs_list = output['Plate ID'].unique()
 
     for i in range(len(runs_list)):
-        # Extracting dataframes for two runs
-        runs[i] = output.loc[output['Plate ID']==runs_list[i]]
+        if not pd.isna(runs_list[i]):
+            # Extracting dataframes for two runs
+            runs[i] = output.loc[output['Plate ID']==runs_list[i]]
 
-        # Masking data to duplicate rows for better view in the Output file
-        mask[i] = runs[i]
-        d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
-        d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
-        mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
-        pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
+            # Masking data to duplicate rows for better view in the Output file
+            mask[i] = runs[i]
+            d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
+            d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
+            mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
+            pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
 
-        # Export to excel sheet with two worksheets for each run
-        pivot[i].to_excel(writer, sheet_name=runs_list[i])
+            # Export to excel sheet with two worksheets for each run
+            pivot[i].to_excel(writer, sheet_name=runs_list[i])
 
-        # Creating pivot table with extracted letters as rows and columns
-        tables[i] = pd.pivot_table(runs[i], 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
-        # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
-        tables[i] = tables[i].replace('Undetermined',0)
-        tables[i] = tables[i].round(1)
-        hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
-        bottom, top = hmap.get_ylim()
-        x = hmap.set_ylim(bottom + 0.5, top - 0.5)
-        hmap.set_ylabel('')    
-        hmap.set_xlabel('')
-        plt.title(runs_list[i])
-        fig = plt.figure()
-        fig = hmap.get_figure()
-        fig.savefig(filename + "_QC_" + runs_list[i]+'.png')
-        worksheet = writer.sheets['{}'.format(runs_list[i])]
-        worksheet.insert_image('D20', filename + "_QC_" + runs_list[i]+'.png')
+            # Creating pivot table with extracted letters as rows and columns
+            tables[i] = pd.pivot_table(runs[i], 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
+            # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
+            tables[i] = tables[i].replace('Undetermined',0)
+            tables[i] = tables[i].round(1)
+            hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
+            bottom, top = hmap.get_ylim()
+            x = hmap.set_ylim(bottom + 0.5, top - 0.5)
+            hmap.set_ylabel('')    
+            hmap.set_xlabel('')
+            plt.title(runs_list[i])
+            fig = plt.figure()
+            fig = hmap.get_figure()
+            fig.savefig(filename + "_QC_" + runs_list[i]+'.png')
+            worksheet = writer.sheets['{}'.format(runs_list[i])]
+            worksheet.insert_image('D20', filename + "_QC_" + runs_list[i]+'.png')
 
     writer.save()    
 
