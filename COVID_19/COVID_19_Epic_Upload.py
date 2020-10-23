@@ -351,8 +351,8 @@ def checkIncomingHl7(sampleDict, commentsDict, excelFile):
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
-                    if not methodology_code:
-                        print("comments for {} = {}".format(givenSample.name, methodology_code.upper()))
+                    if methodology_code:
+                        #print("comments for {} = {}".format(givenSample.name, methodology_code.upper()))
                         newHl7.update_comments(open(comment_files[methodology_code.upper()], mode="r",  encoding='utf-8').read())
                     else:
                         print("Methodology is empty to assign comments for: ",givenSample.name)
@@ -606,7 +606,7 @@ if __name__ == "__main__":
                 sample.result = "Invalid"
         #print("below is the dictionary of all samples:")
         #print(sampleDict["PLMO20-000129"])
-        #print(sampleDict)
+        #print(updateComments)
         if sampleDict:
             addSampleDictToDatabase(sampleDict, f)
             checkIncomingHl7(sampleDict, updateComments, f)
