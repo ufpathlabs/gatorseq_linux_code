@@ -27,6 +27,7 @@ print("Run start time: ", str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
 parent_path = os.path.abspath(os.path.join(script_path, '..'))
+comment_files = {"MCDC1RNA" : parent_path + "/COVID_19/Comments_CDC_Clinical_MCDC1RNA.txt", "MCDC1DIRECTPROT" : parent_path + "/COVID_19/Comments_CDC_Screening_MCDC1DIRECTPROT.txt"}
 
 CONFIG_FILE = parent_path +"/linux_gatorseq.config.yaml"
 config_dict=dict()
@@ -268,7 +269,7 @@ def writeDataToExcel(excelName):
     except:
         print("unable to save status excel, please close it")
 
-def checkIncomingHl7(sampleDict, excelFile):
+def checkIncomingHl7(sampleDict, commentsDict, excelFile):
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
     ORDERS_ARCHIVE_DIR = MIRTH_GATORSEQ + '/ORDERS_ARCHIVE/'
     ORDERS_DIR = MIRTH_GATORSEQ + '/ORDERS/'
@@ -338,15 +339,23 @@ def checkIncomingHl7(sampleDict, excelFile):
                 #if messageId == "100047187": #100047166  100047187
                 if messageId in sampleDict or plm[0] in sampleDict:
                    # print("--------found----------")
+                    methodology_code = ""
                     if sampleDict.get(messageId) is not None:
                         givenSample =  sampleDict.get(messageId)
+                        methodology_code = commentsDict[messageId]
                     else:
                         givenSample = sampleDict.get(plm[0])
+                        methodology_code = commentsDict[plm[0]]
                     #print("processing hl7 input file: ", hl7_file_name)                   
                     newHl7.update_msh_segment()
                     newHl7.update_orc_segment()
                     newHl7.update_obr_segment()
                     newHl7.update_obx_segment()
+                    if not methodology_code:
+                        print("comments for {} = {}".format(givenSample.name, methodology_code.upper()))
+                        newHl7.update_comments(open(comment_files[methodology_code.upper()], mode="r",  encoding='utf-8').read())
+                    else:
+                        print("Methodology is empty to assign comments for: ",givenSample.name)
                     h = newHl7.update_obx_seg_containing_gene( givenSample )
                     
                     out_file_path = UPLOAD_PATH + '/hl7-COVID_19-{}-output.txt'.format(messageId)
@@ -473,6 +482,7 @@ if __name__ == "__main__":
     fileNames = []
     toProcess = []
     toUploadSamples = {}
+    toUpdateComments = {}
     for f in excel_files:
         if "_SAMPLE_MAP" in f:
             sampleGroupName = f[:f.index("_SAMPLE_MAP")]
@@ -485,6 +495,7 @@ if __name__ == "__main__":
         sampleToContainer = {}
         hscBlankCheck = {}
         samplesUpload = {}
+        updateComments = {}
         df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             if "hsc" in str(row["Container_ID"]).lower() or "blank" in str(row["Container_ID"]).lower():
@@ -492,6 +503,7 @@ if __name__ == "__main__":
 
             sampleToContainer[row["Internal_Sample_ID"]] = row["Container_ID"]
             samplesUpload[str(row["Container_ID"])] = str(row["Upload"])
+            updateComments[str(row["Container_ID"])] = str(row["Methodology"])
         
         results_df = pd.read_excel(sampleResult, skiprows=range(0,41))
         results_df["CONTAINER_ID"] = None
@@ -519,13 +531,14 @@ if __name__ == "__main__":
         #####logic to generate heatmap and table#####
         createHeatMapTable(df, results_df, f)
         toUploadSamples[f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = samplesUpload
+        toUpdateComments[f + "_SAMPLE_RESULTS_UPDATED_ID.xlsx"] = updateComments
 
     for f in toProcess:
         sampleDict = {}
-        plmoDict = {}
         eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
         xldf = pd.read_excel(eachExcel)
         samplesUpload = toUploadSamples[f]
+        updateComments = toUpdateComments[f]
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         # generate sample dictionary in below format:
         # {<sample name>: <Class Sample>}
@@ -596,7 +609,7 @@ if __name__ == "__main__":
         #print(sampleDict)
         if sampleDict:
             addSampleDictToDatabase(sampleDict, f)
-            checkIncomingHl7(sampleDict, f)
+            checkIncomingHl7(sampleDict, updateComments, f)
             writeDataToExcel(f)  
             #addSampleDictToExcel(sampleDict, f, True) 
         
