@@ -1,6 +1,11 @@
-This test was developed and its performance characteristics determined by the University of Florida Health Pathology Laboratories (UF Health PathLabs) Laboratories. The assay was validated to allow for pooled sample testing.
-This test has not been FDA cleared or approved. This test has been authorized by FDA under an Emergency Use Authorization (EUA).
-This test has been validated in accordance with the FDA's Guidance Document "Policy for Diagnostics Testing in Laboratories Certified to Perform High Complexity Testing under to Emergency Use Authorization for Coronavirus Disease-2019 during the Public Health Emergency" issued on February 29th, 2020. FDA independent review of this validation is pending.
-This test is only authorized for the duration of time the declaration that circumstances exist justifying the authorization of the emergency use of in vitro diagnostic tests for detection of SARS-CoV-2 virus and/or diagnosis of COVID-19 infection under section 564(b)(1) of the Act, 21U.S.C. 360bbb-3(b)(1), unless the authorization is terminated or revoked sooner.
+The Aptima® SARS-CoV-2 assay is a nucleic acid amplification in vitro diagnostic test intended for the qualitative detection of RNA from SARS-CoV-2 isolated and purified from nasopharyngeal (NP), nasal, mid-turbinate and oropharyngeal (OP) swab specimens, nasopharyngeal wash/ aspirate or nasal aspirates obtained from individuals meeting COVID-19 clinical and/or epidemiological criteria.
+Saliva samples have also been validated using this method however, sensitivity may be reduced as compared to other collection sites.
+The SARS-CoV-2 RNA is generally detectable in saliva specimens during the acute phase of infection.
+The Aptima SARS-CoV-2 assay is for use only under Emergency Use Authorization (EUA) in the US laboratories certified under the Clinical Laboratory Improvement Amendments of 1988 (CLIA), 42 U.S.C. §263a, to perform high complexity tests.
+The assay was validated to allow for pooled sample testing. Results are for the identification of SARS-CoV-2 RNA.
+The SARS-CoV-2 RNA is generally detectable in upper respiratory specimens during the acute phase of infection.
+Positive results are indicative of the presence of SARS-CoV-2 RNA, clinical correlation with patient history and other diagnostic information is necessary to determine patient infection status.
+Positive results do not rule out bacterial infection or co-infection with other viruses. Negative results do not preclude SARS-CoV-2 infection and should not be used as the sole basis for patient management decisions.
+Negative results must be combined with clinical observations, patient history, and epidemiological information.
 The results of this test are not intended to be used as the sole means for clinical diagnosis and/ or patient management decisions.
 UFHealth PathLabs is authorized under Clinical Laboratory Improvement Amendments (CLIA) to perform high-complexity testing. Testing performed at UF Health PathLabs 4800 SW 35th Drive, Gainesville, FL 32608.
