@@ -42,7 +42,7 @@ MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
 
 HPC_NEXTFLOW_PROGRAM: 'module load singularity; ~/GatorSeq_Share/nextflow_versions/nextflow_v_19.07.0/nextflow '
 
-GSBW_VERSION: '4.2.1'
+GSBW_VERSION: '4.2.2'
 NEXTFLOW_GIT_REPO: 'srikarchamala'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
