@@ -319,6 +319,7 @@ if __name__ == "__main__":
 
             HPC_RUN_CMD =   "#!/bin/bash\n" 
 
+            HPC_RUN_CMD = HPC_RUN_CMD + "source /etc/profile.d/modules.sh\n"
             HPC_RUN_CMD = HPC_RUN_CMD + "SAMPLE_RUN_DIR=" + HPC_RUN_DIR +  ";\n"
             HPC_RUN_CMD = HPC_RUN_CMD + "rm -r -f $SAMPLE_RUN_DIR" +  ";\n"
             HPC_RUN_CMD = HPC_RUN_CMD + "mkdir $SAMPLE_RUN_DIR" + ";\n"
