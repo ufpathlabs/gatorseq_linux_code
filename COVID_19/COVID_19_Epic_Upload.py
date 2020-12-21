@@ -406,7 +406,7 @@ def addSampleDictToDatabase(sampleDict, excelName):
     
     print("-> all samples added to database <-")
 
-def heatMapToExcel(mask, writer, sheetname, run):
+def heatMapToExcel(mask, writer, sheetname, run, filename):
     pivot = pd.pivot_table(mask, 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
     # Export to excel sheet with two worksheets for each run
     pivot.to_excel(writer, sheet_name=sheetname)
@@ -447,7 +447,7 @@ def createHeatMapDiagram(output, filename):
             d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
             d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
             mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
-            (pivot[i], tables[i]) = heatMapToExcel(mask[i], writer, runs_list[i], runs[i])
+            (pivot[i], tables[i]) = heatMapToExcel(mask[i], writer, runs_list[i], runs[i], filename)
 
     if len(mask) > 0:
         allsheets = pd.DataFrame(columns = mask[0].columns)
@@ -482,7 +482,7 @@ def createHeatMapDiagram(output, filename):
                         r1["Column"] = c+12
                         allsheets = allsheets.append(r1)
 
-        heatMapToExcel(allsheets, writer, "FINAL", allsheets)
+        heatMapToExcel(allsheets, writer, "FINAL", allsheets, filename)
 
     writer.save()    
 
