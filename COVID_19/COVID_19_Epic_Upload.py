@@ -406,6 +406,28 @@ def addSampleDictToDatabase(sampleDict, excelName):
     
     print("-> all samples added to database <-")
 
+def heatMapToExcel(mask, writer, sheetname, run, filename):
+    pivot = pd.pivot_table(mask, 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
+    # Export to excel sheet with two worksheets for each run
+    pivot.to_excel(writer, sheet_name=sheetname)
+    # Creating pivot table with extracted letters as rows and columns
+    tables = pd.pivot_table(run, 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
+    # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
+    tables = tables.replace('Undetermined', 0)
+    tables = tables.round(1)
+    hmap = sns.heatmap(tables, annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
+    bottom, top = hmap.get_ylim()
+    x = hmap.set_ylim(bottom + 0.5, top - 0.5)
+    hmap.set_ylabel('')    
+    hmap.set_xlabel('')
+    plt.title(sheetname)
+    fig = plt.figure()
+    fig = hmap.get_figure()
+    fig.savefig(filename + "_QC_" + sheetname +'.png')
+    worksheet = writer.sheets['{}'.format(sheetname)]
+    worksheet.insert_image('D20', filename + "_QC_" + sheetname +'.png')   
+    return (pivot, tables) 
+
 def createHeatMapDiagram(output, filename):
     writer = pd.ExcelWriter(filename + "_QC.xlsx", engine='xlsxwriter')
     runs = {}
@@ -420,33 +442,47 @@ def createHeatMapDiagram(output, filename):
         if not pd.isna(runs_list[i]):
             # Extracting dataframes for two runs
             runs[i] = output.loc[output['Plate ID']==runs_list[i]]
-
             # Masking data to duplicate rows for better view in the Output file
             mask[i] = runs[i]
             d1[i] = runs[i].assign(Val = runs[i]['CT'],ID = 'CT' ) 
             d2[i] = runs[i].assign(Val = runs[i]['CONTAINER_ID'], ID = 'CONTAINER_ID')
             mask[i] = pd.concat([d1[i], d2[i]]).sort_index().reset_index(drop = True)
-            pivot[i] = pd.pivot_table(mask[i], 'Val', index = ['Row', 'ID'], columns=['Column'], aggfunc='first')
+            (pivot[i], tables[i]) = heatMapToExcel(mask[i], writer, runs_list[i], runs[i], filename)
 
-            # Export to excel sheet with two worksheets for each run
-            pivot[i].to_excel(writer, sheet_name=runs_list[i])
+    if len(mask) > 0:
+        allsheets = pd.DataFrame(columns = mask[0].columns)
+        all_maps = {"A":["A","B"],"B":["C","D"],"C":["E","F"],"D":["G","H"],"E":["I","J"],"F":["K","L"],"G":["M","N"],"H":["O","P"]}
+        for c in range(1,13):
+            for r in all_maps.keys():
+                actualrow = mask[0].loc[(mask[0]["Row"] == r) & (mask[0]["Column"] == c)]
+                if not actualrow.empty:
+                    r1 = actualrow.copy(deep=False)
+                    r1["Row"] = all_maps[r][0]
+                    r1["Column"] = c
+                    allsheets = allsheets.append(r1)
+                if len(mask) > 2:
+                    actualrow = mask[2].loc[(mask[2]["Row"] == r) & (mask[2]["Column"] == c)]
+                    if not actualrow.empty:
+                        r1 = actualrow.copy(deep=False)
+                        r1["Row"] = all_maps[r][1]
+                        r1["Column"] = c
+                        allsheets = allsheets.append(r1)
+                if len(mask) > 1:
+                    actualrow = mask[1].loc[(mask[1]["Row"] == r) & (mask[1]["Column"] == c)]
+                    if not actualrow.empty:
+                        r1 = actualrow.copy(deep=False)
+                        r1["Row"] = all_maps[r][0]
+                        r1["Column"] = c+12
+                        allsheets = allsheets.append(r1)
+                if len(mask) > 3:        
+                    actualrow = mask[3].loc[(mask[3]["Row"] == r) & (mask[3]["Column"] == c)]
+                    if not actualrow.empty:
+                        r1 = actualrow.copy(deep=False)
+                        r1["Row"] = all_maps[r][1]
+                        r1["Column"] = c+12
+                        allsheets = allsheets.append(r1)
 
-            # Creating pivot table with extracted letters as rows and columns
-            tables[i] = pd.pivot_table(runs[i], 'CT',  index= ['Row'], columns=['Column'], aggfunc='first')
-            # Replace 'Undetermined' values with zeroes and round the values to 1 digit.
-            tables[i] = tables[i].replace('Undetermined',0)
-            tables[i] = tables[i].round(1)
-            hmap = sns.heatmap(tables[i], annot=True, fmt='g', square=True, annot_kws={"size": 6}, cbar_kws={"orientation": "horizontal"})
-            bottom, top = hmap.get_ylim()
-            x = hmap.set_ylim(bottom + 0.5, top - 0.5)
-            hmap.set_ylabel('')    
-            hmap.set_xlabel('')
-            plt.title(runs_list[i])
-            fig = plt.figure()
-            fig = hmap.get_figure()
-            fig.savefig(filename + "_QC_" + runs_list[i]+'.png')
-            worksheet = writer.sheets['{}'.format(runs_list[i])]
-            worksheet.insert_image('D20', filename + "_QC_" + runs_list[i]+'.png')
+        heatMapToExcel(allsheets, writer, "FINAL", allsheets, filename)
 
     writer.save()    
 
