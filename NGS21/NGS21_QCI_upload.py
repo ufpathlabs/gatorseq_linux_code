@@ -19,7 +19,7 @@ import time
 import datetime
 import traceback
 import sqlite3
-import database_connection
+import NGS21_database_connection
 
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
@@ -187,7 +187,7 @@ def checkStatus(url):
     return (response.json()["status"], response.json())
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()

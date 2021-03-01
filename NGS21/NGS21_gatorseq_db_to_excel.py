@@ -10,7 +10,7 @@ from filelock import FileLock
 import traceback
 import sqlite3
 import yaml
-import database_connection
+import NGS21_database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -54,7 +54,7 @@ except:
 
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
