@@ -10,7 +10,7 @@ from filelock import FileLock
 import traceback
 import sqlite3
 import yaml
-import database_connection
+import NGS21_database_connection
 
 
 print(str(datetime.datetime.now()) + "\n")
