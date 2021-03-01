@@ -26,6 +26,7 @@ print("\n", str(datetime.datetime.now()) + "\n")
 #LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
+script_path = os.path.abspath(os.path.join(script_path, '..'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 QCI_ACCESS_TOKEN_URL = "https://api.ingenuity.com/v1/oauth/access_token"
 QCI_UPLOAD_URL = "https://api.ingenuity.com/v1/datapackages"

@@ -1,6 +1,7 @@
 import yaml
 import os
 import mysql.connector
+import traceback
 def getSQLConnection(config_path, token_path, CODE_ENV):
     config_dict=dict()
     with open(config_path, 'r') as stream:
