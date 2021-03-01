@@ -14,10 +14,11 @@ import time
 import datetime
 import traceback
 import sqlite3
-import database_connection
+import NGS21_database_connection
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
+script_path = os.path.abspath(os.path.join(script_path, '..'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 config_dict=dict()
 QCI_ACCESS_TOKEN_URL = "https://api.ingenuity.com/v1/oauth/access_token"
@@ -360,7 +361,7 @@ def callQCIApi(accessionId, plm, accessionIdPath):
     return False
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()

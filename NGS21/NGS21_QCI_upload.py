@@ -19,13 +19,14 @@ import time
 import datetime
 import traceback
 import sqlite3
-import database_connection
+import NGS21_database_connection
 
 print("\n", str(datetime.datetime.now()) + "\n")
 #GATOR_SEQ_SAMPLE_INPUT_FILE = r'C:\Users\s.majety\Desktop\Copy of Sheet1.xlsx'
 #LINUX_ANALYSIS_OUT_FOLDER = r'G:/DRL/Molecular/NGS/GenomOncology/NextSeq/'
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
+script_path = os.path.abspath(os.path.join(script_path, '..'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 QCI_ACCESS_TOKEN_URL = "https://api.ingenuity.com/v1/oauth/access_token"
 QCI_UPLOAD_URL = "https://api.ingenuity.com/v1/datapackages"
@@ -186,7 +187,7 @@ def checkStatus(url):
     return (response.json()["status"], response.json())
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def updateStatus(SAMPLE_DIR_PATH, message, con):
     cursor = con.cursor()

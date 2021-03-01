@@ -16,6 +16,7 @@ import NGS21_database_connection
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
+script_path = os.path.abspath(os.path.join(script_path, '..'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
 config_dict=dict()
@@ -63,7 +64,7 @@ except:
 
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def read_excel_and_upsert(conn):
     xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)

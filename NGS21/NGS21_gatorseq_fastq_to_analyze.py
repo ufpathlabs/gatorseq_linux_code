@@ -8,11 +8,12 @@ import shlex
 import yaml
 import pandas as pd
 import traceback
-import database_connection
+import NGS21_database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
+script_path = os.path.abspath(os.path.join(script_path, '..'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 
 #CONFIG_FILE=os.path.expanduser("~/gatorseq.config.1.1.yaml")
@@ -160,7 +161,7 @@ def create_run_log(row, time_stamp, con):
 
 
 def create_connection():
-    return database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
+    return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 # This checks if workbook is open; if so it will exit out
 
