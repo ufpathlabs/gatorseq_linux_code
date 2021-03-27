@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd | sed -e "s/\/[^\/]*$//")"
 CONFIG_FILE="$SCRIPT_DIR/linux_gatorseq.config.yaml"
 
 CODE_ENV=$(echo $SCRIPT_DIR|rev|cut -d '/' -f2|rev) 
