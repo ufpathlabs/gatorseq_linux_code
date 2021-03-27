@@ -1,0 +1,10 @@
+Enter the following commands to build docker image:
+1. Go to the dockerfile path.
+2. Enter the command "docker build -t <repository>/<image_name>:<tag_number> -f <dockerfile_name> ."
+3. Push the image to docker hub with the command "docker push <repository>/<image_name>:<tag_number>
+
+
+Enter the following commands to build singularity image from the docker image:
+1. Tee image should pre-exist in docker hub.
+2. Enter the command "singularity build <file_name.sif> docker://<repository_name>" to build singularity image from docker image.
+
