@@ -205,7 +205,7 @@ def main():
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
                 assay_folder = xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip().split('-')[0]
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
-                vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
+                vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + accessionId  + "/"
                 Perc_Target_Cells =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Target_Cells'].item()
                 if Perc_Target_Cells == "":
                     Perc_Target_Cells = None
@@ -253,16 +253,17 @@ def main():
                         h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
+                        logger_sample_name = xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + accessionId
                         if h:
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt")
-                            updateStatus(sample_dir_path, "Successfully added hl7 file with accession id: " + accessionId, conn) 
+                            updateStatus(logger_sample_name, "Successfully added hl7 file with accession id: " + accessionId, conn) 
                         else:
                             print("Couldn't replace '-' in hl7. Check logs for more details!")
-                            updateStatus(sample_dir_path, "Error in processing hl7 file", conn) 
+                            updateStatus(logger_sample_name, "Error in processing hl7 file", conn) 
                     else:
                         print("XML was not yet generated for the  " + accessionId)
 

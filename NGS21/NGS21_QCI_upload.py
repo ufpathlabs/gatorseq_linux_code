@@ -225,8 +225,8 @@ if __name__ == "__main__":
     for index, row in df.iterrows():
         if row["STATUS"] == "DONE" and type(row.get("PLMO_Number")) == str:#  math.isnan(float(row.get("PLMO_Number"))):
             assay_folder = row['ASSAY_DIR'].strip().split('-')[0]
-            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + row['ASSAY_DIR'].strip() + "/" + row['SAMPLE_DIR_PATH'].strip() + '_' + row['TIME_STAMP']  + "/"
             accessionId = row['SAMPLE_DIR_PATH'].split("/")[1].strip() + '_' + row['TIME_STAMP']
+            vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + row['ASSAY_DIR'].strip() + "/" + accessionId  + "/"
             vcfFileName = accessionId + ".vcf"
             if row['QCI_Re_Run'].lower() != "yes" and accessionIdMap.get(accessionId) is not None:
                 print(accessionId, " is already uploaded and hence not uploading again")

@@ -34,7 +34,7 @@ for d in $LINUX_HPC_ANALYSIS_FOLDER/*; do
             OUT_ASSAY_DIR=$(cat $d\_out_assay_dir.txt)
             RUN_NAME=$(echo $d  | rev | cut -d '/' -f1 |rev | cut -d '_' -f1 )
             SAMPLE_FOLDER=$(echo $d  | rev | cut -d '/' -f1 |rev )
-            RUN_GO_FOLDER=$LINUX_ANALYSIS_OUT_FOLDER/$OUT_ASSAY_DIR/$RUN_NAME
+            RUN_GO_FOLDER=$LINUX_ANALYSIS_OUT_FOLDER/$OUT_ASSAY_DIR
             HPC_SAMPLE_FOLDER=$HPC_ANALYSIS_FOLDER/$SAMPLE_FOLDER
 
             mkdir -p $RUN_GO_FOLDER
