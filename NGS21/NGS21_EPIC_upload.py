@@ -253,7 +253,6 @@ def main():
                         h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
-                        logger_sample_name = xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + accessionId
                         if h:
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
