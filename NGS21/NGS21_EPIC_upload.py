@@ -205,7 +205,7 @@ def main():
                 #if xldf[xldf['PLMO_Number'] == str(plm)]['downloadedXML'].item() == 0:
                 assay_folder = xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip().split('-')[0]
                 accessionId = sample_dir_path.split("/")[1] + "_" + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()
-                vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['SAMPLE_DIR_PATH'].item() + '_' + xldf[xldf['PLMO_Number'] == str(plm)]['TIME_STAMP'].item()  + "/"
+                vcfFolder = LINUX_ANALYSIS_OUT_FOLDER + "/" +  assay_folder + "/" + xldf[xldf['PLMO_Number'] == str(plm)]['ASSAY_DIR'].item().strip() + "/" + accessionId  + "/"
                 Perc_Target_Cells =  xldf[xldf['PLMO_Number'] == str(plm)]['Perc_Target_Cells'].item()
                 if Perc_Target_Cells == "":
                     Perc_Target_Cells = None

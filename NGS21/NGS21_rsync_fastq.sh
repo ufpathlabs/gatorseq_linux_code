@@ -1,6 +1,6 @@
 #!/bin/bash
 IFS=$'\n'
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd | sed -e "s/\/[^\/]*$//")"
 CONFIG_FILE="$SCRIPT_DIR/linux_gatorseq.config.yaml"
 
 
