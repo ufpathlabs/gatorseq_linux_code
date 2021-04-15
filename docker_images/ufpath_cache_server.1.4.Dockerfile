@@ -2,7 +2,7 @@
 FROM centos:7.6.1810
 
 MAINTAINER Srikar Chamala <srikarchamala@gmail.com>
-LABEL version="1.2"
+LABEL version="1.4"
 
 RUN yum -y install wget nano curl software-properties-common sudo git-core unzip gcc wget bzip2 \
     ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 java-1.8.0-openjdk-devel which
@@ -51,6 +51,7 @@ RUN conda install -c conda-forge -c anaconda -c bioconda -c r -c kayarre \
 RUN pip install hl7==0.3.4	
 RUN pip install untangle==1.1.0
 RUN pip install xlrd
+RUN pip install XlsxWriter
 #RUN pip install  rtg-tools
 #RUN pip install  hap.py
 
