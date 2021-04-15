@@ -7,7 +7,7 @@ import sys
 import yaml
 import numpy
 import pandas as pd
-import hl7update
+import NGS21_hl7update
 import hl7
 import os
 import datetime
