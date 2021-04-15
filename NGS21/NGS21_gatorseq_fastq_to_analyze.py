@@ -363,7 +363,7 @@ if __name__ == "__main__":
 
         elif status == 'SUBMITTED':
             time_stamp = xldf.at[index, "TIME_STAMP"]
-            linux_analysis_out_sample_dir = LINUX_ANALYSIS_OUT_FOLDER + "/" + assay_folder + "/" + assay_dir + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
+            linux_analysis_out_sample_dir = LINUX_ANALYSIS_OUT_FOLDER + "/" + assay_folder + "/" + assay_dir + "/" + sample_prefix + "_" + time_stamp
             hpc_analysis_out_sample_dir = LINUX_HPC_ANALYSIS_FOLDER + "/" + run_prefix + "/" + sample_prefix + "_" + time_stamp
 
             #run_log = sample_path + "/" + time_stamp + ".log"

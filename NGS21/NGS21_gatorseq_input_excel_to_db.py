@@ -67,7 +67,7 @@ def create_connection():
     return NGS21_database_connection.getSQLConnection(CONFIG_FILE, CONFIG_TOKENS_FILE, CODE_ENV)
 
 def read_excel_and_upsert(conn):
-    xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE)
+    xldf_full = pd.read_excel(GATOR_SEQ_SAMPLE_INPUT_FILE,  engine='openpyxl')
     xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
     xldf = xldf.replace(np.nan, '', regex=True)
     for index, row in xldf.iterrows():
