@@ -232,7 +232,7 @@ def generateTxtFileAndSave(map, accessionId):
                 text += "    " + "Classification: Tier " + str(variant.get("actionability")) + "\n"
                 
             if variant.get("allelefraction"):
-                text += "    " + "Allele Fraction: " + str(variant.get("allelefraction")) + "(of "+ str(variant.get("readdepth")) +" reads)" + "\n"
+                text += "    " + "Allele Fraction: " + str(variant.get("allelefraction")) + "(of "+ str(variant.get("readDepth")) +" reads)" + "\n"
                    
             if variant.get("variation"):
                 text += "    " + "Variation: " + str(variant.get("variation")) + "\n"
