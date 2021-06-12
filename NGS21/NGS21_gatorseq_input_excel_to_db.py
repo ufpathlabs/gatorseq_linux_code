@@ -104,7 +104,7 @@ def read_excel_and_upsert(conn):
         else:
             sql = ''' INSERT into '''+TABLE_NAME+'''(SAMPLE_DIR_PATH, ASSAY_DIR, STATUS, TIME_STAMP, MESSAGE, PLMO_Number, 
         Test_Product_Profile , Test_Product_Code, Diagnosis, Primary_Tumor_Site, Pre_Filter, 
-                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message, QCI_Re_Run, EPIC_Re_Run, Perc_Target_Cells, Perc_Tumor) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); '''
+                    Report_Template, QCIType, Treatments_Policy, Reporting_Method, QCI_Upload_Message, QCI_Download_Message, EPIC_Upload_Message, QCI_Re_Run, EPIC_Re_Run, Perc_Target_Cells, Perc_Tumor) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); '''
             #     ON CONFLICT(SAMPLE_DIR_PATH)
             #     DO UPDATE
             #   SET STATUS = excluded.STATUS
