@@ -45,7 +45,7 @@ HPC_FASTQ_FOLDER: '/blue/ufmolpath/share/GatorSeq_Share/GatorSeq_Fastq'
 
 LINUX_HPC_ANALYSIS_FOLDER: '/ext/blue/ufmolpath/share/GatorSeq_Share/GatorSeq_Analysis/CODE_ENV'
 HPC_ANALYSIS_FOLDER: '~/GatorSeq_Share/GatorSeq_Analysis/CODE_ENV'
-GATOR_SEQ_HPC_CODE_DIR: 'https://srikarchamala@bitbucket.org/srikarchamala/gatorseq_hpc_code'
+GATOR_SEQ_HPC_CODE_DIR: 'https://github.com/ufpathlabs/gatorseq_hpc_code.git'
 
 
 MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
@@ -53,7 +53,7 @@ MIRTH_GATORSEQ: '/ext/mirth_gatorseq/MIRTH_GATORSEQ'
 HPC_NEXTFLOW_PROGRAM: 'module load singularity; ~/GatorSeq_Share/nextflow_versions/nextflow_v_19.07.0/nextflow '
 
 GSBW_VERSION: '4.2.3'
-NEXTFLOW_GIT_REPO: 'srikarchamala'
+NEXTFLOW_GIT_REPO: 'ufpathlabs'
 
 HPC_SFTP: 'path-svc-mol@sftp.rc.ufl.edu'
 GATOR_SEQ_VERSION: '4.2'
