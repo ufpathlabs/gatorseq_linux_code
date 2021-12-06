@@ -12,7 +12,7 @@ import NGS21_database_connection
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
-script_path = os.path.abspath(os.path.join(script_path, '../NGS21'))
+script_path = os.path.abspath(os.path.join(script_path, '../../'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
