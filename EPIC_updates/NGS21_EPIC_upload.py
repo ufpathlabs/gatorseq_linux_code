@@ -1,29 +1,18 @@
-import requests 
-from requests.exceptions import HTTPError 
-import xmlschema 
-import time 
-import ast
 import sys
 import yaml
-import numpy
 import pandas as pd
-import NGS21_hl7update
 import hl7
 import os
-import datetime
 from shutil import copyfile
 from shutil import move
-import xmltodict
 
 import datetime
-import traceback
-import sqlite3
 import NGS21_database_connection
 
 print(str(datetime.datetime.now()) + "\n")
 
 script_path = os.path.dirname(os.path.abspath( __file__ ))
-script_path = os.path.abspath(os.path.join(script_path, '..'))
+script_path = os.path.abspath(os.path.join(script_path, '../NGS21'))
 CONFIG_FILE=script_path+"/linux_gatorseq.config.yaml"
 config_dict=dict()
 with open(CONFIG_FILE, 'r') as stream:
