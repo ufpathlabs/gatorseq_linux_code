@@ -5,7 +5,7 @@ import hl7
 import os
 from shutil import copyfile
 from shutil import move
-
+import hl7update
 import datetime
 import NGS21_database_connection
 
