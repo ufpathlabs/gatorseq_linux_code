@@ -237,8 +237,8 @@ def main():
                         hl7update.update_msh_segment(h)
                         hl7update.update_orc_segment(h)
                         hl7update.update_obr_segment(h)
-                        hl7update.update_obx_segment(h)
-                        h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
+                        #hl7update.update_obx_segment(h)
+                        #h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:
