@@ -1,1 +1,1 @@
-from hl7conv.converter import Converter
+from .converter import Converter
