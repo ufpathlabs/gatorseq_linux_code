@@ -224,6 +224,7 @@ def get_as_af(record, ratio_ad_dp, xml):
 
 
 def validate_filename(filename):
+    print(filename)
     pattern = '^[\w,\s\-,/]+\.(xml|vcf|vcf\.gz)$'
     result = re.match(pattern, filename)
     return bool(result)
