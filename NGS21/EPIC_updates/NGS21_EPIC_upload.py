@@ -8,6 +8,7 @@ from shutil import move
 import hl7update
 import datetime
 import NGS21_database_connection
+from NGS21.EPIC_updates.hl7conv.hl7conv.converter import Converter
 
 print(str(datetime.datetime.now()) + "\n")
 
@@ -225,6 +226,8 @@ def main():
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
                     if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
+                        conv = Converter(vcfFolder+accessionId+".QCIXml.xml")
+                        conv.convert(vcfFolder+accessionId+"hl7v2.txt")
                         gene_map={}
                         if(genes_list):
                             for gene in genes_list:
