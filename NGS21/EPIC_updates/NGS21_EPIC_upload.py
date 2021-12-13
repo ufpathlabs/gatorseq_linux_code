@@ -176,7 +176,7 @@ def main():
                 h = hl7.parse(msg_unix_fmt)
                 #Read PLM id from HL7 message
                 try:
-                    plm = h['ORC'][0][2]
+                    plm = h['SPM'][0][2][1:14]
                 except:
                     continue
                 if (not plm):
