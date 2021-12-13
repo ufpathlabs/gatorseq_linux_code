@@ -231,7 +231,7 @@ def validate_filename(filename):
 
 
 def is_xml_file(filename):
-    extension = filename.split('.')[1]
+    extension = filename.split('.')[-1]
     if extension == 'xml':
         return True
     else:
