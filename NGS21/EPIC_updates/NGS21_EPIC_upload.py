@@ -228,7 +228,7 @@ def main():
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
                         file_name=vcfFolder+accessionId+".QCIXml.xml"
                         modfified_file_name_chars_count=file_name.count(".") - 1
-                        modified_file_name=file_name.replace('_', '.', modfified_file_name_chars_count)
+                        modified_file_name=file_name.replace('.', '_', modfified_file_name_chars_count)
                         conv = Converter(filename=modified_file_name, ref_build="GRCh38", has_tabix=True, ratio_ad_dp=0.25, seed=1, source_class="somatic", vcf_type="qiagen", variant_analysis_method="LA26398-0")
                         conv.convert(vcfFolder+accessionId+"hl7v2.txt")
                         gene_map={}
