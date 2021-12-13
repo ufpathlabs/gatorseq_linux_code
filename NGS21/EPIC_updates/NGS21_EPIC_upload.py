@@ -229,8 +229,6 @@ def main():
                         # file_name=vcfFolder+accessionId+".QCIXml.xml"
                         # modfified_file_name_chars_count=file_name.count(".") - 1
                         # modified_file_name=file_name.replace('.', '_', modfified_file_name_chars_count)
-                        conv = Converter(filename=vcfFolder+accessionId+".QCIXml.xml", ref_build="GRCh38", patient_id=1234, has_tabix=True, ratio_ad_dp=0.25, seed=1, source_class="somatic", vcf_type="qiagen", variant_analysis_method="sequencing")
-                        conv.convert(vcfFolder+accessionId+"hl7v2.txt")
                         gene_map={}
                         if(genes_list):
                             for gene in genes_list:
@@ -249,6 +247,14 @@ def main():
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:
+                            conv = Converter(filename=vcfFolder + accessionId + ".QCIXml.xml", ref_build="GRCh38",
+                                             patient_id=1234, has_tabix=True, ratio_ad_dp=0.25, seed=1,
+                                             source_class="somatic", vcf_type="qiagen",
+                                             variant_analysis_method="sequencing")
+                            hl7_v2_message = conv.convert(vcfFolder + accessionId + "hl7v2.txt")
+                            h += "\n"
+                            for segment in hl7_v2_message:
+                                h += (segment.to_er7())
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
