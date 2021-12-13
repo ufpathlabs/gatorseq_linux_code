@@ -252,11 +252,8 @@ def main():
                                              source_class="somatic", vcf_type="qiagen",
                                              variant_analysis_method="sequencing")
                             hl7_v2_message = conv.convert(vcfFolder + accessionId + "hl7v2.txt")
-                            h += "\n"
                             for segment in hl7_v2_message.obx:
                                 h += (segment.to_er7())
-                                h += "\n"
-
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                             print("Out file available at :",out_file_path)
