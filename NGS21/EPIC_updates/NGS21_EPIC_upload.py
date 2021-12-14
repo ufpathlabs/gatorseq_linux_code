@@ -144,7 +144,7 @@ def main():
                         h = hl7.parse(msg_unix_fmt)
                         # Read PLM id from HL7 message and then compare it with the plmo in reRun_excel
                         try:
-                            plm = h['ORC'][0][2]
+                            plm = str(h['SPM'][0][2])[1:14]
                         except:
                             continue
                         if (plm) and str(plm) == excel_row_plmo:
@@ -176,7 +176,7 @@ def main():
                 h = hl7.parse(msg_unix_fmt)
                 #Read PLM id from HL7 message
                 try:
-                    plm = h['SPM'][0][2][1:14]
+                    plm = str(h['SPM'][0][2])[1:14]
                 except:
                     continue
                 if (not plm):
@@ -247,7 +247,7 @@ def main():
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:
-                            conv = Converter(filename=vcfFolder + accessionId + ".QCIXml.xml", ref_build="GRCh38",
+                            conv = Converter(filename=vcfFolder + accessionId + ".QCIXml.xml", ref_build="GRCh37",
                                              patient_id=1234, has_tabix=True, ratio_ad_dp=0.25, seed=1,
                                              source_class="somatic", vcf_type="qiagen",
                                              variant_analysis_method="sequencing")
