@@ -257,6 +257,7 @@ def main():
                                 obx_segment += segment.to_er7() + "\n"
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
+                                f.write("\n")
                                 f.write(obx_segment)
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 

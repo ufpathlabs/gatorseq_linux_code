@@ -123,13 +123,13 @@ class _HL7V2_Helper:
                 obx_4=a_index,
                 obx_5=annotation_record['transcript_ref_seq'])
         _create_variant_obx_segment(
-            self, obx_1=str(self.index), obx_2="CWE",
+            self, obx_1=str(self.index), obx_2="ST",
             obx_3="48004-6^DNA Change c.HGVS^LN",
             obx_4=a_index, obx_5=annotation_record['dna_change'])
         if annotation_record['amino_acid_change'] is not None:
             _create_variant_obx_segment(
                 self, obx_1=str(self.index),
-                obx_2="CWE", obx_3="48005-3^Amino Acid Change p.HGVS^LN",
+                obx_2="ST", obx_3="48005-3^Amino Acid Change p.HGVS^LN",
                 obx_4=a_index, obx_5=annotation_record['amino_acid_change'])
         if annotation_record['molecular_consequence'] is not None:
             _create_variant_obx_segment(
