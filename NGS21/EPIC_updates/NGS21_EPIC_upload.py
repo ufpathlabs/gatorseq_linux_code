@@ -210,10 +210,10 @@ def main():
                         os.remove(vcfFolder+accessionId+".hl7.txt")
                     except:
                         pass
-                    # try:
-                    #     os.remove(vcfFolder+accessionId+".QCIXml.xml")
-                    # except:
-                    #     pass
+                    try:
+                        os.remove(vcfFolder+accessionId+".QCIXml.xml")
+                    except:
+                        pass
                     print(sample_dir_path)
                     cursor = conn.cursor()
                     sql_update_query = 'Update '+ TABLE_NAME +'  set QCI_Download_Message = "", EPIC_Upload_Message = "", EPIC_Re_Run = "FETCHING_REPORT"  where SAMPLE_DIR_PATH ="'+sample_dir_path+'" ;'
@@ -224,7 +224,7 @@ def main():
                 
                 
                 if not os.path.isfile(vcfFolder+accessionId+".hl7.txt") and os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):  #accessionIdStatusMap.get(accessionId) is not None:
-                    if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml"):
+                    if os.path.isfile(vcfFolder+accessionId+".QCIXml.xml") and os.path.isfile(vcfFolder+accessionId+".QCIreport.txt"):
                         genes_list, diagnosis = hl7update.find_genes_from_XML(vcfFolder+accessionId+".QCIXml.xml")
                         # file_name=vcfFolder+accessionId+".QCIXml.xml"
                         # modfified_file_name_chars_count=file_name.count(".") - 1
@@ -241,9 +241,9 @@ def main():
                         hl7update.update_msh_segment(h)
                         hl7update.update_orc_segment(h)
                         hl7update.update_obr_segment(h)
-                        #hl7update.update_obx_segment(h)
-                        #h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
-                        h = hl7update.remove_obx_segment(h)
+                        hl7update.update_comments(h, open( vcfFolder+accessionId+".QCIreport.txt", mode="r",  encoding='utf-8').read())
+                        hl7update.update_obx_segment(h)
+                        h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:
