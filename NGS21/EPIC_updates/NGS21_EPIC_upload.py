@@ -261,7 +261,6 @@ def main():
                                 f.write(str(h))
                                 f.write("\n")
                                 f.write(obx_segment)
-                                f.write("\n")
                                 f.write(nte_segments)
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
