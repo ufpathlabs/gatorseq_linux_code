@@ -196,3 +196,13 @@ def search_file(file_name_query, path):
         return None
     return search_result[0]
 
+
+def remove_obx_segment(h):
+    h_t = h[:]
+    l = len(h)
+    for i in range(l):
+        del h_t[l-i-1]
+    for i in range(len(h)):
+        if(h[i][0][0]!="OBX"):
+            h_t.append(h[i])
+    return h_t
