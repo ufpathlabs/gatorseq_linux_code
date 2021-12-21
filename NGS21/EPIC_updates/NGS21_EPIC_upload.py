@@ -241,11 +241,9 @@ def main():
                         hl7update.update_msh_segment(h)
                         hl7update.update_orc_segment(h)
                         hl7update.update_obr_segment(h)
-                        hl7update.update_comments(h, open( vcfFolder+accessionId+".QCIreport.txt", mode="r",  encoding='utf-8').read())
                         #hl7update.update_obx_segment(h)
                         #h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
-                        h = hl7update.remove_obx_segment(h)
-                        
+                        #h = hl7update.remove_obx_segment(h)
                         out_file_path = UPLOAD_PATH + '/hl7-{}-output.txt'.format(plm)
                         if h:
                             conv = Converter(filename=vcfFolder + accessionId + ".QCIXml.xml", ref_build="GRCh37",
@@ -256,6 +254,8 @@ def main():
                             obx_segment = ""
                             for segment in hl7_v2_message.obx:
                                 obx_segment += segment.to_er7() + "\n"
+                            hl7update.update_comments(obx_segment, open(vcfFolder + accessionId + ".QCIreport.txt", mode="r",
+                                                              encoding='utf-8').read())
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                                 f.write("\n")
