@@ -71,18 +71,25 @@ def get_first_obx_index(h):
 
 
 # Assuming insertion is just above first OBX segment
-def update_comments(h, comments):
+# def update_comments(h, comments):
+#     comments_arr = comments.split("\n")
+#     obx_idx = get_first_obx_index(h)
+#     if (obx_idx == -1):
+#         print("OBX segment not found, so appending it")
+#         obx_idx = len(h) - 1
+#     i = 1
+#     for comment in comments_arr:
+#         h.append('NTE|{}|L|{}'.format(i, comment))
+#         obx_idx += 1
+#         i += 1
+def update_comments(comments):
     comments_arr = comments.split("\n")
-    obx_idx = get_first_obx_index(h)
-    if (obx_idx == -1):
-        print("OBX segment not found, so appending it")
-        obx_idx = len(h) - 1
     i = 1
+    h = ""
     for comment in comments_arr:
-        h.append('NTE|{}|L|{}'.format(i, comment))
-        obx_idx += 1
+        h += 'NTE|{}|L|{}'.format(i, comment) + "\n"
         i += 1
-
+    return h
 
 def update_msh_segment(h):
     if h and h['MSH']:
