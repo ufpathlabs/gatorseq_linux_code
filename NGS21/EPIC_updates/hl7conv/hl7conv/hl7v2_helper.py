@@ -28,8 +28,8 @@ class _HL7V2_Helper:
     def add_section1_components(self, xml_reader):
         obx = hl7.Segment("OBX")
         obx.obx_1 = str(self.index)
-        obx.obx_2 = "CWE"
-        obx.obx_3 = "51967-8^Genetic Disease Assessed^LN"
+        obx.obx_2 = "ST"
+        obx.obx_3 = "51967-8^Genetic Disease Assessed^UFMOLLRR"
         obx.obx_4 = '1'
         obx.obx_5 = f'{xml_reader.get("diagnosis")}'
         self.message.add(obx)
