@@ -144,7 +144,7 @@ class _HL7V2_Helper:
         if annotation_record['genomic_dna_change'] is not None:
             _create_variant_obx_segment(
                 self, obx_1=str(self.index),
-                obx_2="CWE", obx_3="81290-9^Genomic DNA Change g.HGVS^LN",
+                obx_2="ST", obx_3="81290-9^Genomic DNA Change g.HGVS^LN",
                 obx_4=a_index, obx_5=annotation_record['genomic_dna_change'])
         _create_variant_obx_segment(
             self, obx_1=str(self.index),
