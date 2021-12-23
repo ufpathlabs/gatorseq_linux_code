@@ -102,7 +102,8 @@ def updateStatus(SAMPLE_DIR_PATH, message, con):
 # 4. queries the Qiagen to see if the accessionid is in final state
 # 5. downloads the xml, parses it and generates comments
 # 5. processes the genes and moves the new hl7 file to a results folder where it gets pushed to EPIC
-# 6. archives the initial file 
+# 6. archives the initial file
+
 def main():
         
     UPLOAD_PATH = MIRTH_GATORSEQ + '/RESULTS'
@@ -251,17 +252,20 @@ def main():
                                              source_class="somatic", vcf_type="qiagen",
                                              variant_analysis_method="sequencing")
                             hl7_v2_message = conv.convert(vcfFolder + accessionId + "hl7v2.txt")
-                            obx_segment = ""
+                            obx_segments = []
                             for segment in hl7_v2_message.obx:
-                                obx_segment += segment.to_er7() + "\n"
-
+                                obx_segments.append(segment.to_er7())
+                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments)
                             nte_segments = hl7update.update_comments(open(vcfFolder + accessionId + ".QCIreport.txt", mode="r",
                                                               encoding='utf-8').read())
+                            pos = 2
+                            obx_segments[pos:pos] = nte_segments
+                            obx_segments_string = "\n".join(obx_segments)
+
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
                                 f.write(str(h))
                                 f.write("\n")
-                                f.write(obx_segment)
-                                f.write(nte_segments)
+                                f.write(obx_segments_string)
                             print("Out file available at :",out_file_path)
                             move(ORDERS_DIR + hl7_file_name, ORDERS_ARCHIVE_DIR + 'processed-' + hl7_file_name) 
                             copyfile(out_file_path, vcfFolder+accessionId+".hl7.txt")

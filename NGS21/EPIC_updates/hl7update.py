@@ -85,9 +85,9 @@ def get_first_obx_index(h):
 def update_comments(comments):
     comments_arr = comments.split("\n")
     i = 1
-    h = ""
+    h = []
     for comment in comments_arr:
-        h += 'NTE|{}|L|{}'.format(i, comment) + "\n"
+        h.append('NTE|{}|L|{}'.format(i, comment))
         i += 1
     return h
 
@@ -213,3 +213,15 @@ def remove_obx_segment(h):
         if(h[i][0][0]!="OBX"):
             h_t.append(h[i])
     return h_t
+
+
+def append_additional_OBX_segments(obx_segments):
+    obx_segments_len = len(obx_segments)
+    i = obx_segments_len + 1
+    obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|5.0||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+    i += 1
+    obx_segments.append('OBX|{}|ST|12370020^BARCODE|1230500069|NQ-21-44_BC710503_587_20211218201539771322ProdEnv4.2.9||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+    i += 1
+    obx_segments.append('OBX|{}|ST|12370050^TUMOR TYPE|1230500069|Acute Myeloid Leukemia||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+
+    return obx_segments
