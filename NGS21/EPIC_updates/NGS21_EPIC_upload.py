@@ -258,7 +258,7 @@ def main():
                             obx_segments = hl7update.append_additional_OBX_segments(obx_segments)
                             nte_segments = hl7update.update_comments(open(vcfFolder + accessionId + ".QCIreport.txt", mode="r",
                                                               encoding='utf-8').read())
-                            pos = 2
+                            pos = 1
                             obx_segments[pos:pos] = nte_segments
                             obx_segments_string = "\n".join(obx_segments)
 
