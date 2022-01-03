@@ -215,13 +215,16 @@ def remove_obx_segment(h):
     return h_t
 
 
-def append_additional_OBX_segments(obx_segments):
+def append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor):
     obx_segments_len = len(obx_segments)
     i = obx_segments_len + 1
-    obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|5.0||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+    timestamp = get_current_formatted_date()
+    obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Target_Cells, timestamp, timestamp))
     i += 1
-    obx_segments.append('OBX|{}|ST|12370020^BARCODE|1230500069|NQ-21-44_BC710503_587_20211218201539771322ProdEnv4.2.9||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+    obx_segments.append('OBX|{}|ST|12370020^BARCODE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, accessionId, timestamp, timestamp))
     i += 1
-    obx_segments.append('OBX|{}|ST|12370050^TUMOR TYPE|1230500069|Acute Myeloid Leukemia||-||||P|||20211212104253|||2|UFHPL GatorSeq|20211212104253'.format(i))
+    obx_segments.append('OBX|{}|ST|12370050^TUMOR TYPE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, diagnosis, timestamp, timestamp))
+    i += 1
+    obx_segments.append('OBX|{}|ST|1236205^ATYPICAL LYMPHOCYTES IN MICRODISSECTED TISSUE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Tumor, timestamp, timestamp))
 
     return obx_segments
