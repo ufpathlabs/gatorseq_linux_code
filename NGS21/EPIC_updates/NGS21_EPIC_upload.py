@@ -255,7 +255,7 @@ def main():
                             obx_segments = []
                             for segment in hl7_v2_message.obx:
                                 obx_segments.append(segment.to_er7())
-                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments, vcfFolder + accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
+                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                             nte_segments = hl7update.update_comments(open(vcfFolder + accessionId + ".QCIreport.txt", mode="r",
                                                               encoding='utf-8').read())
                             pos = 1
