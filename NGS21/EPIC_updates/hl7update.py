@@ -219,12 +219,20 @@ def append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Ta
     obx_segments_len = len(obx_segments)
     i = obx_segments_len + 1
     timestamp = get_current_formatted_date()
-    obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Target_Cells, timestamp, timestamp))
-    i += 1
-    obx_segments.append('OBX|{}|ST|12370020^BARCODE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, accessionId, timestamp, timestamp))
-    i += 1
-    obx_segments.append('OBX|{}|ST|12370050^TUMOR TYPE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, diagnosis, timestamp, timestamp))
-    i += 1
-    obx_segments.append('OBX|{}|ST|1236205^ATYPICAL LYMPHOCYTES IN MICRODISSECTED TISSUE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Tumor, timestamp, timestamp))
+    if isNotBlank(Perc_Target_Cells):
+        obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Target_Cells, timestamp, timestamp))
+        i += 1
+    if isNotBlank(accessionId):
+        obx_segments.append('OBX|{}|ST|12370020^BARCODE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, accessionId, timestamp, timestamp))
+        i += 1
+    if isNotBlank(diagnosis):
+        obx_segments.append('OBX|{}|ST|12370050^TUMOR TYPE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, diagnosis, timestamp, timestamp))
+        i += 1
+    if isNotBlank(Perc_Tumor):
+        obx_segments.append('OBX|{}|ST|1236205^ATYPICAL LYMPHOCYTES IN MICRODISSECTED TISSUE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Tumor, timestamp, timestamp))
 
     return obx_segments
+
+def isNotBlank (myString):
+    return bool(myString and myString.strip())
+
