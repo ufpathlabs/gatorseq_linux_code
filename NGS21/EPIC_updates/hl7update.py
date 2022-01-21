@@ -112,7 +112,7 @@ def update_obr_segment(h):
     if h and h['OBR']:
         for obr_segment in h['OBR']:
             obr_segment[22] = get_current_formatted_date()
-            obr_segment[25] = 'P'
+            obr_segment[25] = 'R'
             obr_segment[27] = '^^^^^R^^'
 
 

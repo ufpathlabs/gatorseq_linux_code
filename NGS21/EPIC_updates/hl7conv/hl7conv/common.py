@@ -209,8 +209,7 @@ def get_as_af(record, ratio_ad_dp, xml):
         allelic_state =\
             GENOTYPE_TO_ALLELIC_STATE.get(str(record.get("genotype")))
         allelic_frequency =\
-            (float(record.get("allelefraction")) /
-             float(record.get("readDepth")))
+            float(record.get("allelefraction"))
     else:
         alleles = get_allelic_state(record, ratio_ad_dp)
         if alleles["CODE"] == '' and alleles["ALLELE"] == '':
