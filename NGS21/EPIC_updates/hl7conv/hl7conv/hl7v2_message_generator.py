@@ -109,7 +109,7 @@ def _add_region_studied(
 def create_region_studied_obxs(
         vcf_reader_list, xml_reader,
         ref_build, patientID, has_tabix, conversion_region, region_studied,
-        ratio_ad_dp, source_class, annotations, output_filename, hl7v2_helper):
+        ratio_ad_dp, source_class, annotations, report, output_filename, hl7v2_helper):
     _fix_regions_chrom(conversion_region)
     _fix_regions_chrom(region_studied)
     if conversion_region:
@@ -126,7 +126,7 @@ def create_region_studied_obxs(
                     ref_build, extract_chrom_identifier(chrom))
                 _add_region_studied(
                     region_studied, hl7v2_helper, chrom, ref_seq, patientID)
-            hl7v2_helper.add_final_region_studied_obx_segment()
+            hl7v2_helper.add_final_region_studied_obx_segment(report)
             return
         else:
             variants = vcf_reader_list
@@ -155,7 +155,7 @@ def create_region_studied_obxs(
                     prev_add_chrom = chrom
                     chrom_index += 1
                     chrom = _get_chrom(chrom_index)
-    hl7v2_helper.add_final_region_studied_obx_segment()
+    hl7v2_helper.add_final_region_studied_obx_segment(report)
 
 
 def create_variant_obxs(
@@ -233,14 +233,14 @@ def create_variant_obxs(
 def _get_hl7v2_message(
         vcf_reader, xml_reader, ref_build, patientID, has_tabix, conversion_region,
         source_class, region_studied, ratio_ad_dp, annotations, seed,
-        vcf_type, variant_analysis_method, output_filename):
+        vcf_type, variant_analysis_method, report, output_filename):
     hl7v2_helper = _HL7V2_Helper(patientID, seed)
     general_logger.debug("Finished Initializing empty HL7V2 message")
     vcf_reader_list = list(vcf_reader) if vcf_reader else []
     create_region_studied_obxs(
         vcf_reader_list, xml_reader,
         ref_build, patientID, has_tabix, conversion_region, region_studied,
-        ratio_ad_dp, source_class, annotations, output_filename, hl7v2_helper)
+        ratio_ad_dp, source_class, annotations, report, output_filename, hl7v2_helper)
     if xml_reader is not None:
         hl7v2_helper.add_section1_components(xml_reader)
     create_variant_obxs(

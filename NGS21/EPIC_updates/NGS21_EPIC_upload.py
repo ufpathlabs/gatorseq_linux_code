@@ -250,16 +250,12 @@ def main():
                             conv = Converter(filename=vcfFolder + accessionId + ".QCIXml.xml", ref_build="GRCh37",
                                              patient_id=1234, has_tabix=True, ratio_ad_dp=0.25, seed=1,
                                              source_class="somatic", vcf_type="qiagen",
-                                             variant_analysis_method="sequencing")
+                                             variant_analysis_method="sequencing", report_filename=vcfFolder + accessionId + ".QCIreport.txt")
                             hl7_v2_message = conv.convert(vcfFolder + accessionId + "hl7v2.txt")
                             obx_segments = []
                             for segment in hl7_v2_message.obx:
                                 obx_segments.append(segment.to_er7())
                             obx_segments = hl7update.append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
-                            nte_segments = hl7update.update_comments(open(vcfFolder + accessionId + ".QCIreport.txt", mode="r",
-                                                              encoding='utf-8').read())
-                            pos = 1
-                            obx_segments[pos:pos] = nte_segments
                             obx_segments_string = "\n".join(obx_segments)
 
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:

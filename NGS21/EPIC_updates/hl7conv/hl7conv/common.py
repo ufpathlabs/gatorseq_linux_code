@@ -209,7 +209,7 @@ def get_as_af(record, ratio_ad_dp, xml):
         allelic_state =\
             GENOTYPE_TO_ALLELIC_STATE.get(str(record.get("genotype")))
         allelic_frequency =\
-            float(record.get("allelefraction"))
+            (float(record.get("allelefraction")) / 100)
     else:
         alleles = get_allelic_state(record, ratio_ad_dp)
         if alleles["CODE"] == '' and alleles["ALLELE"] == '':
@@ -223,7 +223,6 @@ def get_as_af(record, ratio_ad_dp, xml):
 
 
 def validate_filename(filename):
-    print(filename)
     pattern = '^[\w,\s\-,/,\.]+\.(xml|vcf|vcf\.gz)$'
     result = re.match(pattern, filename)
     return bool(result)
@@ -232,6 +231,14 @@ def validate_filename(filename):
 def is_xml_file(filename):
     extension = filename.split('.')[-1]
     if extension == 'xml':
+        return True
+    else:
+        return False
+
+
+def is_txt_file(filename):
+    extension = filename.split('.')[1]
+    if extension == 'txt':
         return True
     else:
         return False

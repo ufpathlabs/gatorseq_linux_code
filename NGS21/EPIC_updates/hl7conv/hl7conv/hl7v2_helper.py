@@ -71,7 +71,7 @@ class _HL7V2_Helper:
             self.index += 1
         self.region_studied_index += 1
 
-    def add_final_region_studied_obx_segment(self):
+    def add_final_region_studied_obx_segment(self, report):
         obx = hl7.Segment("OBX")
         obx.obx_1 = str(self.index)
         obx.obx_2 = "TX"
@@ -82,6 +82,20 @@ class _HL7V2_Helper:
         self.message.add(obx)
         self.final_rs_index = self.index - self.seed
         self.index += 1
+
+        if report is not None:
+            obx = hl7.Segment("OBX")
+            obx.obx_1 = str(self.index)
+            obx.obx_2 = "TX"
+            obx.obx_3 = ("51969-4^Genetic Analysis Report^UFMOLLRR")
+            obx.obx_4 = '1'
+            report_segment = ""
+            for line in report:
+                report_segment += line.replace('\n', '').strip()
+                report_segment += " ~"
+            obx.obx_5 = report_segment
+            self.message.add(obx)
+            self.index += 1
 
     def add_variant_obv(self, record, ref_seq, ratio_ad_dp, source_class,
                         annotation_record, spdi_representation, ref_build,
@@ -227,7 +241,7 @@ class _HL7V2_Helper:
         self.variant_index += 1
 
     def export_hl7v2_message(self, output_filename):
-        with open(output_filename, 'w') as output_file:
+        with open(output_filename, 'w', encoding='utf-8') as output_file:
             for segment in self.message.obx:
                 output_file.write(segment.to_er7())
                 output_file.write('|\n')

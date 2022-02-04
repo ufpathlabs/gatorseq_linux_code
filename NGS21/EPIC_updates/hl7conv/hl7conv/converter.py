@@ -110,7 +110,7 @@ class Converter(object):
                  conv_region_dict=None, annotation_filename=None,
                  region_studied_filename=None, ratio_ad_dp=0.99,
                  source_class=None, seed=1000, vcf_type=None,
-                 variant_analysis_method="Sequencing"):
+                 variant_analysis_method="Sequencing", report_filename=None):
 
         super(Converter, self).__init__()
         if not filename:
@@ -139,6 +139,15 @@ class Converter(object):
                 raise
             except BaseException:
                 self._generate_exception("Please provide valid 'vcf_filename'")
+        self.report = None
+        if is_txt_file(report_filename):
+            try:
+                with open(report_filename, encoding='utf-8') as fd:
+                    self.report = fd.readlines()
+            except FileNotFoundError:
+                raise
+            except BaseException:
+                self._generate_exception("Please provide valid 'xml_filename'")
         if not patient_id and self._vcf_reader is not None:
             patient_id = self._vcf_reader.samples[0]
         if not patient_id and self._xml_reader is not None:
@@ -247,7 +256,7 @@ class Converter(object):
                 self._vcf_reader, self._xml_reader, self.ref_build, self.patient_id,
                 self.has_tabix, self.conversion_region, self.source_class,
                 self.region_studied, self.ratio_ad_dp, self.annotations,
-                self.seed, self.vcf_type, self.variant_analysis_method,
+                self.seed, self.vcf_type, self.variant_analysis_method, self.report,
                 output_filename)
         general_logger.info("Completed VCF to HL7V2 Conversion")
         return hl7v2_oru_message
