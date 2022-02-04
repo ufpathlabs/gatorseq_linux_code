@@ -255,7 +255,8 @@ def main():
                             obx_segments = []
                             for segment in hl7_v2_message.obx:
                                 obx_segments.append(segment.to_er7())
-                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
+
+                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments, str(plm), accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list)
                             obx_segments_string = "\n".join(obx_segments)
 
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:

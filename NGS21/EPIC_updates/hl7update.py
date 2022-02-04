@@ -215,10 +215,11 @@ def remove_obx_segment(h):
     return h_t
 
 
-def append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor):
+def append_additional_OBX_segments(obx_segments, plm, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list):
     obx_segments_len = len(obx_segments)
     i = obx_segments_len + 1
     timestamp = get_current_formatted_date()
+
     if isNotBlank(Perc_Target_Cells):
         obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Target_Cells, timestamp, timestamp))
         i += 1
@@ -230,6 +231,24 @@ def append_additional_OBX_segments(obx_segments, accessionId, diagnosis, Perc_Ta
         i += 1
     if isNotBlank(Perc_Tumor):
         obx_segments.append('OBX|{}|ST|1236205^ATYPICAL LYMPHOCYTES IN MICRODISSECTED TISSUE|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Tumor, timestamp, timestamp))
+        i += 1
+    if isNotBlank(plm):
+        obx_segments.append('OBX|{}|ST|123031010284^ID|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, plm, timestamp, timestamp))
+        i += 1
+
+    obx_segments.append('OBX|{}|ST|123031010285^Block|1230500069|SS22-0001 A||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    i += 1
+    obx_segments.append('OBX|{}|ST|123031010286^TMB|1230500069|12||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    i += 1
+    obx_segments.append('OBX|{}|ST|123031010287^MSI|1230500069|High||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    i += 1
+    obx_segments.append('OBX|{}|ST|123031010288^HRD|1230500069|||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    i += 1
+
+    for index, gene in enumerate(genes_list):
+        token = gene.split(" ")
+        obx_segments.append('OBX|{}|ST|123031010289^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, index, token[0], token[2], timestamp, timestamp))
+        i += 1
 
     return obx_segments
 
