@@ -237,7 +237,7 @@ def is_xml_file(filename):
 
 
 def is_txt_file(filename):
-    extension = filename.split('.')[1]
+    extension = filename.split('.')[-1]
     if extension == 'txt':
         return True
     else:
