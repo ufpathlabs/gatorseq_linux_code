@@ -247,7 +247,7 @@ def append_additional_OBX_segments(obx_segments, plm, accessionId, diagnosis, Pe
 
     for index, gene in enumerate(genes_list):
         token = gene.split(" ")
-        obx_segments.append('OBX|{}|ST|123031010289^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, index, token[0], token[2], timestamp, timestamp))
+        obx_segments.append('OBX|{}|ST|123031010289^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, (index + 1), token[0], token[2], timestamp, timestamp))
         i += 1
 
     return obx_segments
