@@ -91,11 +91,11 @@ def update_comments(comments):
         i += 1
     return h
 
-def update_msh_segment(h):
+def update_msh_segment(h, current_date):
     if h and h['MSH']:
         for msh_segment in h['MSH']:
             if msh_segment:
-                msh_segment[7] = get_current_formatted_date()
+                msh_segment[7] = current_date
                 msh_segment[8] = ''
                 msh_segment[9][0][0] = 'ORU'
                 msh_segment[9][0][1] = 'R01'
@@ -108,10 +108,10 @@ def update_orc_segment(h):
             orc_segment[1] = 'RE'
 
 
-def update_obr_segment(h):
+def update_obr_segment(h, current_date):
     if h and h['OBR']:
         for obr_segment in h['OBR']:
-            obr_segment[22] = get_current_formatted_date()
+            obr_segment[22] = current_date
             obr_segment[25] = 'R'
             obr_segment[27] = '^^^^^R^^'
 
@@ -215,10 +215,10 @@ def remove_obx_segment(h):
     return h_t
 
 
-def append_additional_OBX_segments(obx_segments, plm, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list):
+def append_additional_OBX_segments(current_date, obx_segments, plm, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list):
     obx_segments_len = len(obx_segments)
     i = obx_segments_len + 1
-    timestamp = get_current_formatted_date()
+    timestamp = current_date
 
     if isNotBlank(Perc_Target_Cells):
         obx_segments.append('OBX|{}|ST|12356649^% TARGET CELLS|1230500069|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, Perc_Target_Cells, timestamp, timestamp))

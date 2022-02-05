@@ -239,9 +239,10 @@ def main():
                                 else:
                                     gene_map[x[0]] = [x[1]]
                             #gene_map = dict(gene.split(" ", 1) for gene in genes_list)
-                        hl7update.update_msh_segment(h)
+                        current_date = hl7update.get_current_formatted_date()
+                        hl7update.update_msh_segment(h, current_date)
                         hl7update.update_orc_segment(h)
-                        hl7update.update_obr_segment(h)
+                        hl7update.update_obr_segment(h, current_date)
                         #hl7update.update_obx_segment(h)
                         #h = hl7update.update_obx_seg_containing_gene(h, gene_map, accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor)
                         #h = hl7update.remove_obx_segment(h)
@@ -256,7 +257,7 @@ def main():
                             for segment in hl7_v2_message.obx:
                                 obx_segments.append(segment.to_er7())
 
-                            obx_segments = hl7update.append_additional_OBX_segments(obx_segments, str(plm), accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list)
+                            obx_segments = hl7update.append_additional_OBX_segments(current_date, obx_segments, str(plm), accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list)
                             obx_segments_string = "\n".join(obx_segments)
 
                             with open(out_file_path, 'w' ,  encoding='utf-8') as f:
