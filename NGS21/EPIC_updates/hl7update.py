@@ -238,16 +238,16 @@ def append_additional_OBX_segments(current_date, obx_segments, plm, accessionId,
 
     obx_segments.append('OBX|{}|ST|123031010285^Block|1230500069|SS22-0001 A||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
     i += 1
-    obx_segments.append('OBX|{}|ST|123031010286^TMB|1230500069|12||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    obx_segments.append('OBX|{}|ST|123031010286^TMB|1230500069|||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
     i += 1
-    obx_segments.append('OBX|{}|ST|123031010287^MSI|1230500069|High||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
+    obx_segments.append('OBX|{}|ST|123031010287^MSI|1230500069|||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
     i += 1
     obx_segments.append('OBX|{}|ST|123031010288^HRD|1230500069|||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
     i += 1
 
     for index, gene in enumerate(genes_list):
         token = gene.split(" ")
-        obx_segments.append('OBX|{}|ST|123031010289^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, (index + 1), token[0], token[2], timestamp, timestamp))
+        obx_segments.append('OBX|{}|ST|{}^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, (123031010289 + index),(index + 1), token[0], token[2], timestamp, timestamp))
         i += 1
 
     return obx_segments
