@@ -6,5 +6,4 @@ Enter the following commands to build docker image:
 
 Enter the following commands to build singularity image from the docker image:
 1. Tee image should pre-exist in docker hub.
-2. Enter the command "singularity build <file_name.sif> docker://<repository_name>" to build singularity image from docker image.
-
+2. Enter the command "singularity pull <file_name.sif> docker://<repository_name>" to build singularity image from docker image.
