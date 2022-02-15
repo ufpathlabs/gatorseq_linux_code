@@ -243,5 +243,5 @@ class _HL7V2_Helper:
     def export_hl7v2_message(self, output_filename):
         with open(output_filename, 'w', encoding='utf-8') as output_file:
             for segment in self.message.obx:
-                output_file.write(segment.to_er7())
+                output_file.write(segment.to_er7().replace("\R\\", "~"))
                 output_file.write('|\n')
