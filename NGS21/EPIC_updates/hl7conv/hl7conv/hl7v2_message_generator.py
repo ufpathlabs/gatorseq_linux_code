@@ -213,7 +213,9 @@ def create_variant_obxs(
         else:
             return
 
+    filtered_list = list(filter(None, variants))
     print(len(variants))
+    print(len(filtered_list))
     for variant in variants:
         print(variant)
         print("/n")
