@@ -529,7 +529,7 @@ def get_annotations_from_snpeff_vcf(record, spdi_representation):
 
 
 def is_present_xml(variant, component):
-    if variant.get(component) is not None:
+    if variant is not None and variant.get(component) is not None:
         return True
     else:
         return False

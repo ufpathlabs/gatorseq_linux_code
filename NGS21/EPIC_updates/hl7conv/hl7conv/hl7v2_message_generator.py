@@ -209,6 +209,7 @@ def create_variant_obxs(
         if xml_reader.get("variant") is not None:
             if not isinstance(xml_reader.get("variant"), list):
                 xml_reader["variant"] = [xml_reader.get("variant")]
+                print(xml_reader["variant"])
             variants = xml_reader.get("variant")
         else:
             return
