@@ -296,7 +296,6 @@ def is_present(annotation, component):
 # The following function is used to fetch the annotations for the record
 # supplied. It returns None is there are no annotations for that record
 def get_annotations(record, annotations, spdi_representation, vcf_type, xml):
-    print(record)
     if annotations is None:
         if xml:
             return get_annotations_from_xml(record, spdi_representation)
@@ -530,7 +529,7 @@ def get_annotations_from_snpeff_vcf(record, spdi_representation):
 
 
 def is_present_xml(variant, component):
-    if variant.get(component) is not None:
+    if variant is not None and variant.get(component) is not None:
         return True
     else:
         return False
