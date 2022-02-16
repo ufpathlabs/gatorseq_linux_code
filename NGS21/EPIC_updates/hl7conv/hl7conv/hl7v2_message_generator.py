@@ -213,6 +213,7 @@ def create_variant_obxs(
         else:
             return
 
+    print(variants)
     for variant in variants:
         CHROM = extract_chrom_identifier(get_chromosome(variant, xml_reader))
         if(not (conversion_region and
