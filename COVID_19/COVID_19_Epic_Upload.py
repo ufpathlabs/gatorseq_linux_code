@@ -1,25 +1,14 @@
-import requests 
-from requests.exceptions import HTTPError 
-import time 
-import ast
 import sys
 import yaml
-import numpy
 import pandas as pd
 import hl7
 import os
 import datetime
-from shutil import copyfile
 from shutil import move
-import csv
 import traceback
 import mysql.connector
-from filelock import FileLock
-from pathlib import Path
 import os.path
 import re
-import math
-from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -148,7 +137,6 @@ class hl7update:
                     obx_segment[19] = obx_segment[14]
    
     def update_obx_seg_containing_gene(self, sample):
-        updates = 0
         temp_obx = self.h[:]
         l = len(self.h)
         for i in range(l):
@@ -194,7 +182,6 @@ class hl7update:
 
 
 def create_connection():
-    conn = None
     try:
         conn = mysql.connector.connect(
             host=MYSQL_HOST,
@@ -203,6 +190,7 @@ def create_connection():
             database=MYSQL_DATABASE
         )
     except:
+        conn = None
         print(traceback.format_exc())
     return conn
 SQL_CONNECTION = create_connection()
@@ -297,47 +285,42 @@ def checkIncomingHl7(sampleDict, commentsDict, excelFile):
                     continue
                 if (not messageId):
                     continue
-                plm = None
                 try:
                     plm = h['ORC'][0][2]
                 except:
+                    plm = None
                     print("---------could not find PLMO in hl7 file: ", hl7_file_name)
                     continue
-                
-                mrn = ""
                 try:
                     mrn = h['PID'][0][3][0][0]
                 except:
+                    mrn = ""
                     print("---------could not find MRN in hl7 file: ", hl7_file_name)
-        
-                ptName = ""
                 try:
                     ptName = h['PID'][0][5][0]
                 except:
+                    ptName = ""
                     print("---------could not find PATIENT_NAME in hl7 file: ", hl7_file_name) 
-
-                ptSex = ""
                 try:
                     ptSex = h['PID'][0][8][0]
                 except:
+                    ptSex = ""
                     print("---------could not find PATIENT_SEX in hl7 file: ", hl7_file_name) 
-
-                ptAge = -1
                 try:
                     ptAge = 2020 - int(h['PID'][0][7][0][:4]) 
                 except:
-                    print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name) 
-
-                ordDept = ""
+                    ptAge = -1
+                    print("---------could not find PATIENT_AGE in hl7 file: ", hl7_file_name)
                 try:
                     ordDept = h['OBR'][0][15][0]
                 except:
+                    ordDept = ""
                     print("---------could not find Ordering_DEPT in hl7 file: ", hl7_file_name) 
 
 
                 # search for messageId in the sampleDict
                 #if messageId == "100047187": #100047166  100047187
-                if messageId in sampleDict or plm[0] in sampleDict:
+                if messageId in sampleDict or str(plm[0]) in sampleDict:
                    # print("--------found----------")
                     methodology_code = ""
                     if sampleDict.get(messageId) is not None:
