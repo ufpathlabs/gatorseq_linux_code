@@ -254,7 +254,7 @@ def writeDataToExcel(excelName):
         excelName.split("/")[-1].replace("_SAMPLE_RESULTS_UPDATED_ID","_SAMPLE_EPIC_UPLOAD_LOG")
     SAMPLE_MAP_FILE = excelName.replace("_SAMPLE_RESULTS_UPDATED_ID", "_SAMPLE_MAP")
 
-    sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE, engine='openpyxl')
+    sampleMapDf = pd.read_excel(SAMPLE_MAP_FILE)
     sampleMapDf["UPLOADED_TO_EPIC"] = "No"
     for index, row in sampleMapDf.iterrows():
         if xldf['QUANTSTUDIO_SPECIMEN_ID'].str.contains(str(row["Internal_Sample_ID"])).any() :
@@ -532,7 +532,7 @@ if __name__ == "__main__":
         hscBlankCheck = {}
         samplesUpload = {}
         updateComments = {}
-        df = pd.read_excel(sampleMap, engine='openpyxl')
+        df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             if "hsc" in str(row["Container_ID"]).lower() or "blank" in str(row["Container_ID"]).lower():
                 hscBlankCheck[row["Internal_Sample_ID"]] = str(row["Container_ID"])
@@ -541,7 +541,7 @@ if __name__ == "__main__":
             samplesUpload[str(row["Container_ID"])] = str(row["Upload"])
             updateComments[str(row["Container_ID"])] = str(row["Methodology"])
         
-        results_df = pd.read_excel(sampleResult, engine='openpyxl', skiprows=range(0,41))
+        results_df = pd.read_excel(sampleResult, skiprows=range(0,41))
         results_df["CONTAINER_ID"] = None
         
         error = False
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     for f in toProcess:
         sampleDict = {}
         eachExcel = os.path.join(COVID_19_TEST_INPUT_FOLDER, f)
-        xldf = pd.read_excel(eachExcel, engine='openpyxl')
+        xldf = pd.read_excel(eachExcel)
         samplesUpload = toUploadSamples[f]
         updateComments = toUpdateComments[f]
         #xldf = xldf_full.apply(lambda x: x.str.strip() if x.dtype == "object" else x)

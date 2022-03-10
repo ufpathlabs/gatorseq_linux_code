@@ -427,7 +427,7 @@ if __name__ == "__main__":
         sampleResult = f + "_SAMPLE_POOL_RESULTS.lis"
         sampleMap = f + "_SAMPLE_POOL_MAP.xlsx"
         sampleToPool = {}
-        df = pd.read_excel(sampleMap, engine='openpyxl')
+        df = pd.read_excel(sampleMap)
         for i, row in df.iterrows():
             if not pd.isna(row["Source Sample Barcode"]):
                 sampleToPool[str(row["Source Sample Barcode"]).split(".")[0]] = str(row["Pooled Sample Barcode"]).split(".")[0]
