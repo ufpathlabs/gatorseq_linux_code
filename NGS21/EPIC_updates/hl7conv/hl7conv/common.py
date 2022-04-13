@@ -598,7 +598,10 @@ def get_annotations_from_xml(variant, spdi_representation):
         translation_impact_updated = "".join(translation_impact.split("-"))
         variation = str(variant.get("variation")).lower()
         translation_code = " ".join([translation_impact_updated, variation])
-        molecular_consequence = f"{code}^{translation_code}^LN"
+        translation_value = translation_impact
+        if code is None:
+            translation_value = translation_code
+        molecular_consequence = f"{code}^{translation_value}^LN"
     else:
         molecular_consequence = None
 
