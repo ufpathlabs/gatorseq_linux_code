@@ -250,7 +250,7 @@ def append_additional_OBX_segments(current_date, obx_segments, plm, accessionId,
             sequence_number = 123031010290
         elif (index+1) > 10:
             sequence_number = 123031010315
-        elif (index + 1) == 3:
+        elif (index + 1) == 12:
             sequence_number = 123031010353
         else:
             sequence_number = 123031010289
