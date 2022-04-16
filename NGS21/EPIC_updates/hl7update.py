@@ -245,16 +245,15 @@ def append_additional_OBX_segments(current_date, obx_segments, plm, accessionId,
     obx_segments.append('OBX|{}|ST|123031010288^HRD|1230500069|||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, timestamp,timestamp))
     i += 1
 
-    sequence_number = 123031010289
     for index, gene in enumerate(genes_list):
         if(index + 1) == 10:
             sequence_number = 123031010290
-
-        if (index+1) > 10:
+        elif (index+1) > 10:
             sequence_number = 123031010315
-
-        if (index + 1) == 3:
+        elif (index + 1) == 3:
             sequence_number = 123031010353
+        else:
+            sequence_number = 123031010289
 
         token = gene.split(" ")
         obx_segments.append('OBX|{}|ST|{}^Path Var {}|1230500069|{} {}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(i, (sequence_number + index),(index + 1), token[0], token[2], timestamp, timestamp))
