@@ -595,11 +595,14 @@ def get_annotations_from_xml(variant, spdi_representation):
         translation_impact =\
             str(variant.get("proteinchange").get("translationimpact"))
         code = TI_TO_MC_CODE.get(translation_impact.lower())
-        translation_impact_updated = "".join(translation_impact.split("-"))
-        variation = str(variant.get("variation")).lower()
-        translation_code = " ".join([translation_impact_updated, variation])
         translation_value = translation_impact
-        if code is None:
+
+        if translation_impact.lower() == "in-frame":
+            translation_impact_updated = "".join(translation_impact.split("-"))
+            variation = str(variant.get("variation")).lower()
+            if variation == "substitution":
+                variation = "insertion and deletion"
+            translation_code = " ".join([translation_impact_updated, variation])
             translation_value = translation_code
         molecular_consequence = f"{code}^{translation_value}^LN"
     else:
