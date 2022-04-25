@@ -265,5 +265,11 @@ def isNotBlank (myString):
     return bool(myString and myString.strip())
 
 def truncate_string(myString):
-    return myString[:50]
-
+    if "Genomic ref allele" in myString or "Genomic alt allele" in myString:
+        return myString[:50]
+    elif "DNA Change" in myString:
+        return myString[:140]
+    elif "Variant Display Name" in myString:
+        return myString[:192]
+    else:
+        return myString
