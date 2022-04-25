@@ -264,3 +264,6 @@ def append_additional_OBX_segments(current_date, obx_segments, plm, accessionId,
 def isNotBlank (myString):
     return bool(myString and myString.strip())
 
+def truncate_string(myString):
+    return myString[:50]
+

@@ -255,7 +255,7 @@ def main():
                             hl7_v2_message = conv.convert(vcfFolder + accessionId + "hl7v2.txt")
                             obx_segments = []
                             for segment in hl7_v2_message.obx:
-                                obx_segments.append(segment.to_er7().replace("\R\\", "~"))
+                                obx_segments.append(hl7update.truncate_string(segment.to_er7().replace("\R\\", "~")))
 
                             obx_segments = hl7update.append_additional_OBX_segments(current_date, obx_segments, str(plm), accessionId, diagnosis, Perc_Target_Cells, Perc_Tumor, genes_list)
                             obx_segments_string = "\n".join(obx_segments)
