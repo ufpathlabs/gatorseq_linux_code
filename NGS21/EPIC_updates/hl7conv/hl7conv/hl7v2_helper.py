@@ -10,7 +10,8 @@ def _create_variant_obx_segment(self, obx_1, obx_2, obx_3, obx_4, obx_5):
     obx.obx_3 = obx_3
     obx.obx_4 = obx_4
     obx.obx_5 = obx_5
-    print(len(str(obx)))
+    curr_len = len(str(obx_1)) + len(str(obx_2)) + len(str(obx_3)) + len(str(obx_4)) + len(str(obx_5))
+    print(curr_len)
     print(str(obx))
     if len(str(obx)) > 50:
         prev_len = len(str(obx_1)) + len(str(obx_2)) + len(str(obx_3)) + len(str(obx_4))
